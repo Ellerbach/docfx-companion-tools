@@ -9,7 +9,6 @@ namespace DocFxTocGenerate
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization;
     using System.Text.RegularExpressions;
     using CommandLine;
     using TocDocFxCreation.Domain;
@@ -213,6 +212,11 @@ namespace DocFxTocGenerate
             }
         }
 
+        /// <summary>
+        /// Get the override file for given folder and process.
+        /// </summary>
+        /// <param name="folder">Current folder.</param>
+        /// <returns>Dictionary containing overrides.</returns>
         private static Dictionary<string, string> GetOverrides(DirectoryInfo folder)
         {
             Dictionary<string, string> overrides = new Dictionary<string, string>();
