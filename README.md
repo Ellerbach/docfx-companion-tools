@@ -4,13 +4,13 @@ This repository contains a series of tools, templates, tips and tricks to make y
 
 ## Tools
 
-* [TocDocFxCreation](./TocDocFxCreation): generate a Table of Contents (TOC) in YAML format for DocFX. It has features like the ability to configure the order of files and the names of documents and folders.
-* [DocLinkChecker](./DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically.
+* [TocDocFxCreation](./src/TocDocFxCreation): generate a Table of Contents (TOC) in YAML format for DocFX. It has features like the ability to configure the order of files and the names of documents and folders.
+* [DocLinkChecker](./src/DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically.
 
 ## CI Pipeline samples
 
-* [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [TocDocFxCreation](./TocDocFxCreation) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
-* [Documentation build pipeline](./PipelineExamples/documentation-build.yml): a sample pipeline to use [markdownlint](https://github.com/markdownlint/markdownlint) to validate markdown style and the [DocLinkChecker](./DocLinkChecker) to validate the links and attachments.
+* [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [TocDocFxCreation](./src/TocDocFxCreation) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
+* [Documentation build pipeline](./PipelineExamples/documentation-build.yml): a sample pipeline to use [markdownlint](https://github.com/markdownlint/markdownlint) to validate markdown style and the [DocLinkChecker](./src/DocLinkChecker) to validate the links and attachments.
 
 ## Documentation
 
