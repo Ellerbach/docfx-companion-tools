@@ -11,4 +11,4 @@ This repository contains a series of tools, templates, tips and tricks to make y
 
 ## License
 
-Please read the main [license file](LICENSE) and the sub folder license files. Most of those tools are coming from a work done with [ZF](https://www.zf.com/).
+Please read the main [license file](LICENSE) and the sub folder license files and [3rd party notice](THIRD-PARTY-NOTICES.TXT). Most of those tools are coming from a work done with [ZF](https://www.zf.com/).
