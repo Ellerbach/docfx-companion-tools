@@ -40,6 +40,6 @@ There are couple of VS Code extensions to help you in this task as well. We can 
 
 ## Azure DevOps pipeline
 
-Markdownlinter is also part of the Azure DevOps code quality pipeline which will automatically run upon PRs to dev. 
+Markdownlinter is also part of the Azure DevOps code quality pipeline which will automatically run upon PRs to dev.
 
 TODO: add a link on the pipeline.
