@@ -1,0 +1,40 @@
+###########################################################################
+# This is a sample pipeline that can be used for validating documentation.
+# In this pipeline we use markdownlint and the DocLinkChecker tool.
+###########################################################################
+
+trigger: none
+
+pool:
+  vmImage: windows-latest
+
+jobs:
+# Scan markdownfiles on style consistency
+- job:
+  displayName: 'Execute Markdownlint'
+  steps:
+    - bash: npm install -g markdownlint-cli
+      displayName: 'Install markdownlint'
+
+    - bash: markdownlint -c $CONFIGFILE $WORKDIR
+      env:
+        WORKDIR: $(System.DefaultWorkingDirectory)
+        CONFIGFILE: $(System.DefaultWorkingDirectory)/.markdownlint.json
+      displayName: 'Run markdownlint'
+
+# run DocLinkChecker to validate documentation links in \DocExample folder
+- job:
+  displayName: 'Documentation links check'
+  steps:
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore for DocLinkChecker'
+    inputs:
+      command: 'restore'
+      projects: '$(System.DefaultWorkingDirectory)/src/DocLinkChecker/DocLinkChecker/*.csproj'
+      feedsToUse: 'select'
+  - task: DotNetCoreCLI@2
+    displayName: 'Checking documentation links with DocLinkChecker'
+    inputs:
+      command: 'run'
+      projects: '$(System.DefaultWorkingDirectory)/src/DocLinkChecker/DocLinkChecker'
+      arguments: '-d $(System.DefaultWorkingDirectory)\DocExample -a'

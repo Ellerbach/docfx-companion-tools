@@ -1,6 +1,6 @@
 # Welcome in the documentation sample
 
-This documentation sample is easy to use, on one side we've created a [developer documentation](./docs/index.md), on the other side an [end user documentation](./userdocs/index.md).
+This documentation sample is easy to use, on one side we've created a [developer documentation](./docs), on the other side an [end user documentation](./userdocs/index.md).
 
 IF you are trying to click on the first link, the file does not exists yet. It will be created automatically by the TOC Generator tool. You only see in the sources main `toc.yml` file but no others for the sub directory. The same tool is used to create them magically!
 

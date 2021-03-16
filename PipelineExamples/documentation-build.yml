@@ -1,0 +1,57 @@
+###########################################################################
+# This is a sample pipeline that can be used for generating a documentation
+# website using DocFX. In this pipeline we use the TocDocFxCreation tool
+# to generate the table of contents.
+###########################################################################
+
+trigger:
+- none
+
+variables:
+- name: AzureConnectionName
+  value: '<Azure connection name from ADO>'
+
+pool:
+  vmImage: windows-latest
+
+steps:
+# install docfx
+- powershell: choco install docfx -y
+  displayName: Install docfx
+
+# run the toc generator on /DocExamample folder
+- task: DotNetCoreCLI@2
+  displayName: 'Building automatically toc.yml'
+  inputs:
+    command: 'run'
+    projects: '$(System.DefaultWorkingDirectory)/src/TocDocFxCreation'
+    arguments: '-d $(System.DefaultWorkingDirectory)\DocExample -si'
+
+# run docfx
+- powershell: |
+      &docfx DocEample\docfx.json
+      
+      if ($lastexitcode -ne 0)
+      {
+        throw [System.Exception] "docfx build failed with exit code $lastexitcode."
+      }
+  condition: succeeded()
+  displayName: Run docfx
+
+  # Create an archive
+- task: ArchiveFiles@2
+  displayName: 'Packing Documentation Web Site'
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)/_site'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/site.zip'
+    replaceExistingArchive: true
+
+# deployment to Azure
+- task: AzureRmWebAppDeployment@4
+  displayName: 'Publish website to Azure App Service'
+  inputs:
+    azureSubscription: $(AzureConnectionName)
+    WebAppName: docs-website
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/site.zip'

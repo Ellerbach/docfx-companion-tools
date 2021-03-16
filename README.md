@@ -7,12 +7,17 @@ This repository contains a series of tools, templates, tips and tricks to make y
 * [TocDocFxCreation](./TocDocFxCreation): generate a Table of Contents (TOC) in YAML format for DocFX. It has features like the ability to configure the order of files and the names of documents and folders.
 * [DocLinkChecker](./DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically.
 
+## CI Pipeline samples
+
+* [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [TocDocFxCreation](./TocDocFxCreation) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
+* [Documentation build pipeline](./PipelineExamples/documentation-build.yml): a sample pipeline to use [markdownlint](https://github.com/markdownlint/markdownlint) to validate markdown style and the [DocLinkChecker](./DocLinkChecker) to validate the links and attachments.
+
 ## Documentation
 
-* [Guidelines on how to use Markdownlint](./DocExample/docs/markdownlint.md) for your developers.
-* [Guidelines for creating Markdown docs](./DocExample/docs/markdown-creation.md) for your developers. This contains patterns as well as tips and tricks.
-* [Guidelines for end user documentation](./DocExample/docs/enduser-documentation.md) for your developers.
-* Specific elements to add and consider for [proper usage and support for Mermaid](./DocExample/docs/ui-specific-elements.md).
+* [Guidelines on how to use Markdownlint](./DocExamples/docs/markdownlint.md) for your developers.
+* [Guidelines for creating Markdown docs](./DocExamples/docs/markdown-creation.md) for your developers. This contains patterns as well as tips and tricks.
+* [Guidelines for end user documentation](./DocExamples/docs/enduser-documentation.md) for your developers.
+* Specific elements to add and consider for [proper usage and support for Mermaid](./DocExamples/docs/ui-specific-elements.md).
 
 ## License
 
