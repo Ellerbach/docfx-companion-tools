@@ -44,6 +44,11 @@ namespace DocFXLanguageGenerator
             /// <inheritdoc/>
             protected override void Write(ReplacementRenderer renderer, ContainerInline obj)
             {
+                if(obj.LastChild == null)
+                {
+                    return;
+                }
+
                 var startIndex = obj.Span.Start;
 
                 // Make sure we flush all previous markdown before rendering this inline entry.

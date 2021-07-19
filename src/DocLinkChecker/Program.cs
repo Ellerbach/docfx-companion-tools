@@ -60,6 +60,9 @@ namespace DocLinkChecker
             options = o;
             message = new MessageHelper(options);
 
+            // correction needed if relative path is given as parameter
+            o.DocFolder = Path.GetFullPath(o.DocFolder);
+
             message.Verbose($"Documentation folder: {options.DocFolder}");
             message.Verbose($"Verbose             : {options.Verbose}");
 
@@ -120,9 +123,10 @@ namespace DocLinkChecker
         private static void CheckUnreferencedAttachments()
         {
             string attachmentsPath = Path.Combine(options.DocFolder, ".attachments");
+            bool errorHeader = false;
+
             if (allLinks.Any() && Directory.Exists(attachmentsPath))
             {
-                message.Output($"\nFiles not referenced:\n");
                 List<string> attachments = Directory.GetFiles(attachmentsPath).ToList();
                 foreach (string attachment in attachments)
                 {
@@ -135,6 +139,12 @@ namespace DocLinkChecker
                         }
                         else
                         {
+                            if (!errorHeader)
+                            {
+                                message.Output($"\nFiles not referenced:\n");
+                                errorHeader = true;
+                            }
+
                             message.Error($"{attachment}");
 
                             // mark error in returnvalue of the tool
@@ -192,7 +202,7 @@ namespace DocLinkChecker
             int linenr = 1;
             foreach (string line in lines)
             {
-                Regex rxLine = new Regex(@"(\[{1}.*\]{1}\({1}.*\){1}?)");
+                Regex rxLine = new Regex(@"(\[[^\]]+\]{1}\({1}[^\)]+\){1})");
                 MatchCollection matches = rxLine.Matches(line);
                 if (matches.Any())
                 {
@@ -204,6 +214,13 @@ namespace DocLinkChecker
                         string relative = match.Value.Substring(start);
                         int end = relative.IndexOf(")");
                         relative = relative.Substring(0, end);
+
+                        // relative string contain not only URL, but also "title", get rid of it
+                        int positionOfLinkTitle = relative.IndexOf('\"');
+                        if (positionOfLinkTitle > 0)
+                        {
+                            relative = relative.Substring(0, relative.IndexOf('\"')).Trim();
+                        }
 
                         // strip in-doc references using a #
                         if (relative.Contains("#"))
@@ -224,6 +241,15 @@ namespace DocLinkChecker
                         {
                             // check validity of the link
                             string absolute = Path.GetFullPath(relative, folder.FullName);
+
+                            // check that paths are relative
+                            if (Path.IsPathFullyQualified(relative))
+                            {
+                                // link is full path - not allowed
+                                message.Output($"{filepath} {linenr}:{match.Index}");
+                                message.Error($"Full path '{relative}' used. Use relative path.");
+                                returnvalue = 1;
+                            }
 
                             // don't need to check if reference is to a directory
                             if (!Directory.Exists(absolute))

@@ -7,8 +7,10 @@ namespace DocFXLanguageGenerator
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Text;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using CommandLine;
     using DocFXLanguageGenerator.Helpers;
@@ -170,9 +172,40 @@ namespace DocFXLanguageGenerator
                 translatedMarkdown = TransformMarkdown(mdFileContent, markdownPipeline, value =>
                 {
                     Console.Write(".");
+                    // Check if it's a relative link or URL
+
+                    string res;
+                    Regex rxContent = new Regex(@"\]\(([^)]*)");
+                    var matches = rxContent.Matches(value);
+                    List<string> links = new List<string>();
+                    if (matches.Any())
+                    {
+                        // Get rid of what is in the (), it's a link, store it and add it later on
+                        foreach (Match link in matches)
+                        {
+                            // Groups[1] always exist and is what is the url:
+                            // [text](Groups[1])
+                            links.Add(link.Groups[1].Value);
+                            // Even if there is a double existance, it doesn't matter, we have them in the list
+                            value = value.Replace(link.Groups[1].Value, string.Empty);
+                        }
+                    }
 
                     // Translate
-                    var res = Translate(value, inputLanguage, outputLanguage).GetAwaiter().GetResult();
+                    res = Translate(value, inputLanguage, outputLanguage).GetAwaiter().GetResult();
+                    if (links.Count > 0)
+                    {
+                        // We know that a space will be inserted sometimes
+                        res = res.Replace("] (", "](").Replace("! [", "![");
+                        foreach (var link in links)
+                        {
+                            int firstLink = res.IndexOf("]()");
+                            // It happens that the parenthesis are fully removed. In this casen we will add the link at the beginning
+                            firstLink = firstLink == -1 ? -2 : firstLink;
+                            res = res.Insert(firstLink + 2, link);
+                        }
+                    }
+
                     return res;
                 });
             }
