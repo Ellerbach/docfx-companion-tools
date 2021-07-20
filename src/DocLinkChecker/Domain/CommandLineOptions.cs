@@ -33,5 +33,11 @@ namespace DocLinkChecker.Domain
         /// </summary>
         [Option('c', "cleanup", Required = false, HelpText = "Cleanup unreferenced files in .attachments.")]
         public bool Cleanup { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to check that tables are well formed.
+        /// </summary>
+        [Option('t', "table", Required = false, HelpText = "Check that tables are well formed.")]
+        public bool Table { get; set; }
     }
 }

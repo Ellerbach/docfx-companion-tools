@@ -11,6 +11,7 @@ DocLinkChecker -d <docs folder> [-vac]
 -v, --verbose         Show verbose messages.
 -a, --attachments     Check the .attachments folder in the root of the docfolder for unreferenced files.
 -c, --cleanup         Remove all unreferenced files from the .attachments folder in the root of the docfolder. Must be used in combination with -a flag.
+-t, --table           Check that tables are well formed.
 --help                Display this help screen.
 --version             Display version information.
 ```
@@ -30,3 +31,5 @@ If you want to trace what the tool is doing, use the `-v or verbose` flag to out
 The tool will track all use of `[]()`. If the link is a web URL, an internal reference (starting with a '#') an e-mail address or a reference to a folder, it's not checked. Other links are checked if they exist in the existing docs hierarchy or on local disc (for code references). Errors are written to the ouput mentioning the filename, the linenumber and position in the line. In the check we also decode the references to make sure we properly check HTML enccoded strings as well (using %20 for instance).
 
 All references are stored in a table to use in the check of the .attachments folder (with the -a flag). All files in this folder that are not referenced are marked as 'unreferenced'. If the -c flag is provided as well, the files are removed from the .attachments folder.
+
+It can also check all table definitions if they are properly formatted.

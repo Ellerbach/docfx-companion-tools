@@ -185,7 +185,103 @@ namespace DocLinkChecker
                     ProcessFile(folder, fi.FullName);
                 }
 
+                if (options.Table)
+                {
+                    Regex rxTable = new Regex(@"\|(?:.*)\|");
+                    if (rxTable.Matches(content).Any())
+                    {
+                        message.Verbose($"- Processing table.");
+                        ProcessTable(fi.FullName, content.Replace("\r", string.Empty).Split('\n'));
+                    }
+                }
+
                 message.Verbose($"{fi.FullName} processed.");
+            }
+        }
+
+        /// <summary>
+        /// Process a file to check the integrity of the table.
+        /// </summary>
+        /// <param name="filepath">The full file name.</param>
+        /// <param name="content">The content split into lines.</param>
+        private static void ProcessTable(string filepath, string[] content)
+        {
+            // A table is a list of |, the first line will determine how many columns
+            // The second line should contain at least 3 separators '-' between the |
+            // After each line, there should not be any text after the last |
+            Regex rxTable = new Regex(@"\|(?:.*)\|");
+            int idxLine = 0;
+            bool isMatch = false;
+            int numCol = 0;
+            int initLine = 0;
+            bool isCodeBloc = false;
+            for (int i = 0; i < content.Length; i++)
+            {
+                string line = content[i];
+                if (line.StartsWith("```"))
+                {
+                    isCodeBloc = !isCodeBloc;
+                }
+
+                if (rxTable.Matches(line).Any() && !isCodeBloc)
+                {
+                    isMatch = true;
+                    message.Verbose($"Table found line {i}.");
+
+                    // Check if line ends with a | when the lines starts with a |
+                    if (!line.EndsWith('|') && line.Replace(" ", string.Empty).StartsWith('|'))
+                    {
+                        message.Error($"Malformed table in {filepath}, line {i + 1}. Table should finish by character '|'.");
+                    }
+
+                    if (line.EndsWith('|') && !line.Replace(" ", string.Empty).StartsWith('|'))
+                    {
+                        message.Error($"Malformed table in {filepath}, line {i + 1}. Table should start by character '|'.");
+                    }
+
+                    // Is it first line?
+                    if (idxLine == 0)
+                    {
+                        initLine = i;
+
+                        // How many columns
+                        numCol = line.Count(m => m == '|') - 1;
+                        message.Verbose($"Number of columns: {numCol}");
+                    }
+                    else
+                    {
+                        if (i != initLine + idxLine)
+                        {
+                            message.Error($"Malformed table in {filepath}, line {i + 1}. Table should be continuous.");
+                        }
+
+                        // Count separators
+                        string[] separators = line.Split('|');
+                        if (separators.Length - 2 != numCol)
+                        {
+                            message.Error($"Malformed table in {filepath}, line {i + 1}. Different number of columns {separators.Length - 2} vs {numCol}.");
+                        }
+
+                        if (idxLine == 1)
+                        {
+                            for (int sep = 1; sep < separators.Length - 1; sep++)
+                            {
+                                if (separators[sep].Count(m => m == '-') < 3)
+                                {
+                                    message.Error($"Malformed table in {filepath}, line {i + 1}. Second line should contains at least 3 characters '-' per column between the characters '|'.");
+                                }
+                            }
+                        }
+                    }
+
+                    idxLine++;
+                }
+                else if (isMatch)
+                {
+                    // End of the table
+                    idxLine = 0;
+                    isMatch = false;
+                }
             }
         }
 
