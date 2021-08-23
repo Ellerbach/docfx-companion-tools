@@ -165,9 +165,11 @@ namespace DocFxTocGenerate
         {
             message.Verbose($"Process {folder.FullName} for files.");
 
-            List<FileInfo> files = folder.GetFiles("*.md").OrderBy(f => f.Name)
-                .Where(f => f.Name.ToUpperInvariant() != "INDEX.MD")
+            List<FileInfo> files = folder
+                .GetFiles("*.md")
+                .OrderBy(f => f.Name)
                 .ToList();
+
             if (files == null)
             {
                 message.Verbose($"No MD files found in {folder.FullName}.");
@@ -191,6 +193,7 @@ namespace DocFxTocGenerate
                 string title = string.Empty;
                 if (options.UseOverride && (overrides.Count > 0))
                 {
+                    // get possible title override from the .override file
                     var key = fi.Name.Substring(0, fi.Name.Length - 3);
                     if (overrides.ContainsKey(key))
                     {
@@ -280,6 +283,7 @@ namespace DocFxTocGenerate
                 string title = string.Empty;
                 if (options.UseOverride)
                 {
+                    // if in the .override file, override the title with it
                     if (overrides.ContainsKey(dirInfo.Name))
                     {
                         title = overrides[dirInfo.Name];
@@ -290,15 +294,8 @@ namespace DocFxTocGenerate
                 title = title.Length == 0 ? ToTitleCase(dirInfo.Name) : title;
                 newTocItem.Filename = dirInfo.FullName;
                 newTocItem.Title = title;
-                if (subFiles.Length == 1 && dirInfo.GetDirectories().Length == 0)
-                {
-                    newTocItem.Href = GetRelativePath(subFiles[0].FullName, options.DocFolder);
-                }
-                else
-                {
-                    string entryFile = WalkDirectoryTree(dirInfo, newTocItem);
-                    newTocItem.Href = GetRelativePath(entryFile, options.DocFolder);
-                }
+                string entryFile = WalkDirectoryTree(dirInfo, newTocItem);
+                newTocItem.Href = GetRelativePath(entryFile, options.DocFolder);
 
                 message.Verbose($"Add directory seq={newTocItem.Sequence} title={newTocItem.Title} href={newTocItem.Href}");
 
@@ -493,23 +490,17 @@ namespace DocFxTocGenerate
         private static string GetCleanedFileName(FileInfo fi)
         {
             string cleanedName = fi.Name;
-            if (string.Equals(fi.Name, "INDEX.MD", StringComparison.OrdinalIgnoreCase))
+
+            // Open the file, read the line up to the first #, extract the tile
+            using (StreamReader toRead = File.OpenText(fi.FullName))
             {
-                cleanedName = Path.GetFileName(fi.DirectoryName);
-            }
-            else
-            {
-                // Open the file, read the line up to the first #, extract the tile
-                using (StreamReader toRead = File.OpenText(fi.FullName))
+                while (!toRead.EndOfStream)
                 {
-                    while (!toRead.EndOfStream)
+                    string strTitle = toRead.ReadLine();
+                    if (strTitle.TrimStart(' ').StartsWith("# ", StringComparison.OrdinalIgnoreCase))
                     {
-                        string strTitle = toRead.ReadLine();
-                        if (strTitle.TrimStart(' ').StartsWith("# ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            cleanedName = strTitle.Substring(2);
-                            break;
-                        }
+                        cleanedName = strTitle.Substring(2);
+                        break;
                     }
                 }
             }
