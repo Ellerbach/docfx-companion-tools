@@ -185,9 +185,14 @@ namespace DocFxTocGenerate
 
                 // see if the file is mentioned in the order-list for ordering.
                 int sequence = int.MaxValue;
-                if (order.Contains(Path.GetFileNameWithoutExtension(fi.Name)))
+                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.Name);
+                for (int i = 0; i < order.Count; i++)
                 {
-                    sequence = order.IndexOf(Path.GetFileNameWithoutExtension(fi.Name));
+                    if (order[i].Equals(fileNameWithoutExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        sequence = i;
+                        break;
+                    }
                 }
 
                 string title = string.Empty;
@@ -275,9 +280,14 @@ namespace DocFxTocGenerate
                 TocItem newTocItem = new TocItem();
 
                 // if the directory is in the .order file, take the index as sequence nr
-                if (order.Contains(Path.GetFileName(dirInfo.Name)))
+                string directoryName = Path.GetFileName(dirInfo.Name);
+                for (int i = 0; i < order.Count; i++)
                 {
-                    newTocItem.Sequence = order.IndexOf(Path.GetFileName(dirInfo.Name));
+                    if (order[i].Equals(directoryName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        newTocItem.Sequence = i;
+                        break;
+                    }
                 }
 
                 string title = string.Empty;
