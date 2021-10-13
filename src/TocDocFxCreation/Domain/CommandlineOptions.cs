@@ -41,6 +41,12 @@ namespace TocDocFxCreation.Domain
         public bool UseOverride { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the .order files are used.
+        /// </summary>
+        [Option('g', "ignore", Required = false, HelpText = "Use the .ignore files for TOC directory ignore. Format are raws of directory names: directory-to-ignore")]
+        public bool UseIgnore { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether an index is automatically added.
         /// </summary>
         [Option('i', "index", Required = false, HelpText = "Auto-generate a file index in each folder.")]

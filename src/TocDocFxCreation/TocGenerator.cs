@@ -59,6 +59,7 @@ namespace DocFxTocGenerate
             message.Verbose($"Verbose             : {options.Verbose}");
             message.Verbose($"Use .order          : {options.UseOrder}");
             message.Verbose($"Use .override       : {options.UseOverride}");
+            message.Verbose($"Use .ignore         : {options.UseIgnore}");
             message.Verbose($"Auto index          : {options.AutoIndex}\n");
 
             if (!Directory.Exists(options.DocFolder))
@@ -117,12 +118,13 @@ namespace DocFxTocGenerate
 
             List<string> order = GetOrderList(folder);
             Dictionary<string, string> overrides = options.UseOverride ? GetOverrides(folder) : new Dictionary<string, string>();
+            List<string> ignore = GetIgnore(folder);
 
             // add doc files to the node
             GetFiles(folder, order, yamlNode, overrides);
 
             // add directories with content to the node
-            GetDirectories(folder, order, yamlNode, overrides);
+            GetDirectories(folder, order, yamlNode, overrides, ignore);
 
             if (yamlNode.Items != null)
             {
@@ -152,6 +154,23 @@ namespace DocFxTocGenerate
             }
 
             return yamlNode.Items == null ? string.Empty : yamlNode.Items.First().Filename;
+        }
+
+        private static List<string> GetIgnore(DirectoryInfo folder)
+        {
+            // see if we have an .order file
+            List<string> ignore = new List<string>();
+            if (options.UseIgnore)
+            {
+                string orderFile = Path.Combine(folder.FullName, ".ignore");
+                if (File.Exists(orderFile))
+                {
+                    message.Verbose($"Read existing order file {orderFile}");
+                    ignore = File.ReadAllLines(orderFile).ToList();
+                }
+            }
+
+            return ignore;
         }
 
         /// <summary>
@@ -250,7 +269,8 @@ namespace DocFxTocGenerate
         /// <param name="order">Order list.</param>
         /// <param name="yamlNode">yamlNode to add entries to.</param>
         /// <param name="overrides">The overrides.</param>
-        private static void GetDirectories(DirectoryInfo folder, List<string> order, TocItem yamlNode, Dictionary<string, string> overrides)
+        /// <param name="ignore">The ignore.</param>
+        private static void GetDirectories(DirectoryInfo folder, List<string> order, TocItem yamlNode, Dictionary<string, string> overrides, List<string> ignore)
         {
             message.Verbose($"Process {folder.FullName} for sub-directories.");
 
@@ -260,6 +280,12 @@ namespace DocFxTocGenerate
             {
                 // skip hidden folders (starting with .)
                 if (dirInfo.Name.StartsWith(".", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // If in the ignore file, then continue
+                if (ignore.Contains(dirInfo.Name))
                 {
                     continue;
                 }
