@@ -13,6 +13,7 @@ namespace DocFXLanguageGenerator
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using CommandLine;
+    using DocFXLanguageGenerator.Domain;
     using DocFXLanguageGenerator.Helpers;
     using Markdig;
     using Newtonsoft.Json;
@@ -81,6 +82,7 @@ namespace DocFXLanguageGenerator
             {
                 // Get all the Markdown files
                 var allMarkdowns = FindAllMarkdownFiles(langDir);
+
                 // checked that the file exists in other directories
                 foreach (var markdown in allMarkdowns)
                 {
@@ -103,8 +105,11 @@ namespace DocFXLanguageGenerator
                             else
                             {
 #pragma warning disable CA1308 // The langauge has to be lowercase
-                                TranslateMarkdown(markdown, langDir.Substring(langDir.Length - 2).ToLower(CultureInfo.InvariantCulture),
-                                    filName, lgDir.Substring(lgDir.Length - 2).ToLower(CultureInfo.InvariantCulture));
+                                TranslateMarkdown(
+                                    markdown,
+                                    langDir.Substring(langDir.Length - 2).ToLower(CultureInfo.InvariantCulture),
+                                    filName,
+                                    lgDir.Substring(lgDir.Length - 2).ToLower(CultureInfo.InvariantCulture));
 #pragma warning restore CA1308 // The langauge has to be lowercase
                                 numberOfFiles++;
                             }
@@ -158,7 +163,6 @@ namespace DocFXLanguageGenerator
 
         private static void TranslateMarkdown(string inputFile, string inputLanguage, string outputFile, string outputLanguage)
         {
-
             // TODO: detect the language from and to from the URL with the /de /fr, etc conventions
             Console.WriteLine($"Translating {inputFile}");
             Console.WriteLine($"Translating from {inputLanguage} to {outputLanguage}");
@@ -172,8 +176,8 @@ namespace DocFXLanguageGenerator
                 translatedMarkdown = TransformMarkdown(mdFileContent, markdownPipeline, value =>
                 {
                     Console.Write(".");
-                    // Check if it's a relative link or URL
 
+                    // Check if it's a relative link or URL
                     string res;
                     Regex rxContent = new Regex(@"\]\(([^)]*)");
                     var matches = rxContent.Matches(value);
@@ -186,6 +190,7 @@ namespace DocFXLanguageGenerator
                             // Groups[1] always exist and is what is the url:
                             // [text](Groups[1])
                             links.Add(link.Groups[1].Value);
+
                             // Even if there is a double existance, it doesn't matter, we have them in the list
                             value = value.Replace(link.Groups[1].Value, string.Empty);
                         }
@@ -200,6 +205,7 @@ namespace DocFXLanguageGenerator
                         foreach (var link in links)
                         {
                             int firstLink = res.IndexOf("]()");
+
                             // It happens that the parenthesis are fully removed. In this casen we will add the link at the beginning
                             firstLink = firstLink == -1 ? -2 : firstLink;
                             res = res.Insert(firstLink + 2, link);
@@ -219,8 +225,10 @@ namespace DocFXLanguageGenerator
             }
 
             Console.WriteLine();
+
             // Clean the results as when translating relative path and link on images are distorded
             translatedMarkdown = translatedMarkdown.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
+
             // Save the file
             message.Verbose($"Saving {outputFile}");
             if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
@@ -292,7 +300,6 @@ namespace DocFXLanguageGenerator
                         }
 
                         throw new Exception($"Exception during translation process: {res.Error.Message}");
-
                     }
                     catch (Exception)
                     {

@@ -4,6 +4,7 @@
 namespace DocFXLanguageGenerator.Helpers
 {
     using System;
+    using DocFXLanguageGenerator.Domain;
 
     /// <summary>
     /// Helper methods to write messages to the console.

@@ -9,7 +9,7 @@ namespace DocFXLanguageGenerator
     using Markdig.Syntax.Inlines;
 
     /// <summary>
-    /// Replacement Renderer will allow to replace one text by another
+    /// Replacement Renderer will allow to replace one text by another.
     /// </summary>
     internal class ReplacementRenderer : MarkdownTransformRenderer
     {
@@ -26,7 +26,7 @@ namespace DocFXLanguageGenerator
         }
 
         /// <summary>
-        /// Container Inline Renderer
+        /// Container Inline Renderer.
         /// </summary>
         internal class ContainerInlineRenderer : MarkdownObjectRenderer<ReplacementRenderer, ContainerInline>
         {
@@ -35,7 +35,7 @@ namespace DocFXLanguageGenerator
             /// <summary>
             /// Initializes a new instance of the <see cref="ContainerInlineRenderer"/> class.
             /// </summary>
-            /// <param name="func">The transformation function</param>
+            /// <param name="func">The transformation function.</param>
             public ContainerInlineRenderer(Func<string, string> func)
             {
                 this.function = func;
@@ -44,7 +44,7 @@ namespace DocFXLanguageGenerator
             /// <inheritdoc/>
             protected override void Write(ReplacementRenderer renderer, ContainerInline obj)
             {
-                if(obj.LastChild == null)
+                if (obj.LastChild == null)
                 {
                     return;
                 }

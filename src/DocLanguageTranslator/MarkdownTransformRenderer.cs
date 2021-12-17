@@ -8,10 +8,23 @@ namespace DocFXLanguageGenerator
     using Markdig.Syntax;
 
     /// <summary>
-    /// A Text Renderer MArkdown class used to replace the original text with the translated text
+    /// A Text Renderer MArkdown class used to replace the original text with the translated text.
     /// </summary>
     internal class MarkdownTransformRenderer : TextRendererBase<MarkdownTransformRenderer>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MarkdownTransformRenderer"/> class.
+        /// </summary>
+        /// <param name="writer">The text writer.</param>
+        /// <param name="originalMarkdown">The original Markdown string.</param>
+        public MarkdownTransformRenderer(TextWriter writer, string originalMarkdown)
+            : base(writer)
+        {
+            this.OriginalMarkdown = originalMarkdown;
+            this.ObjectRenderers.Add(new ContainerBlockRenderer());
+            this.ObjectRenderers.Add(new LeafBlockRenderer());
+        }
+
         /// <summary>
         /// Gets or sets the original Markdown.
         /// </summary>
@@ -23,23 +36,10 @@ namespace DocFXLanguageGenerator
         public int LastWrittenIndex { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MarkdownTransformRenderer"/> class.
-        /// </summary>
-        /// <param name="writer">The text writer</param>
-        /// <param name="originalMarkdown">The original Markdown string</param>
-        public MarkdownTransformRenderer(TextWriter writer, string originalMarkdown)
-            : base(writer)
-        {
-            this.OriginalMarkdown = originalMarkdown;
-            this.ObjectRenderers.Add(new ContainerBlockRenderer());
-            this.ObjectRenderers.Add(new LeafBlockRenderer());
-        }
-
-        /// <summary>
         /// Take the next block.
         /// </summary>
-        /// <param name="length">The length</param>
-        /// <returns>The block text</returns>
+        /// <param name="length">The length.</param>
+        /// <returns>The block text.</returns>
         public string TakeNext(int length)
         {
             if (length == 0)
