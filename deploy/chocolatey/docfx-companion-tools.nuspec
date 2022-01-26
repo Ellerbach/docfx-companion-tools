@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>docfx-companion-tools</id>
+    <version>1.0.1</version>
+    <packageSourceUrl>https://github.com/Ellerbach/docfx-companion-tools/tree/main/deploy/chocolatey</packageSourceUrl>
+    <!-- owners is a poor name for maintainers of the package. It sticks around by this name for compatibility reasons. It basically means you. -->
+    <owners>Laurent Ellerbach, Martin Tirion</owners>
+    <!-- ============================== -->
+
+    <!-- == SOFTWARE SPECIFIC SECTION == -->
+    <!-- This section is about the software itself -->
+    <title>DocFx Companion Tools</title>
+    <authors>Laurent Ellerbach, Martin Tirion</authors>
+    <projectUrl>https://github.com/Ellerbach/docfx-companion-tools</projectUrl>
+    <licenseUrl>https://github.com/Ellerbach/docfx-companion-tools/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <tags>docfx tool linter</tags>
+    <summary>The DocFx Companion Tools contains a set of utilities for generating documentation from MD-files and source files using DocFx.</summary>
+    <description>The DocFx Companion Tools contains a set of utilities for generating documentation from MD-files and source files using DocFx.
+    It contains these tools:
+
+    * DocFxTocGenerator - generates a table of contents from a folder-structure with MD-files.
+    * DocLinkChecker - a validation tool for checking links and attachments used in MD-files.
+    * DocLanguageTranslator - an automatic translator of MD-files using Azure Cognitive Services.
+    </description>
+    <!--releaseNotes>See https://github.com/mtirion/tirchocotestnew/blob/main/RELEASENOTE.md</releaseNotes -->
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+    <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
+  </files>
+</package>

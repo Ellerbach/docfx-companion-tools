@@ -8,6 +8,14 @@ This repository contains a series of tools, templates, tips and tricks to make y
 * [DocLinkChecker](./src/DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically. And it can validate table syntax.
 * [DocLanguageTranslator](./src/DocLanguageTranslator): allows to generate and translate automatically missing files or identify missing files in multi language pattern directories.
 
+## Install
+
+The tools can be installed by dowloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
+
+```shell
+choco install docfx-companion-tools
+```
+
 ## CI Pipeline samples
 
 * [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [TocDocFxCreation](./src/TocDocFxCreation) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.

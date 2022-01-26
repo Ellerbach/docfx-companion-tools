@@ -1,0 +1,25 @@
+name: Build & Test
+
+on: [ push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.x
+    
+    - name: Restore, build & test
+      shell: pwsh
+      run: |
+        foreach ($sln in (Get-ChildItem -Recurse src\*.sln)) {
+          Write-Host "Start building $($sln.FullName)"
+
+          & dotnet restore $sln.FullName
+          & dotnet build $sln.FullName --no-restore
+          & dotnet test $sln.FullName --no-build --verbosity normal
+        }

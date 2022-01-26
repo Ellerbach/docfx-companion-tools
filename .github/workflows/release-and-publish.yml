@@ -1,0 +1,65 @@
+name: Release & Publish
+on:
+  # Trigger this workflow manually to create 
+  # a release and publish to Chocolatey
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+
+    # Checkout sources. Depth=0 is for using GitVersion
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Install and Setup GitVersion
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: '5.x'
+    - name: Use GitVersion
+      # Step id is used as reference for the output values
+      id: gitversion 
+      uses: gittools/actions/gitversion/execute@v0.9.7
+       
+    # Setup .NET 5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.x
+
+    # Build the tools
+    - name: Build & Package
+      run: pwsh .\build.ps1
+
+    # Create GitHub release with created zip-files and CHANGELOG when label 'release' is pushed
+    # NOTE: this is where we prepend "v" before the version in the tag/release
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./tools.zip"
+        body: ${{steps.github_release.outputs.changelog}}
+        tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # CHANGELOG
+    # Must be after creation of new release!
+    - name: Build Changelog
+      id: github_release
+      uses: mikepenz/release-changelog-builder-action@v1
+      with:
+        configuration: "./changelog-config.json"
+        fromTag: ${{ steps.gitversion.outputs.VersionSourceSha }}
+        toTag: ${{ steps.gitversion.outputs.Sha }}
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    # package and publish Chocolatey package
+    - name: Publish to Chocolatey
+      env:
+        CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
+      run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
+        
