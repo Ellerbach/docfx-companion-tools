@@ -16,6 +16,9 @@ The tools can be installed by dowloading the zip-file of a [release](https://git
 choco install docfx-companion-tools
 ```
 
+> [NOTE!]
+> The tools expect the .NET Framework 5 to be installed locally.
+
 ## CI Pipeline samples
 
 * [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [DocFxTocGenerator](./src/DocFxTocGenerator) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
