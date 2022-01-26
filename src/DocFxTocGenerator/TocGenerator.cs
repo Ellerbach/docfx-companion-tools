@@ -1,7 +1,7 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
 
-namespace DocFxTocGenerate
+namespace DocFxTocGenerator
 {
     using System;
     using System.CodeDom.Compiler;
@@ -11,8 +11,8 @@ namespace DocFxTocGenerate
     using System.Linq;
     using System.Text.RegularExpressions;
     using CommandLine;
-    using TocDocFxCreation.Domain;
-    using TocDocFxCreation.Helpers;
+    using DocFxTocGenerator.Domain;
+    using DocFxTocGenerator.Helpers;
 
     /// <summary>
     /// Toc generator.
