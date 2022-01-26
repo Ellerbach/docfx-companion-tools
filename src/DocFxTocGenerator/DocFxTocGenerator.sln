@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TocDocFxCreation", "TocDocFxCreation.csproj", "{FA0CA120-2DA5-4167-98F0-37DC7C406918}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocFxTocGenerator", "DocFxTocGenerator.csproj", "{FA0CA120-2DA5-4167-98F0-37DC7C406918}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

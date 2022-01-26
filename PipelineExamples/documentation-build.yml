@@ -1,6 +1,6 @@
 ###########################################################################
 # This is a sample pipeline that can be used for generating a documentation
-# website using DocFX. In this pipeline we use the TocDocFxCreation tool
+# website using DocFX. In this pipeline we use the DocFxTocGenerator tool
 # to generate the table of contents.
 ###########################################################################
 
@@ -24,7 +24,7 @@ steps:
   displayName: 'Building automatically toc.yml'
   inputs:
     command: 'run'
-    projects: '$(System.DefaultWorkingDirectory)/src/TocDocFxCreation'
+    projects: '$(System.DefaultWorkingDirectory)/src/DocFxTocGenerator'
     arguments: '-d $(System.DefaultWorkingDirectory)\DocExample -si'
 
 # run docfx
