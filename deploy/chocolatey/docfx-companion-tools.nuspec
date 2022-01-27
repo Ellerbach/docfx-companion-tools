@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>docfx-companion-tools</id>
-    <version>1.0.1</version>
+    <version>1.0.0</version>
     <packageSourceUrl>https://github.com/Ellerbach/docfx-companion-tools/tree/main/deploy/chocolatey</packageSourceUrl>
     <!-- owners is a poor name for maintainers of the package. It sticks around by this name for compatibility reasons. It basically means you. -->
     <owners>Laurent Ellerbach, Martin Tirion</owners>
@@ -31,3 +31,6 @@
     <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
   </files>
 </package>
+
+
+

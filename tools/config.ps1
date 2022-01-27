@@ -1,4 +1,6 @@
-﻿$homeDir = (Resolve-Path "$PSScriptRoot\..").Path
+﻿# General configuration settings for running
+# the build and package scripts
+$homeDir = (Resolve-Path "$PSScriptRoot\..").Path
 $gitCommand = "git"
 $chocoCommand = "choco"
 

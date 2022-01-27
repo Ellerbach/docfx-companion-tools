@@ -1,3 +1,6 @@
+# PowerShell functions for the build and publish process
+# This code was taken from the DocFx repository.
+# See https://github.com/dotnet/docfx/tree/dev/tools/Deployment
 function GetOperatingSystemName() 
 {
     if ([environment]::OSVersion.Platform -eq "Win32NT") {

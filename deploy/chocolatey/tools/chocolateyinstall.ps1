@@ -1,10 +1,10 @@
 $ErrorActionPreference = 'Stop';
 
 $packageName= 'docfx-companion-tools'
-$version = 'v1.0.1'
+$version = 'v1.0.0'
 $toolsDir   = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $url        = "https://github.com/Ellerbach/docfx-companion-tools/releases/download/$version/tools.zip"
-$hash = '165611d397601fc0f4cd87503108abab104b23c8ef0a2b56efd2b5d3eab6ab15'
+$hash = 'c726597aa286436236a98b2915f93bf72632aadc248359abb3c7233fd81cb3f3'
 
 $packageArgs = @{
   packageName   = $packageName
@@ -15,3 +15,6 @@ $packageArgs = @{
 }
 
 Install-ChocolateyZipPackage @packageArgs
+
+
+

@@ -1,6 +1,10 @@
+# Workflow triggered by push to main
+# For all solutions we run restore, build & test
 name: Build & Test
 
-on: [ push ]
+on: 
+  push:
+    branches: [ main ]
 
 jobs:
   build:
@@ -11,8 +15,9 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.x
+        dotnet-version: 5.x
     
+    # Loop through all the solutions in src and restore, build & test
     - name: Restore, build & test
       shell: pwsh
       run: |

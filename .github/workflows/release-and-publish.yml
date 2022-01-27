@@ -1,7 +1,8 @@
+# Build the tools, create zip-file, create a tag
+# and release, and publish to Chocolatey.
+# MANUAL TRIGGERED WORKFLOW
 name: Release & Publish
 on:
-  # Trigger this workflow manually to create 
-  # a release and publish to Chocolatey
   workflow_dispatch:
 
 jobs:
@@ -31,22 +32,13 @@ jobs:
       with:
         dotnet-version: 5.x
 
-    # Build the tools
+    # Build the tools & create the zip-file
     - name: Build & Package
       run: pwsh .\build.ps1
 
-    # Create GitHub release with created zip-files and CHANGELOG when label 'release' is pushed
-    # NOTE: this is where we prepend "v" before the version in the tag/release
-    - name: Create release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "./tools.zip"
-        body: ${{steps.github_release.outputs.changelog}}
-        tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    # CHANGELOG
-    # Must be after creation of new release!
+    # Create the CHANGELOG for this release
+    # We'll compile it from last the version
+    # to the current commit
     - name: Build Changelog
       id: github_release
       uses: mikepenz/release-changelog-builder-action@v1
@@ -57,7 +49,17 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # package and publish Chocolatey package
+    # Create GitHub release with created zip-file and CHANGELOG
+    # NOTE: this is where we prepend "v" before the version in the tag/release
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./tools.zip"
+        body: ${{steps.github_release.outputs.changelog}}
+        tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    # package and publish Chocolatey package for this version
     - name: Publish to Chocolatey
       env:
         CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
