@@ -8,6 +8,62 @@ This repository contains a series of tools, templates, tips and tricks to make y
 * [DocLinkChecker](./src/DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically. And it can validate table syntax.
 * [DocLanguageTranslator](./src/DocLanguageTranslator): allows to generate and translate automatically missing files or identify missing files in multi language pattern directories.
 
+## Creating PR's
+
+The main branch is protected. Features and fixes can be done through PR's only. Make sure you use a proper title for the PR and keep them as small as possible. If you want the PR to pop up in the CHANGELOG, you have to provide one or more labels with the PR. The list of labels that are used:
+
+| Category | Description | Labels |
+| --- | --- | --- |
+| 🚀 Features | New or modified features | feature, enhancement |
+| 🐛 Fixes | All (bug) fixes | fix, bug |
+| 📄 Documentation | Documentation additions or changes | documentation |
+
+## Build and Publish
+
+If you have this repo on your local machine, you can run the same scripts for building and packaging as we're using in the workflows. To build the tools use the **build** script. In PowerShell run this command:
+
+```PowerShell
+.\build.ps1
+```
+
+The result of this script is an output folder containing the executables of all solutions. They are all published as single exe's without the framework. They depend on .NET 5 being installed in the environment. The LICENSE file is copied to the output folder as well. The contents of this folder is then compressed in a zip-file in the root with the name 'tools.zip'.
+
+To package and publish the tools, you must first have run the **build** script. Next you can run the **pack** script we're using from the worklows as well. In PowerShell run this command, where you provide the correct version:
+
+```PowerShell
+.\pack.ps1 -publish -version "1.0.0"
+```
+
+The script determine the hash of the tools.zip, change the Chocolatey nuspec and install script to contain the hash and the correct versions. Then the Chocolatey package is created. If the **CHOCO_TOKEN** environment variable is set containing the secret to use for Chocolatey publication, the script will also publish the package to Chocolatey. Otherwise a warning is given that the publish step is skipped.
+
+If you omit the -publish parameter, the script will run in develop mode. It will not publish to Chocolatey and it will output the changes of the Chocolatey files for inspection.
+
+> [!NOTE]
+> If you run the **pack** script locally, files are changed (*deploy\chocolatey\docfx-companion-tools.nuspec* and *deploy\chocolatey\tools\chocolateyinstall.ps1*). Maybe it's best not to commit that into the repo, although it's not secret information. Next run will overwrite the correct values anyway.
+
+## Version release and publish to Chocolatey
+
+If you have one or more PR's and want to release a new version, just make sure that all PR's are labeled where needed (see above) and merged into main. Run the manual **Release & Publish** workflow manually on the main branch. This will bump the version, create a release and publish a new package to Chocolatey.
+
+## Install
+
+The tools can be installed by dowloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
+
+```shell
+choco install docfx-companion-tools
+```
+
+> [NOTE!]
+> The tools expect the .NET Framework 5 to be installed locally.
+
+Once the tools are installed this way you can use them directly from the command line. For example:
+
+```PowerShell
+DocFxTocGenerator -d .\docs -vsi
+DocLanguageTranslator -d .\docs\en -k <key> -v
+DocLinkChecker -d .\docs -va
+```
+
 ## CI Pipeline samples
 
 * [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [DocFxTocGenerator](./src/DocFxTocGenerator) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.

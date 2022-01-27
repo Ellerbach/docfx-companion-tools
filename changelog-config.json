@@ -1,0 +1,34 @@
+{
+  "categories": [
+    {
+      "title": "## 🚀 Features",
+      "labels": ["feature", "enhancement"]
+    },
+    {
+      "title": "## 🐛 Fixes",
+      "labels": ["fix", "bug"]
+    },
+    {
+      "title": "## 📄 Documentation",
+      "labels": ["documentation"]
+    }
+  ],
+  "ignore_labels": [
+    "ignore"
+  ],
+  "sort": "ASC",
+  "template": "${{CHANGELOG}}\n",
+  "pr_template": "- ${{TITLE}} (PR: #${{NUMBER}})",
+  "empty_template": "- no changes",
+  "label_extractor": [ ],
+  "duplicate_filter": {
+    "pattern": "\\[ABC-....\\]",
+    "on_property": "title",
+    "method": "match"
+  },
+  "transformers": [ ],
+  "max_tags_to_fetch": 200,
+  "max_pull_requests": 200,
+  "max_back_track_time_days": 365,
+  "exclude_merge_branches": [ ]
+}
