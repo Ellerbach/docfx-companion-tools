@@ -27,7 +27,7 @@ if (-not(Test-Path $solution.assetZipPath)) {
     & .\build.ps1
 }
 
-$hash = (Get-FileHash -Algorithm SHA256 -Path $solution.assetZipPath).Hash.ToLower()
+$hash = (Get-FileHash -Algorithm SHA256 -Path $solution.assetZipPath).Hash.ToUpper()
 $nupkgName = "docfx-companion-tools.$version.nupkg"
 
 UpdateChocoConfig $choco.chocoScript $choco.nuspec $version $hash
