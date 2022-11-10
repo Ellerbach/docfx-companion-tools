@@ -20,7 +20,6 @@ namespace DocLinkChecker
     public class Program
     {
         private static CommandlineOptions options;
-        private static int returnvalue;
         private static MessageHelper message;
 
         private static List<string> allFiles = new List<string>();
@@ -33,6 +32,9 @@ namespace DocLinkChecker
         /// <returns>0 if succesful, 1 on error.</returns>
         private static int Main(string[] args)
         {
+            // Set default exit code
+            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.OK;
+
             try
             {
                 Parser.Default.ParseArguments<CommandlineOptions>(args)
@@ -42,12 +44,12 @@ namespace DocLinkChecker
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR: Parsing arguments threw an exception with message `{ex.Message}`");
-                returnvalue = 1;
+                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
             }
 
-            Console.WriteLine($"Exit with return code {returnvalue}");
+            Console.WriteLine($"Exit with return code {(int)ExitCodeHelper.ExitCode}");
 
-            return returnvalue;
+            return (int)ExitCodeHelper.ExitCode;
         }
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace DocLinkChecker
             if (!Directory.Exists(options.DocFolder))
             {
                 message.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
-                returnvalue = 1;
+                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
                 return;
             }
 
@@ -89,12 +91,12 @@ namespace DocLinkChecker
         }
 
         /// <summary>
-        /// On parameter errors, we set the returnvalue to 1 to indicated an error.
+        /// On parameter errors, we set the exit code to 1 to indicated a parsing error.
         /// </summary>
         /// <param name="errors">List or errors (ignored).</param>
         private static void HandleErrors(IEnumerable<Error> errors)
         {
-            returnvalue = 1;
+            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
         }
 
         /// <summary>
@@ -147,8 +149,8 @@ namespace DocLinkChecker
 
                             message.Error($"{attachment}");
 
-                            // mark error in returnvalue of the tool
-                            returnvalue = 1;
+                            // mark error in exit code of the tool
+                            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
                         }
                     }
                 }
@@ -210,20 +212,38 @@ namespace DocLinkChecker
             // The second line should contain at least 3 separators '-' between the |
             // After each line, there should not be any text after the last |
             Regex rxTable = new Regex(@"\|(?:.*)\|");
+            Regex rxTableFormatRow = new Regex(@"\s*(\|\s*:?-+:?\s*)+\|\s*");
+            Regex rxComments = new Regex(@"\`(?:[^`]*)\`");
             int idxLine = 0;
             bool isMatch = false;
             int numCol = 0;
             int initLine = 0;
-            bool isCodeBloc = false;
+            bool isCodeBlock = false;
+            char[] charsToTrim = { '\r', '\n' };
+            int minimalValidLineToTestIndex = 2;
             for (int i = 0; i < content.Length; i++)
             {
                 string line = content[i];
                 if (line.StartsWith("```"))
                 {
-                    isCodeBloc = !isCodeBloc;
+                    isCodeBlock = !isCodeBlock;
                 }
 
-                if (rxTable.Matches(line).Any() && !isCodeBloc)
+                // Check if there is blank line before table (required by DocFX)
+                if (i >= minimalValidLineToTestIndex &&
+                    rxTableFormatRow.Matches(line).Any() &&
+                    (rxTableFormatRow.Match(line).Value.Length == line.Length) &&
+                    !isCodeBlock)
+                {
+                    string lineToTest = content[i - minimalValidLineToTestIndex];
+                    if (lineToTest.Trim(charsToTrim) != string.Empty)
+                    {
+                        message.Error($"Malformed table in {filepath}, line {i - 1}. Blank line expected before table.");
+                        ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
+                    }
+                }
+
+                if (rxTable.Matches(line).Any() && !isCodeBlock)
                 {
                     isMatch = true;
                     message.Verbose($"Table found line {i}.");
@@ -232,11 +252,13 @@ namespace DocLinkChecker
                     if (!line.EndsWith('|') && line.Replace(" ", string.Empty).StartsWith('|'))
                     {
                         message.Error($"Malformed table in {filepath}, line {i + 1}. Table should finish by character '|'.");
+                        ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
                     }
 
                     if (line.EndsWith('|') && !line.Replace(" ", string.Empty).StartsWith('|'))
                     {
                         message.Error($"Malformed table in {filepath}, line {i + 1}. Table should start by character '|'.");
+                        ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
                     }
 
                     // Is it first line?
@@ -253,6 +275,13 @@ namespace DocLinkChecker
                         if (i != initLine + idxLine)
                         {
                             message.Error($"Malformed table in {filepath}, line {i + 1}. Table should be continuous.");
+                            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
+                        }
+
+                        // Remove comments inside allowing something like `Spike \| data` to not count as a |
+                        if (rxComments.Matches(line).Any())
+                        {
+                            line = rxComments.Replace(line, string.Empty);
                         }
 
                         // Count separators
@@ -260,6 +289,7 @@ namespace DocLinkChecker
                         if (separators.Length - 2 != numCol)
                         {
                             message.Error($"Malformed table in {filepath}, line {i + 1}. Different number of columns {separators.Length - 2} vs {numCol}.");
+                            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
                         }
 
                         if (idxLine == 1)
@@ -269,6 +299,7 @@ namespace DocLinkChecker
                                 if (separators[sep].Count(m => m == '-') < 3)
                                 {
                                     message.Error($"Malformed table in {filepath}, line {i + 1}. Second line should contains at least 3 characters '-' per column between the characters '|'.");
+                                    ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.TableFormatError;
                                 }
                             }
                         }
@@ -310,6 +341,7 @@ namespace DocLinkChecker
                         string relative = match.Value.Substring(start);
                         int end = relative.IndexOf(")");
                         relative = relative.Substring(0, end);
+                        string afterSharp = string.Empty;
 
                         // relative string contain not only URL, but also "title", get rid of it
                         int positionOfLinkTitle = relative.IndexOf('\"');
@@ -321,6 +353,8 @@ namespace DocLinkChecker
                         // strip in-doc references using a #
                         if (relative.Contains("#"))
                         {
+                            // We keep the link after the sharp to check later on if it's a valid one
+                            afterSharp = relative.Substring(relative.IndexOf("#") + 1);
                             relative = relative.Substring(0, relative.IndexOf("#"));
                         }
 
@@ -330,7 +364,6 @@ namespace DocLinkChecker
                         // check link if not to a URL, in-doc link or e-mail address
                         if (!relative.StartsWith("http:") &&
                             !relative.StartsWith("https:") &&
-                            !relative.StartsWith("#") &&
                             !relative.Contains("@") &&
                             !string.IsNullOrEmpty(Path.GetExtension(relative)) &&
                             !string.IsNullOrWhiteSpace(relative))
@@ -344,7 +377,7 @@ namespace DocLinkChecker
                                 // link is full path - not allowed
                                 message.Output($"{filepath} {linenr}:{match.Index}");
                                 message.Error($"Full path '{relative}' used. Use relative path.");
-                                returnvalue = 1;
+                                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
                             }
 
                             // don't need to check if reference is to a directory
@@ -357,8 +390,8 @@ namespace DocLinkChecker
                                     message.Output($"{filepath} {linenr}:{match.Index}");
                                     message.Error($"Not found: {relative}");
 
-                                    // mark error in returnvalue of the tool
-                                    returnvalue = 1;
+                                    // mark error in exit code of the tool
+                                    ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
                                 }
                                 else
                                 {
@@ -366,6 +399,85 @@ namespace DocLinkChecker
                                     {
                                         // register reference unique in list
                                         allLinks.Add(absolute.ToLowerInvariant());
+                                    }
+
+                                    if (afterSharp != string.Empty)
+                                    {
+                                        // Time to check if the inside doc link is valid
+                                        if (afterSharp.ToLower() != afterSharp)
+                                        {
+                                            // link is full path - not allowed
+                                            message.Output($"{filepath} {linenr}:{match.Index}");
+                                            message.Error($"Inside doc path '{relative}#{afterSharp}' must be lower case.");
+                                            ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
+                                        }
+
+                                        // We need to check if what is after the # is valid or not, first it must be lowercase.
+                                        var fileContent = File.ReadAllLines(absolute);
+
+                                        bool found = false;
+                                        foreach (var lineTitle in fileContent)
+                                        {
+                                            // Find titles
+                                            if (lineTitle.StartsWith('#'))
+                                            {
+                                                // Get rid of the title mark
+                                                var lineTitleLink = lineTitle.Replace("#", string.Empty);
+
+                                                // Remove the space
+                                                lineTitleLink = lineTitleLink.TrimStart();
+
+                                                // To lower
+                                                lineTitleLink = lineTitleLink.ToLower();
+
+                                                // Remove bold and italic as well as the . and few others
+                                                lineTitleLink = lineTitleLink.Replace("*", string.Empty).Replace(".", string.Empty).Replace("'", string.Empty)
+                                                    .Replace("\"", string.Empty).Replace("_", string.Empty).Replace("/", string.Empty).Replace("&", string.Empty)
+                                                    .Replace("(", string.Empty).Replace(")", string.Empty).Replace("`", string.Empty);
+
+                                                // Replave spaces by dash
+                                                lineTitleLink = lineTitleLink.Replace(" ", "-");
+
+                                                // If it our title?
+                                                if (afterSharp == lineTitleLink)
+                                                {
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (!found)
+                                        {
+                                            // Let's check if it's an absolute link or not
+                                            // Is it a link on a line number? Then pattern is 'l123456'
+                                            uint numLines;
+                                            Regex lineLinkPattern = new Regex(@"^l\d+");
+                                            if (lineLinkPattern.IsMatch(afterSharp))
+                                            {
+                                                if (!uint.TryParse(afterSharp.Substring(1), out numLines))
+                                                {
+                                                    message.Output($"{filepath} {linenr}:{match.Index}");
+                                                    message.Error($"In doc link was not found '{relative}#{afterSharp}'. Make sure you have all lowercase, remove '*' and replace spaces by '-'.");
+                                                    ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
+                                                }
+                                                else
+                                                {
+                                                    if (fileContent.Length < numLines)
+                                                    {
+                                                        message.Output($"{filepath} {linenr}:{match.Index}");
+                                                        message.Error($"Line link is invalid '{relative}#{afterSharp}' must be less than the number of lines in the target file.");
+                                                        ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                message.Output($"{filepath} {linenr}:{match.Index}");
+                                                message.Error($"In doc link was not found '{relative}#{afterSharp}'. Make sure you have all lowercase, remove '*' and replace spaces by '-'.");
+                                                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
+                                            }
+                                        }
                                     }
                                 }
                             }
