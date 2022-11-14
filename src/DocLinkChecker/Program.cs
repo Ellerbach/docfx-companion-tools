@@ -23,6 +23,7 @@ namespace DocLinkChecker
         private static int returnvalue;
         private static MessageHelper message;
 
+        private static DirectoryInfo rootDir;
         private static List<string> allFiles = new List<string>();
         private static List<string> allLinks = new List<string>();
 
@@ -79,7 +80,7 @@ namespace DocLinkChecker
             }
 
             // we start at the root to generate the TOC items
-            DirectoryInfo rootDir = new DirectoryInfo(options.DocFolder);
+            rootDir = new DirectoryInfo(options.DocFolder);
             WalkDirectoryTree(rootDir);
 
             if (options.Attachments)
@@ -336,7 +337,17 @@ namespace DocLinkChecker
                             !string.IsNullOrWhiteSpace(relative))
                         {
                             // check validity of the link
-                            string absolute = Path.GetFullPath(relative, folder.FullName);
+                            string absolute;
+                            if (relative.StartsWith("~/"))
+                            {
+                                // link is relative to project root directory
+                                absolute = Path.GetFullPath(relative.Substring(2), rootDir.FullName);
+                            }
+                            else
+                            {
+                                // link is relative to its directory
+                                absolute = Path.GetFullPath(relative, folder.FullName);
+                            }
 
                             // check that paths are relative
                             if (Path.IsPathFullyQualified(relative))
