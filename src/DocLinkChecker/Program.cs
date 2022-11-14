@@ -79,6 +79,8 @@ namespace DocLinkChecker
                 return;
             }
 
+            ValidateDocFolder(options.DocFolder);
+
             // we start at the root to generate the TOC items
             rootDir = new DirectoryInfo(options.DocFolder);
             WalkDirectoryTree(rootDir);
@@ -96,6 +98,24 @@ namespace DocLinkChecker
         private static void HandleErrors(IEnumerable<Error> errors)
         {
             returnvalue = 1;
+        }
+
+        /// <summary>
+        /// Validate that the root directory is a valid DocFX root.
+        /// If the directory is not valid, warn the caller.
+        /// </summary>
+        private static void ValidateDocFolder(string docfolder)
+        {
+            message.Verbose($"Validating documentation folder {docfolder}");
+
+            const string docFXProjectFile = "docfx.json";
+            List<string> rootFiles = Directory.GetFiles(docfolder).ToList().ConvertAll(f => Path.GetFileName(f).ToLowerInvariant());
+
+            // notify client if root directory does not include docfx.json file
+            if (!rootFiles.Contains(docFXProjectFile))
+            {
+                message.Warning("Documentation folder does not contain docfx.json file. Links relative to project root (i.e. ~/path/from/root) may not be properly identified.");
+            }
         }
 
         /// <summary>
