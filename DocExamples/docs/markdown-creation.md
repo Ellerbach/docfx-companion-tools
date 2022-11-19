@@ -22,7 +22,9 @@ Please to follow those simple rules:
 
 It's ok to use external links.
 
-For links on documentation itself, please use relative link to the file. For example if you are in `/docs/userdocs/en/plant-production` and want to reference the document `index.md` which is located in `/docs/userdocs`, the link will be `../../index.md`
+For links on documentation itself, please use relative link to the file. For example if you are in `/docs/userdocs/en/plant-production` and want to reference the document `index.md` which is located in `/docs/userdocs`, the link will be `../../index.md`.
+
+You may also use relative links to the root of a DocFX project. For example [this link](~/userdocs/index.md) references `/docs/userdocs/index.md` from this very page using a link relative to the project root. The link for this scenario would be `~/userdocs/index.md`. This only works in a Docfx project.
 
 ## Markdown lint
 
