@@ -455,16 +455,36 @@ namespace DocLinkChecker
                                                 // Get rid of the title mark
                                                 var lineTitleLink = lineTitle.Replace("#", string.Empty);
 
+                                                // check if there is an HTML link ID like this: ## <a id=\"i_am_an_id\">Title for ID</a>
+                                                Regex idLinkPattern = new Regex(@"(?><a id=\"")(?<id_label>[a-zA-Z -_]+)(?>\"">)");
+                                                if (idLinkPattern.IsMatch(lineTitleLink))
+                                                {
+                                                    // we have a match for this pattern!
+
+                                                    // check if the label id matches
+                                                    if (idLinkPattern.Match(lineTitleLink).Groups["id_label"].Value == afterSharp)
+                                                    {
+                                                        found = true;
+                                                        break;
+                                                    }
+
+                                                    // proceed with replacing the HTML link ID
+                                                    lineTitleLink = idLinkPattern.Replace(lineTitleLink, string.Empty);
+
+                                                    // and the closing link tag too
+                                                    lineTitleLink = lineTitleLink.Replace("</a>", string.Empty);
+                                                }
+
                                                 // Remove the space
                                                 lineTitleLink = lineTitleLink.TrimStart();
 
                                                 // To lower
                                                 lineTitleLink = lineTitleLink.ToLower();
 
-                                                // Remove bold and italic as well as the . and few others
+                                                // Remove bold and italic as well as the . ? and few others
                                                 lineTitleLink = lineTitleLink.Replace("*", string.Empty).Replace(".", string.Empty).Replace("'", string.Empty)
-                                                    .Replace("\"", string.Empty).Replace("_", string.Empty).Replace("/", string.Empty).Replace("&", string.Empty)
-                                                    .Replace("(", string.Empty).Replace(")", string.Empty).Replace("`", string.Empty);
+                                                    .Replace("\"", string.Empty).Replace("/", string.Empty).Replace("&", string.Empty)
+                                                    .Replace("(", string.Empty).Replace(")", string.Empty).Replace("`", string.Empty).Replace("?", string.Empty);
 
                                                 // Replave spaces by dash
                                                 lineTitleLink = lineTitleLink.Replace(" ", "-");
