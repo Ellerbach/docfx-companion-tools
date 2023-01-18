@@ -51,5 +51,12 @@ namespace DocFxTocGenerator.Domain
         /// </summary>
         [Option('i', "index", Required = false, HelpText = "Auto-generate a file index in each folder.")]
         public bool AutoIndex { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether an to now generate an index in a folder with 1 file.
+        /// Is supplementary to the -i option and doesn't work without that flag.
+        /// </summary>
+        [Option('n', "notwithone", Required = false, HelpText = "Do not auto-generate a file index when only contains 1 file. Additional to -i flag.")]
+        public bool NoAutoIndexWithOneFile { get; set; }
     }
 }
