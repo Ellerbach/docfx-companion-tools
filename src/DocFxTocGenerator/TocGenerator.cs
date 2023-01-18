@@ -13,15 +13,20 @@ namespace DocFxTocGenerator
     using CommandLine;
     using DocFxTocGenerator.Domain;
     using DocFxTocGenerator.Helpers;
+    using Microsoft.OpenApi.Readers;
 
     /// <summary>
     /// Toc generator.
     /// </summary>
     internal class TocGenerator
     {
-        private static CommandlineOptions options;
-        private static int returnvalue;
-        private static MessageHelper message;
+        private static readonly string[] _filePatternsForToc = { "*.md", "*.swagger.json" };
+        private static readonly string _filePatternsForTocJoined = string.Join(", ", _filePatternsForToc);
+        private static readonly EnumerationOptions _caseSetting = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
+
+        private static CommandlineOptions _options;
+        private static int _returnvalue;
+        private static MessageHelper _message;
 
         /// <summary>
         /// Main entry point.
@@ -34,9 +39,9 @@ namespace DocFxTocGenerator
                                .WithParsed<CommandlineOptions>(RunLogic)
                                .WithNotParsed(HandleErrors);
 
-            Console.WriteLine($"Exit with return code {returnvalue}");
+            Console.WriteLine($"Exit with return code {_returnvalue}");
 
-            return returnvalue;
+            return _returnvalue;
         }
 
         /// <summary>
@@ -46,39 +51,39 @@ namespace DocFxTocGenerator
         /// <param name="o">Parsed commandline options.</param>
         private static void RunLogic(CommandlineOptions o)
         {
-            options = o;
-            message = new MessageHelper(options);
+            _options = o;
+            _message = new MessageHelper(_options);
 
-            if (string.IsNullOrEmpty(options.OutputFolder))
+            if (string.IsNullOrEmpty(_options.OutputFolder))
             {
-                options.OutputFolder = options.DocFolder;
+                _options.OutputFolder = _options.DocFolder;
             }
 
-            message.Verbose($"Documentation folder: {options.DocFolder}");
-            message.Verbose($"Output folder       : {options.OutputFolder}");
-            message.Verbose($"Verbose             : {options.Verbose}");
-            message.Verbose($"Use .order          : {options.UseOrder}");
-            message.Verbose($"Use .override       : {options.UseOverride}");
-            message.Verbose($"Use .ignore         : {options.UseIgnore}");
-            message.Verbose($"Auto index          : {options.AutoIndex}\n");
+            _message.Verbose($"Documentation folder: {_options.DocFolder}");
+            _message.Verbose($"Output folder       : {_options.OutputFolder}");
+            _message.Verbose($"Verbose             : {_options.Verbose}");
+            _message.Verbose($"Use .order          : {_options.UseOrder}");
+            _message.Verbose($"Use .override       : {_options.UseOverride}");
+            _message.Verbose($"Use .ignore         : {_options.UseIgnore}");
+            _message.Verbose($"Auto index          : {_options.AutoIndex}\n");
 
-            if (!Directory.Exists(options.DocFolder))
+            if (!Directory.Exists(_options.DocFolder))
             {
-                message.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
-                returnvalue = 1;
+                _message.Error($"ERROR: Documentation folder '{_options.DocFolder}' doesn't exist.");
+                _returnvalue = 1;
                 return;
             }
 
-            if (!Directory.Exists(options.OutputFolder))
+            if (!Directory.Exists(_options.OutputFolder))
             {
-                message.Error($"ERROR: Destination folder '{options.OutputFolder}' doesn't exist.");
-                returnvalue = 1;
+                _message.Error($"ERROR: Destination folder '{_options.OutputFolder}' doesn't exist.");
+                _returnvalue = 1;
                 return;
             }
 
             // we start at the root to generate the TOC items
             TocItem tocRootItems = new TocItem();
-            DirectoryInfo rootDir = new DirectoryInfo(options.DocFolder);
+            DirectoryInfo rootDir = new DirectoryInfo(_options.DocFolder);
             WalkDirectoryTree(rootDir, tocRootItems);
 
             // we have the TOC, so serialize to a string
@@ -91,10 +96,10 @@ namespace DocFxTocGenerator
                 }
 
                 // now write the TOC to disc
-                File.WriteAllText(Path.Combine(options.OutputFolder, "toc.yml"), sw.ToString());
+                File.WriteAllText(Path.Combine(_options.OutputFolder, "toc.yml"), sw.ToString());
             }
 
-            message.Verbose($"{Path.Combine(options.OutputFolder, "toc.yml")} created.");
+            _message.Verbose($"{Path.Combine(_options.OutputFolder, "toc.yml")} created.");
         }
 
         /// <summary>
@@ -103,7 +108,7 @@ namespace DocFxTocGenerator
         /// <param name="errors">List or errors (ignored).</param>
         private static void HandleErrors(IEnumerable<Error> errors)
         {
-            returnvalue = 1;
+            _returnvalue = 1;
         }
 
         /// <summary>
@@ -114,10 +119,10 @@ namespace DocFxTocGenerator
         /// <returns>Full path of the entry-file of this folder.</returns>
         private static string WalkDirectoryTree(DirectoryInfo folder, TocItem yamlNode)
         {
-            message.Verbose($"Processing folder {folder.FullName}");
+            _message.Verbose($"Processing folder {folder.FullName}");
 
             List<string> order = GetOrderList(folder);
-            Dictionary<string, string> overrides = options.UseOverride ? GetOverrides(folder) : new Dictionary<string, string>();
+            Dictionary<string, string> overrides = _options.UseOverride ? GetOverrides(folder) : new Dictionary<string, string>();
             List<string> ignore = GetIgnore(folder);
 
             // add doc files to the node
@@ -130,25 +135,25 @@ namespace DocFxTocGenerator
             {
                 // now sort the files and directories with the order-list and further alphabetically
                 yamlNode.Items = new Collection<TocItem>(yamlNode.Items.OrderBy(x => x.Sequence).ThenBy(x => x.SortableTitle).ToList());
-                message.Verbose($"Items ordered in {folder.FullName}");
+                _message.Verbose($"Items ordered in {folder.FullName}");
             }
 
             if (!string.IsNullOrWhiteSpace(yamlNode.Filename))
             {
                 // if indicated, add a folder index - but not for the root folder.
-                if (options.AutoIndex)
+                if (_options.AutoIndex)
                 {
                     string indexFile = AddIndex(folder, yamlNode, GetOverrides(folder.Parent));
                     if (!string.IsNullOrEmpty(indexFile))
                     {
-                        yamlNode.Href = GetRelativePath(indexFile, options.DocFolder);
+                        yamlNode.Href = GetRelativePath(indexFile, _options.DocFolder);
                     }
                 }
                 else
                 {
                     if (yamlNode.Items != null && yamlNode.Items.Any())
                     {
-                        yamlNode.Href = GetRelativePath(yamlNode.Items.First().Filename, options.DocFolder);
+                        yamlNode.Href = GetRelativePath(yamlNode.Items.First().Filename, _options.DocFolder);
                     }
                 }
             }
@@ -160,12 +165,12 @@ namespace DocFxTocGenerator
         {
             // see if we have an .order file
             List<string> ignore = new List<string>();
-            if (options.UseIgnore)
+            if (_options.UseIgnore)
             {
                 string orderFile = Path.Combine(folder.FullName, ".ignore");
                 if (File.Exists(orderFile))
                 {
-                    message.Verbose($"Read existing order file {orderFile}");
+                    _message.Verbose($"Read existing order file {orderFile}");
                     ignore = File.ReadAllLines(orderFile).ToList();
                 }
             }
@@ -182,16 +187,17 @@ namespace DocFxTocGenerator
         /// <param name="overrides">The overrides.</param>
         private static void GetFiles(DirectoryInfo folder, List<string> order, TocItem yamlNode, Dictionary<string, string> overrides)
         {
-            message.Verbose($"Process {folder.FullName} for files.");
+            _message.Verbose($"Process {folder.FullName} for files.");
 
-            List<FileInfo> files = folder
-                .GetFiles("*.md")
+            List<FileInfo> files =
+                _filePatternsForToc
+                .SelectMany(pattern => folder.GetFiles(pattern, _caseSetting))
                 .OrderBy(f => f.Name)
+                .Where(f => f.Name.ToUpperInvariant() != "INDEX.MD")
                 .ToList();
-
-            if (files == null)
+            if (!files.Any())
             {
-                message.Verbose($"No MD files found in {folder.FullName}.");
+                _message.Verbose($"No {_filePatternsForTocJoined} files found in {folder.FullName}.");
                 return;
             }
 
@@ -210,7 +216,7 @@ namespace DocFxTocGenerator
                 }
 
                 string title = string.Empty;
-                if (options.UseOverride && (overrides.Count > 0))
+                if (_options.UseOverride && (overrides.Count > 0))
                 {
                     // get possible title override from the .override file
                     var key = fi.Name.Substring(0, fi.Name.Length - 3);
@@ -227,10 +233,10 @@ namespace DocFxTocGenerator
                     Sequence = sequence,
                     Filename = fi.FullName,
                     Title = title,
-                    Href = GetRelativePath(fi.FullName, options.DocFolder),
+                    Href = GetRelativePath(fi.FullName, _options.DocFolder),
                 });
 
-                message.Verbose($"Add file seq={sequence} title={title} href={GetRelativePath(fi.FullName, options.DocFolder)}");
+                _message.Verbose($"Add file seq={sequence} title={title} href={GetRelativePath(fi.FullName, _options.DocFolder)}");
             }
         }
 
@@ -247,7 +253,7 @@ namespace DocFxTocGenerator
             string overrideFile = Path.Combine(folder.FullName, ".override");
             if (File.Exists(overrideFile))
             {
-                message.Verbose($"Read existing overrideFile file {overrideFile}");
+                _message.Verbose($"Read existing overrideFile file {overrideFile}");
                 foreach (var over in File.ReadAllLines(overrideFile))
                 {
                     var overSplit = over.Split(';');
@@ -258,7 +264,7 @@ namespace DocFxTocGenerator
                 }
             }
 
-            message.Verbose($"Found {overrides.Count} for folder {folder.FullName}");
+            _message.Verbose($"Found {overrides.Count} for folder {folder.FullName}");
             return overrides;
         }
 
@@ -272,7 +278,7 @@ namespace DocFxTocGenerator
         /// <param name="ignore">The ignore.</param>
         private static void GetDirectories(DirectoryInfo folder, List<string> order, TocItem yamlNode, Dictionary<string, string> overrides, List<string> ignore)
         {
-            message.Verbose($"Process {folder.FullName} for sub-directories.");
+            _message.Verbose($"Process {folder.FullName} for sub-directories.");
 
             // Now find all the subdirectories under this directory.
             DirectoryInfo[] subDirs = folder.GetDirectories();
@@ -291,10 +297,12 @@ namespace DocFxTocGenerator
                 }
 
                 // Get all the md files only
-                FileInfo[] subFiles = dirInfo.GetFiles("*.md");
+                FileInfo[] subFiles = _filePatternsForToc
+                    .SelectMany(pattern => dirInfo.GetFiles(pattern, _caseSetting))
+                    .ToArray();
                 if (subFiles.Any() == false)
                 {
-                    message.Warning($"WARNING: Folder {dirInfo.FullName} skipped as it doesn't contain MD files. This might skip further sub-folders. Solve this by adding a README.md or INDEX.md in the folder.");
+                    _message.Warning($"WARNING: Folder {dirInfo.FullName} skipped as it doesn't contain {_filePatternsForTocJoined} files. This might skip further sub-folders. Solve this by adding a README.md or INDEX.md in the folder.");
                     continue;
                 }
 
@@ -307,7 +315,7 @@ namespace DocFxTocGenerator
                 }
 
                 string title = string.Empty;
-                if (options.UseOverride)
+                if (_options.UseOverride)
                 {
                     // if in the .override file, override the title with it
                     if (overrides.ContainsKey(dirInfo.Name))
@@ -320,17 +328,31 @@ namespace DocFxTocGenerator
                 title = title.Length == 0 ? ToTitleCase(dirInfo.Name) : title;
                 newTocItem.Filename = dirInfo.FullName;
                 newTocItem.Title = title;
-                string entryFile = WalkDirectoryTree(dirInfo, newTocItem);
+                string entryFile = string.Empty;
+                if (!_options.NoAutoIndexWithOneFile)
+                {
+                    // when no extra indication, this will ALWAYS generate an INDEX.md
+                    // if no index or readme exists. Independent of the number of files in the folder.
+                    entryFile = WalkDirectoryTree(dirInfo, newTocItem);
+                }
+
                 if (subFiles.Length == 1 && dirInfo.GetDirectories().Length == 0)
                 {
-                    newTocItem.Href = GetRelativePath(subFiles[0].FullName, options.DocFolder);
+                    newTocItem.Href = GetRelativePath(subFiles[0].FullName, _options.DocFolder);
                 }
                 else
                 {
-                    newTocItem.Href = GetRelativePath(entryFile, options.DocFolder);
+                    if (_options.NoAutoIndexWithOneFile)
+                    {
+                        // when this extra indication set, this will ONLY generate an INDEX.md
+                        // if no index or readme exists and if the folder contains more than 1 file.
+                        entryFile = WalkDirectoryTree(dirInfo, newTocItem);
+                    }
+
+                    newTocItem.Href = GetRelativePath(entryFile, _options.DocFolder);
                 }
 
-                message.Verbose($"Add directory seq={newTocItem.Sequence} title={newTocItem.Title} href={newTocItem.Href}");
+                _message.Verbose($"Add directory seq={newTocItem.Sequence} title={newTocItem.Title} href={newTocItem.Href}");
 
                 yamlNode.AddItem(newTocItem);
             }
@@ -348,12 +370,12 @@ namespace DocFxTocGenerator
         {
             // see if we have an .order file
             List<string> order = new List<string>();
-            if (options.UseOrder)
+            if (_options.UseOrder)
             {
                 string orderFile = Path.Combine(folder.FullName, ".order");
                 if (File.Exists(orderFile))
                 {
-                    message.Verbose($"Read existing order file {orderFile}");
+                    _message.Verbose($"Read existing order file {orderFile}");
                     order = File.ReadAllLines(orderFile).ToList();
                 }
             }
@@ -363,7 +385,7 @@ namespace DocFxTocGenerator
             if (string.IsNullOrEmpty(readmeEntry))
             {
                 order.Add("README");
-                message.Verbose($"'README' added to order-list");
+                _message.Verbose($"'README' added to order-list");
             }
 
             // we always want to order INDEX.md as well. So add it if not in list yet
@@ -371,7 +393,7 @@ namespace DocFxTocGenerator
             if (string.IsNullOrEmpty(indexEntry))
             {
                 order.Add("index");
-                message.Verbose($"'index' added to order-list");
+                _message.Verbose($"'index' added to order-list");
             }
 
             return order;
@@ -408,7 +430,7 @@ namespace DocFxTocGenerator
                 // if a new index has been created, add that to the TOC (top of list)
                 FileInfo fi = folder.GetFiles().FirstOrDefault(x => string.Equals(x.Name, Path.GetFileName(indexFile), StringComparison.OrdinalIgnoreCase));
                 string title = string.Empty;
-                if (options.UseOverride && (overrides.Count > 0))
+                if (_options.UseOverride && (overrides.Count > 0))
                 {
                     string key = folder.Name;
                     if (overrides.ContainsKey(key))
@@ -422,12 +444,12 @@ namespace DocFxTocGenerator
                     Sequence = -1,
                     Filename = indexFile,
                     Title = title.Length == 0 ? GetCleanedFileName(fi) : title,
-                    Href = GetRelativePath(indexFile, options.DocFolder),
+                    Href = GetRelativePath(indexFile, _options.DocFolder),
                 };
 
                 // insert index item at the top
                 yamlNode.AddItem(newItem, true);
-                message.Verbose($"Added index.md to top of list of files.");
+                _message.Verbose($"Added index.md to top of list of files.");
             }
 
             return indexFile;
@@ -446,7 +468,7 @@ namespace DocFxTocGenerator
                 return false;
             }
 
-            message.Verbose($"Index will be written to {outputFile}");
+            _message.Verbose($"Index will be written to {outputFile}");
 
             // read lines if existing file.
             List<string> lines = new List<string>();
@@ -459,7 +481,7 @@ namespace DocFxTocGenerator
             }
 
             File.WriteAllLines(outputFile, lines);
-            message.Verbose($"Written {lines.Count} lines to {outputFile} (index).");
+            _message.Verbose($"Written {lines.Count} lines to {outputFile} (index).");
             return true;
         }
 
@@ -523,19 +545,33 @@ namespace DocFxTocGenerator
         private static string GetCleanedFileName(FileInfo fi)
         {
             string cleanedName = fi.Name;
-
-            // Open the file, read the line up to the first #, extract the tile
-            using (StreamReader toRead = File.OpenText(fi.FullName))
+            if (string.Equals(fi.Name, "INDEX.MD", StringComparison.OrdinalIgnoreCase))
             {
-                while (!toRead.EndOfStream)
+                // if this is the index doc, give it the name of the folder.
+                cleanedName = Path.GetFileName(fi.DirectoryName);
+            }
+            else if (fi.Name.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
+            {
+                // For markdownfile, open the file, read the line up to the first #, extract the tile
+                using (StreamReader toRead = File.OpenText(fi.FullName))
                 {
-                    string strTitle = toRead.ReadLine();
-                    if (strTitle.TrimStart(' ').StartsWith("# ", StringComparison.OrdinalIgnoreCase))
+                    while (!toRead.EndOfStream)
                     {
-                        cleanedName = strTitle.Substring(2);
-                        break;
+                        string strTitle = toRead.ReadLine();
+                        if (strTitle.TrimStart(' ').StartsWith("# ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            cleanedName = strTitle.Substring(2);
+                            break;
+                        }
                     }
                 }
+            }
+            else if (fi.Name.EndsWith(".swagger.json", StringComparison.OrdinalIgnoreCase))
+            {
+                // for open api swagger file, read the title from the data.
+                using var stream = File.OpenRead(fi.FullName);
+                var document = new OpenApiStreamReader().Read(stream, out _);
+                cleanedName = $"{document.Info.Title} {document.Info.Version}";
             }
 
             return ToTitleCase(cleanedName);
