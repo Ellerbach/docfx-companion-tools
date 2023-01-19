@@ -20,8 +20,8 @@ namespace DocFxOpenApi
     /// </summary>
     internal class DocFxOpenApi
     {
-        private const OpenApiSpecVersion OutputVersion = OpenApiSpecVersion.OpenApi2_0;
-        private static readonly string[] OpenApiFileExtensions = { "json", "yaml", "yml" };
+        private const OpenApiSpecVersion _outputVersion = OpenApiSpecVersion.OpenApi2_0;
+        private static readonly string[] _openApiFileExtensions = { "json", "yaml", "yml" };
 
         private static int returnvalue;
         private CommandlineOptions options;
@@ -93,7 +93,7 @@ namespace DocFxOpenApi
 
         private void ConvertOpenApiFiles()
         {
-            foreach (var extension in OpenApiFileExtensions)
+            foreach (var extension in _openApiFileExtensions)
             {
                 this.ConvertOpenApiFiles(extension);
             }
@@ -174,9 +174,9 @@ namespace DocFxOpenApi
 
             var outputFileName = Path.ChangeExtension(Path.GetFileName(inputSpecFile), ".swagger.json");
             var outputFile = Path.Combine(this.options.OutputFolder!, outputFileName);
-            this.message.Verbose($"Writing output file '{outputFile}' as version '{OutputVersion}'");
+            this.message.Verbose($"Writing output file '{outputFile}' as version '{_outputVersion}'");
             using FileStream fs = File.Create(outputFile);
-            document.Serialize(fs, OutputVersion, OpenApiFormat.Json);
+            document.Serialize(fs, _outputVersion, OpenApiFormat.Json);
         }
 
         private void CreateSingleExampleFromMultipleExamples(OpenApiMediaType content, string description)

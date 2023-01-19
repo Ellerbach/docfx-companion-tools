@@ -11,7 +11,7 @@ namespace DocFxOpenApi.Helpers
     /// </summary>
     public class MessageHelper
     {
-        private readonly CommandlineOptions options;
+        private readonly CommandlineOptions _options;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MessageHelper"/> class.
@@ -19,7 +19,7 @@ namespace DocFxOpenApi.Helpers
         /// <param name="options">Command line options.</param>
         public MessageHelper(CommandlineOptions options)
         {
-            this.options = options;
+            this._options = options;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace DocFxOpenApi.Helpers
         /// <param name="message">Message to show in verbose mode.</param>
         public void Verbose(string message)
         {
-            if (this.options.Verbose)
+            if (this._options.Verbose)
             {
                 Console.WriteLine(message);
             }
