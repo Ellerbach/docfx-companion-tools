@@ -20,17 +20,17 @@ namespace DocFxOpenApi
     /// </summary>
     internal class DocFxOpenApi
     {
-        private const OpenApiSpecVersion _outputVersion = OpenApiSpecVersion.OpenApi2_0;
+        private const OpenApiSpecVersion OutputVersion = OpenApiSpecVersion.OpenApi2_0;
         private static readonly string[] _openApiFileExtensions = { "json", "yaml", "yml" };
 
-        private static int returnvalue;
-        private CommandlineOptions options;
-        private MessageHelper message;
+        private static int _returnvalue;
+        private CommandlineOptions _options;
+        private MessageHelper _message;
 
         private DocFxOpenApi(CommandlineOptions thisOptions)
         {
-            this.options = thisOptions;
-            this.message = new MessageHelper(thisOptions);
+            _options = thisOptions;
+            _message = new MessageHelper(thisOptions);
         }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace DocFxOpenApi
                 .WithParsed(RunLogic)
                 .WithNotParsed(HandleErrors);
 
-            Console.WriteLine($"Exit with return code {returnvalue}");
+            Console.WriteLine($"Exit with return code {_returnvalue}");
 
-            return returnvalue;
+            return _returnvalue;
         }
 
         /// <summary>
@@ -65,28 +65,28 @@ namespace DocFxOpenApi
         /// <param name="errors">List or errors (ignored).</param>
         private static void HandleErrors(IEnumerable<Error> errors)
         {
-            returnvalue = 1;
+            _returnvalue = 1;
         }
 
         private void RunLogic()
         {
-            if (string.IsNullOrEmpty(this.options.OutputFolder))
+            if (string.IsNullOrEmpty(_options.OutputFolder))
             {
-                this.options.OutputFolder = this.options.SpecFolder;
+                _options.OutputFolder = _options.SpecFolder;
             }
 
-            this.message.Verbose($"Specification folder: {this.options.SpecFolder}");
-            this.message.Verbose($"Output folder       : {this.options.OutputFolder}");
-            this.message.Verbose($"Verbose             : {this.options.Verbose}");
+            _message.Verbose($"Specification folder: {_options.SpecFolder}");
+            _message.Verbose($"Output folder       : {_options.OutputFolder}");
+            _message.Verbose($"Verbose             : {_options.Verbose}");
 
-            if (!Directory.Exists(this.options.SpecFolder))
+            if (!Directory.Exists(_options.SpecFolder))
             {
-                this.message.Error($"ERROR: Specification folder '{this.options.SpecFolder}' doesn't exist.");
-                returnvalue = 1;
+                _message.Error($"ERROR: Specification folder '{_options.SpecFolder}' doesn't exist.");
+                _returnvalue = 1;
                 return;
             }
 
-            Directory.CreateDirectory(this.options.OutputFolder!);
+            Directory.CreateDirectory(_options.OutputFolder!);
 
             this.ConvertOpenApiFiles();
         }
@@ -102,7 +102,7 @@ namespace DocFxOpenApi
         private void ConvertOpenApiFiles(string extension)
         {
             foreach (var file in Directory.GetFiles(
-                this.options.SpecFolder!,
+                _options.SpecFolder!,
                 $"*.{extension}",
                 new EnumerationOptions
                 {
@@ -116,23 +116,23 @@ namespace DocFxOpenApi
 
         private void ConvertOpenApiFile(string inputSpecFile)
         {
-            this.message.Verbose($"Reading OpenAPI file '{inputSpecFile}'");
+            _message.Verbose($"Reading OpenAPI file '{inputSpecFile}'");
             using var stream = File.OpenRead(inputSpecFile);
             var document = new OpenApiStreamReader().Read(stream, out var diagnostic);
 
             if (diagnostic.Errors.Any())
             {
-                this.message.Error($"ERROR: Not a valid OpenAPI v2 or v3 specification");
+                _message.Error($"ERROR: Not a valid OpenAPI v2 or v3 specification");
                 foreach (var error in diagnostic.Errors)
                 {
-                    this.message.Error(error.ToString());
+                    _message.Error(error.ToString());
                 }
 
-                returnvalue = 1;
+                _returnvalue = 1;
                 return;
             }
 
-            this.message.Verbose($"Input OpenAPI version '{diagnostic.SpecificationVersion}'");
+            _message.Verbose($"Input OpenAPI version '{diagnostic.SpecificationVersion}'");
 
             foreach (var (pathName, path) in document.Paths)
             {
@@ -164,7 +164,7 @@ namespace DocFxOpenApi
 
                             if (content.Example is not null && content.Schema is not null && content.Schema.Example is null)
                             {
-                                this.message.Verbose($"[OpenAPIv2 compatibility] Setting type example from sample requestBody example for {content.Schema.Reference?.ReferenceV2 ?? "item"} from {operation.OperationId}");
+                                _message.Verbose($"[OpenAPIv2 compatibility] Setting type example from sample requestBody example for {content.Schema.Reference?.ReferenceV2 ?? "item"} from {operation.OperationId}");
                                 content.Schema.Example = content.Example;
                             }
                         }
@@ -173,17 +173,17 @@ namespace DocFxOpenApi
             }
 
             var outputFileName = Path.ChangeExtension(Path.GetFileName(inputSpecFile), ".swagger.json");
-            var outputFile = Path.Combine(this.options.OutputFolder!, outputFileName);
-            this.message.Verbose($"Writing output file '{outputFile}' as version '{_outputVersion}'");
+            var outputFile = Path.Combine(_options.OutputFolder!, outputFileName);
+            _message.Verbose($"Writing output file '{outputFile}' as version '{OutputVersion}'");
             using FileStream fs = File.Create(outputFile);
-            document.Serialize(fs, _outputVersion, OpenApiFormat.Json);
+            document.Serialize(fs, OutputVersion, OpenApiFormat.Json);
         }
 
         private void CreateSingleExampleFromMultipleExamples(OpenApiMediaType content, string description)
         {
             if (content.Example is null && content.Examples.Any())
             {
-                this.message.Verbose($"[OpenAPIv2 compatibility] Setting example from first of multiple OpenAPIv3 examples for {description}");
+                _message.Verbose($"[OpenAPIv2 compatibility] Setting example from first of multiple OpenAPIv3 examples for {description}");
                 content.Example = content.Examples.Values.First().Value;
             }
         }
