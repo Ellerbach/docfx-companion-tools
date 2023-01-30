@@ -26,11 +26,11 @@ jobs:
       id: gitversion 
       uses: gittools/actions/gitversion/execute@v0.9.7
        
-    # Setup .NET 5
+    # Setup .NET 6
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.x
+        dotnet-version: 6.x
 
     # Build the tools & create the zip-file
     - name: Build & Package
