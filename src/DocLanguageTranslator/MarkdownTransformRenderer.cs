@@ -42,7 +42,7 @@ namespace DocFXLanguageGenerator
         /// <returns>The block text.</returns>
         public string TakeNext(int length)
         {
-            if (length == 0)
+            if (length <= 0)
             {
                 return null;
             }
