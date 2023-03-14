@@ -193,7 +193,6 @@ namespace DocFxTocGenerator
                 _filePatternsForToc
                 .SelectMany(pattern => folder.GetFiles(pattern, _caseSetting))
                 .OrderBy(f => f.Name)
-                .Where(f => f.Name.ToUpperInvariant() != "INDEX.MD")
                 .ToList();
             if (!files.Any())
             {
