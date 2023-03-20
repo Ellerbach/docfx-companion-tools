@@ -385,7 +385,10 @@ namespace DocLinkChecker
                         // check link if not to a URL, in-doc link or e-mail address
                         if (!relative.StartsWith("http:") &&
                             !relative.StartsWith("https:") &&
-                            !relative.Contains("@") &&
+                            !relative.StartsWith("ftp:") &&
+                            !relative.StartsWith("ftps:") &&
+                            !relative.StartsWith("xref:") &&
+                            !relative.StartsWith("mailto:") &&
                             !string.IsNullOrEmpty(Path.GetExtension(relative)) &&
                             !string.IsNullOrWhiteSpace(relative))
                         {
