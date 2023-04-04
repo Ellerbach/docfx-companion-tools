@@ -64,4 +64,34 @@ jobs:
       env:
         CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
       run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
-        
+
+    - name: Package for .NET tools
+      run: dotnet pack ./src/DocFxCompanionTools.sln -c Release -p:PackAsTool=true -o ./artifacts
+
+    - name : Publish DocLinkChecker to NuGet
+      uses: nuget-publish.yml@v1
+      with:
+        nuget_api_key: ${{ secrets.NUGET_TOOLS }}
+        nuget_source: https://api.nuget.org/v3/index.json
+        nuget_package: ./artifacts/DocLinkChecker.${{ steps.gitversion.outputs.MajorMinorPatch }}.nupkg 
+    
+    - name : Publish DocLanguageTranslator to NuGet
+      uses: nuget-publish.yml@v1
+      with:
+        nuget_api_key: ${{ secrets.NUGET_TOOLS }}
+        nuget_source: https://api.nuget.org/v3/index.json
+        nuget_package: ./artifacts/DocLanguageTranslator.${{ steps.gitversion.outputs.MajorMinorPatch }}.nupkg 
+    
+    - name : Publish DocFxTocGenerator to NuGet
+      uses: nuget-publish.yml@v1
+      with:
+        nuget_api_key: ${{ secrets.NUGET_TOOLS }}
+        nuget_source: https://api.nuget.org/v3/index.json
+        nuget_package: ./artifacts/DocFxTocGenerator.${{ steps.gitversion.outputs.MajorMinorPatch }}.nupkg 
+    
+    - name : Publish DocFxOpenApi to NuGet
+      uses: nuget-publish.yml@v1
+      with:
+        nuget_api_key: ${{ secrets.NUGET_TOOLS }}
+        nuget_source: https://api.nuget.org/v3/index.json
+        nuget_package: ./artifacts/DocFxOpenApi.${{ steps.gitversion.outputs.MajorMinorPatch }}.nupkg 
