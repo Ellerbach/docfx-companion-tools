@@ -4,12 +4,20 @@
 namespace DocLinkChecker
 {
     using System;
+    using System.IO;
+    using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Text;
+    using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
+    using CommandLine;
+    using DocLinkChecker.Helpers;
+    using DocLinkChecker.Models;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
     using Polly;
     using Polly.Extensions.Http;
     using Polly.Timeout;
@@ -20,6 +28,9 @@ namespace DocLinkChecker
     /// </summary>
     public class Program
     {
+        private const string AppConfigName = "docfx-companion-tools.json";
+        private static AppConfig _appConfig = new ();
+
         /// <summary>
         /// Main entry point of the application.
         /// </summary>
@@ -28,8 +39,29 @@ namespace DocLinkChecker
         public static Task<int> Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
+
+            if (File.Exists(AppConfigName))
+            {
+                // we have a local configuration file, so read it.
+                string json = File.ReadAllText(AppConfigName);
+                _appConfig = JsonSerializer.Deserialize<AppConfig>(json);
+            }
+
+            // parse flags that can overwrite settings from configuration.
+            Parser.Default.ParseArguments<CommandlineOptions>(args)
+                                   .WithParsed<CommandlineOptions>(ProcessSettings);
+
             CreateHostBuilder(args).Build().Run();
             return Task.FromResult(0);
+        }
+
+        /// <summary>
+        /// Run the logic of the app with the given parameters.
+        /// Given folders are checked if they exist.
+        /// </summary>
+        /// <param name="o">Parsed commandline options.</param>
+        private static void ProcessSettings(CommandlineOptions o)
+        {
         }
 
         /// <summary>
@@ -40,8 +72,7 @@ namespace DocLinkChecker
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-
-                // Ctrl-C
+                //// Ctrl-C
                 .UseConsoleLifetime()
                 .ConfigureLogging(options =>
                 {
@@ -54,10 +85,10 @@ namespace DocLinkChecker
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    services.Configure<MdCheckerConfiguration>(hostContext.Configuration.GetSection("MdChecker"));
+                    ////services.Configure<AppConfig>(hostContext.Configuration.GetSection("MdChecker"));
 
-                    services.AddSingleton<Crawler>();
-                    services.AddSingleton<Checker>();
+                    ////services.AddSingleton<Crawler>();
+                    ////services.AddSingleton<Checker>();
 
                     services.AddHttpClient("MdChecker-Client", c =>
                     {
@@ -69,15 +100,15 @@ namespace DocLinkChecker
                             NoCache = true,
                             NoStore = true,
                             MaxAge = new TimeSpan(0),
-                            MustRevalidate = true
+                            MustRevalidate = true,
                         };
                         c.Timeout = TimeSpan.FromSeconds(30);
                     })
                     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
                     {
                         MaxConnectionsPerServer = 100,
-                        // HttpClient does not support redirects from https to http:
-                        // https://github.com/dotnet/runtime/issues/28039
+                        //// HttpClient does not support redirects from https to http:
+                        //// https://github.com/dotnet/runtime/issues/28039
                         AllowAutoRedirect = false,
                     })
                     .AddPolicyHandler(policy =>
@@ -85,8 +116,6 @@ namespace DocLinkChecker
                         return HttpPolicyExtensions
                             .HandleTransientHttpError()
                             .Or<TimeoutRejectedException>()
-                            //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-                            //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                             .WaitAndRetryAsync(3, retry => TimeSpan.FromSeconds(1));
                     })
                     .AddTypedClient<CheckerHttpClient>();
