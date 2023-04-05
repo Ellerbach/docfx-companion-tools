@@ -48,6 +48,8 @@ If you have one or more PR's and want to release a new version, just make sure t
 
 ## Install
 
+### Chocolatey
+
 The tools can be installed by dowloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
 
 ```shell
@@ -56,6 +58,19 @@ choco install docfx-companion-tools
 
 > [NOTE!]
 > The tools expect the .NET Framework 5 to be installed locally.
+
+### dotnet tool
+
+You can as well install the tools through `dotnet tool`.
+
+```shell
+dotnet tool install DocFxTocGenerator -g
+dotnet tool install DocLanguageTranslator -g
+dotnet tool install DocLinkChecker -g
+dotnet tool install DocFxOpenApi -g
+```
+
+### usage
 
 Once the tools are installed this way you can use them directly from the command line. For example:
 
