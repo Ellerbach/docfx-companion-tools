@@ -32,7 +32,8 @@ jobs:
       with:
         dotnet-version: 6.x
 
-    # Build the tools & create the zip-file
+    # Build the tools & create the zip-file and nuget packages
+    # Chocolatey tools are in .\tools. NuGet packages in .\artifacts
     - name: Build & Package
       run: pwsh .\build.ps1
 
@@ -49,7 +50,7 @@ jobs:
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Create GitHub release with created zip-file and CHANGELOG
+    # Create GitHub release with created zip-file and CHANGELOG for Chocolatey and releases
     # NOTE: this is where we prepend "v" before the version in the tag/release
     - name: Create release
       uses: ncipollo/release-action@v1
@@ -60,20 +61,16 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     # package and publish Chocolatey package for this version
+    # We publish the nuspec file which references the tools.zip in releases.
     - name: Publish to Chocolatey
       env:
         CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
       run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
 
-    # package for publishing to nuget
-    # For NuGet we can only publish per tool, not as a complete package.
-    - name: Package for .NET tools
-      run: dotnet pack ./src/DocFxCompanionTools.sln -c Release -p:PackAsTool=true -o ./artifacts
-
     # Publish all NuGet packages to NuGet.org
     # Use --skip-duplicate to prevent errors if a package with the same version already exists.
     # If you retry a failed workflow, already published packages will be skipped without error.
-    - name: Publish tools to NuGet
+    - name: Publish separate tools to NuGet
       run: |
           foreach($file in (Get-ChildItem "./artifacts" -Recurse -Include *.nupkg)) {
               dotnet nuget push $file --api-key "${{ secrets.NUGET_TOOLS }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

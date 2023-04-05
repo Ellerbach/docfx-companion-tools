@@ -71,7 +71,11 @@ function RemovePath {
 function GetCurrentVersionFromGitTag {
     param($gitCommand)
     $stdout = & $gitCommand describe --abbrev=0 --tags
-    return $stdout ? $stdout.Trim() : ''
+    if ($stdout) {
+        return $stdout;
+    } else {
+        return '';
+    }
 }
 
 function GetVersionFromReleaseNote {
