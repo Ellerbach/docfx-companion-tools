@@ -17,9 +17,11 @@ if (Test-Path -Path $solution.assetZipPath) {
 # Build all dotnet solution into $solution.targetFolder as single exe's
 foreach ($sln in (Get-ChildItem -Recurse src\*.sln)) {
     Write-Host "Start building $($sln.FullName)"
-
     & dotnet publish $sln.FullName -c Release -r win-x64 /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false --self-contained false -o $solution.targetFolder
 }
+
+# Package NuGet packages
+dotnet pack ./src/DocFxCompanionTools.sln -c Release -p:PackAsTool=true -o ./artifacts
 
 # remove possible generated XML documentation files
 Remove-Item "$($solution.targetFolder)\*.xml"
