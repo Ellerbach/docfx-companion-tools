@@ -65,6 +65,8 @@ jobs:
         CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
       run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
 
+    # package for publishing to nuget
+    # For NuGet we can only publish per tool, not as a complete package.
     - name: Package for .NET tools
       run: dotnet pack ./src/DocFxCompanionTools.sln -c Release -p:PackAsTool=true -o ./artifacts
 
