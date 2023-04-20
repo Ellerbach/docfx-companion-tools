@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
     using CommandLine;
     using CommandLine.Text;
@@ -42,8 +43,15 @@
         public bool CleanupOrphanedResources { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether grid tables are validated for proper formatting.
+        /// Gets or sets a value indicating whether pipe tables are validated for proper formatting.
         /// </summary>
-        public bool ValidateGridTableFormatting { get; set; }
+        public bool ValidatePipeTableFormatting { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we have verbose output.
+        /// NOTE: not serialized in settings, just a flag.
+        /// </summary>
+        [JsonIgnore]
+        public bool Verbose { get; set; }
     }
 }

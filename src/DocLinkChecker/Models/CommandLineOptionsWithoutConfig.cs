@@ -6,9 +6,11 @@ namespace DocLinkChecker.Models
     using CommandLine;
 
     /// <summary>
-    /// Class for command line options.
+    /// Class for command line options when no config file is available.
+    /// This options are the ones of the "old" implementation. This is kept
+    /// to be backwards compatible. In this version we have required options.
     /// </summary>
-    public class CommandlineOptions
+    public class CommandlineOptionsWithoutConfig
     {
         /// <summary>
         /// Gets or sets the folder with documents.

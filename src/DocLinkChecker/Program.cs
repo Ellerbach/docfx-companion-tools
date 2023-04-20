@@ -40,28 +40,9 @@ namespace DocLinkChecker
         {
             Console.OutputEncoding = Encoding.UTF8;
 
-            if (File.Exists(AppConfigName))
-            {
-                // we have a local configuration file, so read it.
-                string json = File.ReadAllText(AppConfigName);
-                _appConfig = JsonSerializer.Deserialize<AppConfig>(json);
-            }
-
-            // parse flags that can overwrite settings from configuration.
-            Parser.Default.ParseArguments<CommandlineOptions>(args)
-                                   .WithParsed<CommandlineOptions>(ProcessSettings);
 
             CreateHostBuilder(args).Build().Run();
             return Task.FromResult(0);
-        }
-
-        /// <summary>
-        /// Run the logic of the app with the given parameters.
-        /// Given folders are checked if they exist.
-        /// </summary>
-        /// <param name="o">Parsed commandline options.</param>
-        private static void ProcessSettings(CommandlineOptions o)
-        {
         }
 
         /// <summary>
@@ -71,6 +52,44 @@ namespace DocLinkChecker
         /// <returns><see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
+            bool configRead = false;
+            if (File.Exists(AppConfigName))
+            {
+                // we have a local configuration file, so read it.
+                string json = File.ReadAllText(AppConfigName);
+                _appConfig = JsonSerializer.Deserialize<AppConfig>(json);
+                configRead = true;
+            }
+
+            // if first argument is "INIT", we'll generate a basic settings file
+            // NOTE: We don't use verbs with CommandlineParser because of backwards compatability
+            if (args.Length > 0 && args[0].ToUpperInvariant() == "INIT")
+            {
+                if (configRead)
+                {
+                    Console.WriteLine($"ERROR: {AppConfigName} already exists in this folder. We don't overwrite.");
+                    Environment.Exit(1);
+                }
+                else
+                {
+                    string json = JsonSerializer.Serialize(_appConfig);
+                    File.WriteAllText(AppConfigName, json);
+                }
+            }
+
+            if (!configRead)
+            {
+                // this is the "old" way: just use parameters
+                Parser.Default.ParseArguments<CommandlineOptionsWithoutConfig>(args)
+                    .WithParsed<CommandlineOptionsWithoutConfig>(ProcessSettingsWithoutConfig);
+            }
+            else
+            {
+                // this is the "new" way: use a config file, but parameters can overrule
+                Parser.Default.ParseArguments<CommandLineOptionsWithConfig>(args)
+                    .WithParsed<CommandLineOptionsWithConfig>(ProcessSettingsWithConfig);
+            }
+
             return Host.CreateDefaultBuilder(args)
                 //// Ctrl-C
                 .UseConsoleLifetime()
@@ -122,6 +141,72 @@ namespace DocLinkChecker
 
                     services.AddHostedService<App>();
                 });
+        }
+
+        /// <summary>
+        /// Run the logic of the app with the given parameters.
+        /// Given folders are checked if they exist.
+        /// </summary>
+        /// <param name="o">Parsed commandline options.</param>
+        private static void ProcessSettingsWithConfig(CommandLineOptionsWithConfig o)
+        {
+            if (!string.IsNullOrEmpty(o.DocFolder))
+            {
+                _appConfig.DocumentsFolder = o.DocFolder;
+            }
+
+            if (o.Verbose)
+            {
+                _appConfig.Verbose = true;
+            }
+
+            if (o.Attachments)
+            {
+                _appConfig.ValidateResources = true;
+            }
+
+            if (o.Cleanup)
+            {
+                _appConfig.CleanupOrphanedResources = true;
+            }
+
+            if (o.Table)
+            {
+                _appConfig.ValidatePipeTableFormatting = true;
+            }
+        }
+
+        /// <summary>
+        /// Run the logic of the app with the given parameters.
+        /// Given folders are checked if they exist.
+        /// </summary>
+        /// <param name="o">Parsed commandline options.</param>
+        private static void ProcessSettingsWithoutConfig(CommandlineOptionsWithoutConfig o)
+        {
+            if (!string.IsNullOrEmpty(o.DocFolder))
+            {
+                _appConfig.DocumentsFolder = o.DocFolder;
+            }
+
+            if (o.Verbose)
+            {
+                _appConfig.Verbose = true;
+            }
+
+            if (o.Attachments)
+            {
+                _appConfig.ValidateResources = true;
+            }
+
+            if (o.Cleanup)
+            {
+                _appConfig.CleanupOrphanedResources = true;
+            }
+
+            if (o.Table)
+            {
+                _appConfig.ValidatePipeTableFormatting = true;
+            }
         }
     }
 }
