@@ -12,6 +12,7 @@ namespace DocLinkChecker
     using CommandLine;
     using DocLinkChecker.Domain;
     using DocLinkChecker.Helpers;
+    using DocLinkChecker.Services;
 
     /// <summary>
     /// Main program class for documentation link checker tool. It's a command-line tool
@@ -20,7 +21,7 @@ namespace DocLinkChecker
     public class ProgramOLD
     {
         private static CommandlineOptions options;
-        private static MessageHelper message;
+        private static CustomConsoleLogger message;
 
         private static DirectoryInfo rootDir;
         private static List<string> allFiles = new List<string>();

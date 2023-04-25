@@ -1,51 +1,19 @@
 ﻿namespace DocLinkChecker.Models
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Text.Json.Serialization;
-    using System.Threading.Tasks;
-    using CommandLine;
-    using CommandLine.Text;
 
     /// <summary>
     /// Model for application configuration.
     /// </summary>
-    internal class AppConfig
+    public class AppConfig
     {
         /// <summary>
         /// Gets or sets the documents folder to scan.
+        /// NOTE: not serialized in settings.
         /// </summary>
-        public string DocumentsFolder { get; set; } = ".";
-
-        /// <summary>
-        /// Gets or sets the valid resource folder names (like .attachments, images or such).
-        /// </summary>
-        public List<string> ValidResourceFolderNames { get; set; } = new () { ".attachments", "images" };
-
-        /// <summary>
-        /// Gets or sets a value indicating whether resources can be stored as subfolder in any
-        /// location, or just in a centralized location under the <see cref="DocumentsFolder"/>.
-        /// </summary>
-        public bool UseOnlyCentralizedResource { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether resources are validated that they are
-        /// referenced by any document in our scan. If a resource file is orphaned, the
-        /// validation will result in an error when this switch is set to true.
-        /// </summary>
-        public bool ValidateResources { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether orphaned resource files should be deleted.
-        /// </summary>
-        public bool CleanupOrphanedResources { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether pipe tables are validated for proper formatting.
-        /// </summary>
-        public bool ValidatePipeTableFormatting { get; set; }
+        [JsonIgnore]
+        public string DocumentsFolder { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether we have verbose output.
@@ -53,5 +21,40 @@
         /// </summary>
         [JsonIgnore]
         public bool Verbose { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration file that was read.
+        /// NOTE: not serialized in settings.
+        /// </summary>
+        [JsonIgnore]
+        public string ConfigFilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the resource folder names (like .attachments, images or such).
+        /// </summary>
+        public List<string> ResourceFolderNames { get; set; } = new () { ".attachments", "images" };
+
+        /// <summary>
+        /// Gets or sets the DocLinkChecher settings.
+        /// </summary>
+        public DocLinkCheckerSettings DocLinkChecker { get; set; } = new ();
+
+        /// <summary>
+        /// Return all app settings as a string.
+        /// </summary>
+        /// <returns>String with settings.</returns>
+        public override string ToString()
+        {
+            string result = string.Empty;
+            if (!string.IsNullOrEmpty(ConfigFilePath))
+            {
+                result += $"Config file: {ConfigFilePath}\n";
+            }
+
+            result += $"Documents folder: {DocumentsFolder}\n";
+            result += $"Valid resource folder names: {string.Join(",", ResourceFolderNames)}\n";
+            result += DocLinkChecker.ToString();
+            return result;
+        }
     }
 }
