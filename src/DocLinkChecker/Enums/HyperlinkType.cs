@@ -31,6 +31,11 @@
         CrossReference,
 
         /// <summary>
+        /// A local resource, like an image.
+        /// </summary>
+        Resource,
+
+        /// <summary>
         /// Empty link.
         /// </summary>
         Empty,

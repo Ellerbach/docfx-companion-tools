@@ -13,6 +13,11 @@
         public bool CheckForOrphanedResources { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether resources outside the documents root are allowed.
+        /// </summary>
+        public bool AllowResourcesOutsideDocumentsRoot { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether orphaned resource files should be deleted.
         /// </summary>
         public bool CleanupOrphanedResources { get; set; }

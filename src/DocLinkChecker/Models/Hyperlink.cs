@@ -1,5 +1,6 @@
 ﻿namespace DocLinkChecker.Models
 {
+    using System.IO;
     using DocLinkChecker.Enums;
 
     /// <summary>
@@ -40,7 +41,16 @@
                 }
                 else
                 {
-                    LinkType = HyperlinkType.Local;
+                    if (Path.GetExtension(url) == ".md" || Path.GetExtension(url) == string.Empty)
+                    {
+                        // link to an MD file or a folder
+                        LinkType = HyperlinkType.Local;
+                    }
+                    else
+                    {
+                        // link to image or something like that.
+                        LinkType = HyperlinkType.Resource;
+                    }
                 }
             }
         }
@@ -64,6 +74,17 @@
         /// Gets or sets a value indicating whether this is a web link.
         /// </summary>
         public HyperlinkType LinkType { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this is a local link.
+        /// </summary>
+        public bool IsLocal
+        {
+            get
+            {
+                return LinkType == HyperlinkType.Local || LinkType == HyperlinkType.Resource;
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this is a web link.

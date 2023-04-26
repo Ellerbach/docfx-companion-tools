@@ -9,18 +9,11 @@
     public class AppConfig
     {
         /// <summary>
-        /// Gets or sets the documents folder to scan.
+        /// Gets or sets the documents root to scan.
         /// NOTE: not serialized in settings.
         /// </summary>
         [JsonIgnore]
-        public string DocumentsFolder { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether we have verbose output.
-        /// NOTE: not serialized in settings, just a flag.
-        /// </summary>
-        [JsonIgnore]
-        public bool Verbose { get; set; }
+        public string DocumentsRoot { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the configuration file that was read.
@@ -28,6 +21,13 @@
         /// </summary>
         [JsonIgnore]
         public string ConfigFilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we have verbose output.
+        /// NOTE: not serialized in settings, just a flag.
+        /// </summary>
+        [JsonIgnore]
+        public bool Verbose { get; set; }
 
         /// <summary>
         /// Gets or sets the resource folder names (like .attachments, images or such).
@@ -51,7 +51,7 @@
                 result += $"Config file: {ConfigFilePath}\n";
             }
 
-            result += $"Documents folder: {DocumentsFolder}\n";
+            result += $"Documents folder: {DocumentsRoot}\n";
             result += $"Valid resource folder names: {string.Join(",", ResourceFolderNames)}\n";
             result += DocLinkChecker.ToString();
             return result;

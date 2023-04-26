@@ -14,7 +14,7 @@
     public class App : BackgroundService
     {
         private readonly CrawlerService _crawler;
-        private readonly CheckerService _checker;
+        private readonly LinkValidatorService _checker;
         private readonly CustomConsoleLogger _console;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
@@ -27,7 +27,7 @@
         /// <param name="hostApplicationLifetime">Host application lifetime.</param>
         public App(
             CrawlerService crawler,
-            CheckerService checker,
+            LinkValidatorService checker,
             CustomConsoleLogger console,
             IHostApplicationLifetime hostApplicationLifetime)
         {
@@ -61,6 +61,11 @@
             _console.Verbose($"Total Time: {sw.Elapsed.TotalSeconds}s");
             _console.Output($"Links - Succeeded:{_checker.Successes}; Failed:{_checker.Failures}");
             _console.Output($"Files - Processed:{processed}");
+
+            if (_checker.Failures > 0)
+            {
+                Program.ReturnValue = Enums.ReturnValue.ProcessingErrors;
+            }
 
             _hostApplicationLifetime.StopApplication();
         }

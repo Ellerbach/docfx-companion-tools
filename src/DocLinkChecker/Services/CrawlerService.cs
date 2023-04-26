@@ -41,7 +41,7 @@
         public async Task<int> WalkTreeForMarkdown(Func<string, Task> onFile)
         {
             int processedCounter = 0;
-            var root = Path.GetFullPath(_config.DocumentsFolder);
+            var root = Path.GetFullPath(_config.DocumentsRoot);
             var allFiles = Directory.EnumerateFiles(root, $"*.{AppConstants.MarkdownExtension}", SearchOption.AllDirectories);
             _console.Verbose($"Traversing {allFiles.Count()} files in {root}");
             foreach (var file in allFiles)
@@ -68,7 +68,7 @@
         public async Task<int> WalkTreeForResources(Func<string, Task> onFile)
         {
             int processedCounter = 0;
-            var root = Path.GetFullPath(_config.DocumentsFolder);
+            var root = Path.GetFullPath(_config.DocumentsRoot);
             var allFiles = Directory.EnumerateFiles(root, $"*.{AppConstants.MarkdownExtension}", SearchOption.AllDirectories);
             _console.Verbose($"Traversing {allFiles.Count()} files in {root}");
             foreach (var file in allFiles)

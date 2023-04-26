@@ -28,7 +28,11 @@ namespace DocLinkChecker
     public class Program
     {
         private static AppConfig _appConfig = new ();
-        private static ReturnValue _return = ReturnValue.Processing;
+
+        /// <summary>
+        /// Gets or sets the return value of the application.
+        /// </summary>
+        public static ReturnValue ReturnValue { get; set; } = ReturnValue.Processing;
 
         /// <summary>
         /// Main entry point of the application.
@@ -39,7 +43,7 @@ namespace DocLinkChecker
         {
             Console.OutputEncoding = Encoding.UTF8;
             CreateHostBuilder(args).Build().Run();
-            return (int)_return;
+            return (int)ReturnValue;
         }
 
         /// <summary>
@@ -50,9 +54,9 @@ namespace DocLinkChecker
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             DetermineConfiguration(args);
-            if (_return != ReturnValue.Processing)
+            if (ReturnValue != ReturnValue.Processing)
             {
-                Environment.Exit((int)_return);
+                Environment.Exit((int)ReturnValue);
             }
 
             return Host.CreateDefaultBuilder(args)
@@ -72,7 +76,7 @@ namespace DocLinkChecker
                     services.AddSingleton<AppConfig>(_appConfig);
                     services.AddSingleton<CustomConsoleLogger>(new CustomConsoleLogger(_appConfig.Verbose));
                     services.AddSingleton<CrawlerService>();
-                    services.AddSingleton<CheckerService>();
+                    services.AddSingleton<LinkValidatorService>();
 
                     services.AddHttpClient(AppConstants.HttpClientName, c =>
                     {
@@ -128,7 +132,7 @@ namespace DocLinkChecker
                     console.Error($"ERROR: {AppConstants.AppConfigFileName} already exists in this folder. We don't overwrite.");
 
                     // indicate we're done with an error
-                    _return = ReturnValue.CommandError;
+                    ReturnValue = ReturnValue.CommandError;
                     return;
                 }
                 else
@@ -138,7 +142,7 @@ namespace DocLinkChecker
                     console.Output($"Initial configuration saved in {AppConstants.AppConfigFileName}");
 
                     // indicate we're done with an error
-                    _return = ReturnValue.OK;
+                    ReturnValue = ReturnValue.OK;
                     return;
                 }
             }
@@ -159,7 +163,7 @@ namespace DocLinkChecker
         /// </summary>
         private static void HandleParameterErrors(IEnumerable<Error> obj)
         {
-            _return = ReturnValue.ParameterErrors;
+            ReturnValue = ReturnValue.ParameterErrors;
         }
 
         /// <summary>
@@ -179,7 +183,7 @@ namespace DocLinkChecker
                     console.Error($"ERROR: configuration file {o.ConfigFilePath} not found.");
 
                     // indicate we're done with errors in the configuration file
-                    _return = ReturnValue.ConfigurationFileErrors;
+                    ReturnValue = ReturnValue.ConfigurationFileErrors;
                     return;
                 }
 
@@ -194,14 +198,14 @@ namespace DocLinkChecker
                     console.Error($"ERROR: reading {o.ConfigFilePath} - {ex.Message}");
 
                     // indicate we're done with errors in the configuration file
-                    _return = ReturnValue.ConfigurationFileErrors;
+                    ReturnValue = ReturnValue.ConfigurationFileErrors;
                     return;
                 }
             }
 
             // now see if there are parameters that override settings from the current settings.
-            _appConfig.DocumentsFolder = o.DocFolder;
-            _appConfig.ConfigFilePath = o.ConfigFilePath;
+            _appConfig.DocumentsRoot = Path.GetFullPath(o.DocFolder);
+            _appConfig.ConfigFilePath = Path.GetFullPath(o.ConfigFilePath);
 
             if (o.Verbose)
             {
