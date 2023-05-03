@@ -39,5 +39,11 @@ namespace DocLinkChecker.Domain
         /// </summary>
         [Option('t', "table", Required = false, HelpText = "Check that tables are well formed.")]
         public bool Table { get; set; }
+
+        /// <summary>
+        /// Gets or sets the RegExp to define which folders or files to skip.
+        /// </summary>
+        [Option('s', "skip", Required = false, HelpText = "RegExp to define which folders or files to skip.")]
+        public string SkipPattern { get; set; }
     }
 }

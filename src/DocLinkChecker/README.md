@@ -12,6 +12,7 @@ DocLinkChecker -d <docs folder> [-vac]
 -a, --attachments     Check the .attachments folder in the root of the docfolder for unreferenced files.
 -c, --cleanup         Remove all unreferenced files from the .attachments folder in the root of the docfolder. Must be used in combination with -a flag.
 -t, --table           Check that tables are well formed.
+-s, --skip            RegExp to define which folders or files to skip.
 --help                Display this help screen.
 --version             Display version information.
 ```
@@ -24,12 +25,12 @@ If the tool encounters situations that might need some action, a warning is writ
 
 If the tool encounters an error, an error message is written to the output. The table of contents will not be created.
 
-| Exit Code | Description |
-| :--- | :--- |
-| 0 | Execution has finished successfully |
-| 1 | Arguments Parsing Exception |
-| 2 | Incorrect Table Format |
-| 999 | Unknown Exception |
+| Exit Code | Description                         |
+| :-------- | :---------------------------------- |
+| 0         | Execution has finished successfully |
+| 1         | Arguments Parsing Exception         |
+| 2         | Incorrect Table Format              |
+| 999       | Unknown Exception                   |
 
 If you want to trace what the tool is doing, use the `-v or verbose` flag to output all details of processing the files and folders and creating the table of contents.
 

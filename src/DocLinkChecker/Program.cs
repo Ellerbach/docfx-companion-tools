@@ -25,6 +25,7 @@ namespace DocLinkChecker
         private static DirectoryInfo rootDir;
         private static List<string> allFiles = new List<string>();
         private static List<string> allLinks = new List<string>();
+        private static uint notFoundLinksCounter = 0;
 
         /// <summary>
         /// Main entry point.
@@ -41,6 +42,15 @@ namespace DocLinkChecker
                 Parser.Default.ParseArguments<CommandlineOptions>(args)
                                    .WithParsed<CommandlineOptions>(RunLogic)
                                    .WithNotParsed(HandleErrors);
+
+                if (notFoundLinksCounter > 0)
+                {
+                    Console.WriteLine($"{notFoundLinksCounter} broken links.");
+                }
+                else
+                {
+                    Console.WriteLine("No broken links found.");
+                }
             }
             catch (Exception ex)
             {
@@ -63,6 +73,15 @@ namespace DocLinkChecker
             options = o;
             message = new MessageHelper(options);
 
+            if (!Directory.Exists(options.DocFolder))
+            {
+                message.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
+                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
+                return;
+            }
+
+            ValidateDocFolder(options.DocFolder);
+
             // correction needed if relative path is given as parameter
             o.DocFolder = Path.GetFullPath(o.DocFolder);
 
@@ -73,15 +92,6 @@ namespace DocLinkChecker
             {
                 allFiles.Add(file.ToLowerInvariant());
             }
-
-            if (!Directory.Exists(options.DocFolder))
-            {
-                message.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
-                ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
-                return;
-            }
-
-            ValidateDocFolder(options.DocFolder);
 
             // we start at the root to generate the TOC items
             rootDir = new DirectoryInfo(options.DocFolder);
@@ -195,6 +205,17 @@ namespace DocLinkChecker
 
             foreach (FileInfo fi in files)
             {
+                if (!string.IsNullOrEmpty(options.SkipPattern))
+                {
+                    message.Verbose($"Skip pattern: {options.SkipPattern}");
+
+                    if (Regex.IsMatch(fi.FullName.ToLowerInvariant(), options.SkipPattern))
+                    {
+                        message.Verbose($"Skip the file: {fi.FullName.ToLowerInvariant()}");
+                        continue;
+                    }
+                }
+
                 message.Verbose($"Processing {fi.FullName}");
                 string content = File.ReadAllText(fi.FullName);
 
@@ -423,6 +444,7 @@ namespace DocLinkChecker
                                     // ERROR: link to non existing file
                                     message.Output($"{filepath} {linenr}:{match.Index}");
                                     message.Error($"Not found: {relative}");
+                                    notFoundLinksCounter++;
 
                                     // mark error in exit code of the tool
                                     ExitCodeHelper.ExitCode = ExitCodeHelper.ExitCodes.ParsingError;
