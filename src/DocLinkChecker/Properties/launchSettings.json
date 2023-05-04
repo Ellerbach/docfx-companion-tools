@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "DocLinkChecker": {
-      "commandName": "Project",
-      "commandLineArgs": "-d \"D:\\Git\\CSE\\ZF\\DMP\\docs\" -f \"D:\\Sync\\OneDrive\\Desktop\\docfx-companion-tools.json\""
-    }
-  }
-}
