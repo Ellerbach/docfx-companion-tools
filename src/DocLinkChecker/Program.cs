@@ -209,9 +209,9 @@ namespace DocLinkChecker
                 {
                     message.Verbose($"Skip pattern: {options.SkipPattern}");
 
-                    if (Regex.IsMatch(fi.FullName.ToLowerInvariant(), options.SkipPattern))
+                    if (Regex.IsMatch(fi.FullName, options.SkipPattern))
                     {
-                        message.Verbose($"Skip the file: {fi.FullName.ToLowerInvariant()}");
+                        message.Verbose($"Skip the file: {fi.FullName}");
                         continue;
                     }
                 }
