@@ -1,11 +1,25 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>DocFx Companion Tools contributors</Authors>
+    <Copyright>DocFx Companion Tools</Copyright>
+    <Product>DocFxTocGenerator</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Ellerbach/docfx-companion-tools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Ellerbach/docfx-companion-tools</PackageProjectUrl>
+    <Description>This tool allow to generate a yaml compatible `toc.yml` file for DocFX.</Description>
+    <PackageTags>docfx tools companion toc builder yml</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />

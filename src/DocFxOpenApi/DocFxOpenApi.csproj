@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,8 +6,22 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>DocFx Companion Tools contributors</Authors>
+    <Copyright>DocFx Companion Tools</Copyright>
+    <Product>DocFxOpenApi</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Ellerbach/docfx-companion-tools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Ellerbach/docfx-companion-tools</PackageProjectUrl>
+    <Description>This tool converts existing [OpenAPI](https://www.openapis.org/) specification files into the format compatible with DocFX (OpenAPI v2 JSON files). It allows DocFX to generate HTML pages from the OpenAPI specification. OpenAPI is also known as [Swagger](https://swagger.io/).</Description>
+    <PackageTags>docfx tools companion open api yml</PackageTags>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.5.0" />

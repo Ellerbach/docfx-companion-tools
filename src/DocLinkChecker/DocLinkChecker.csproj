@@ -6,6 +6,16 @@
     <LangVersion>10.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>DocFx Companion Tools contributors</Authors>
+    <Copyright>DocFx Companion Tools</Copyright>
+    <Product>DocLinkChecker</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Ellerbach/docfx-companion-tools</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Ellerbach/docfx-companion-tools</PackageProjectUrl>
+    <Description>This tool can be used to check references in markdown files.</Description>
+    <PackageTags>docfx tools companion link check</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,5 +33,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <None Include="README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>
