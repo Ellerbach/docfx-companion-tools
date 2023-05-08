@@ -5,10 +5,9 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using DocLinkChecker.Constants;
     using DocLinkChecker.Helpers;
+    using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
-    using Microsoft.Extensions.FileSystemGlobbing;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -17,6 +16,7 @@
     public class CrawlerService
     {
         private readonly AppConfig _config;
+        private readonly IFileService _fileService;
         private readonly CustomConsoleLogger _console;
 
         /// <summary>
@@ -24,13 +24,16 @@
         /// </summary>
         /// <param name="config">App configuration.</param>
         /// <param name="console">Console logger.</param>
+        /// <param name="fileService">File service.</param>
         /// <param name="logger">Logger.</param>
         public CrawlerService(
             AppConfig config,
             CustomConsoleLogger console,
+            IFileService fileService,
             ILogger<CrawlerService> logger)
         {
             _config = config;
+            _fileService = fileService;
             _console = console;
         }
 
@@ -44,26 +47,14 @@
             List<MarkdownError> errors = new ();
 
             // get all resources in the configure resource folder names
-            string root = Path.GetFullPath(_config.DocumentationFiles.SourceFolder);
-            Matcher matcher = new ();
-            if (_config.DocumentationFiles.Files.Any())
+            string root = _fileService.GetFullPath(_config.DocumentationFiles.SourceFolder);
+            List<string> includes = _config.DocumentationFiles.Files;
+            if (!includes.Any())
             {
-                foreach (string folderName in _config.DocumentationFiles.Files)
-                {
-                    matcher.AddInclude(folderName);
-                }
-            }
-            else
-            {
-                matcher.AddInclude("**/*.md");
+                includes.Add("**/*.md");
             }
 
-            foreach (string folderName in _config.DocumentationFiles.Exclude)
-            {
-                matcher.AddExclude(folderName);
-            }
-
-            IEnumerable<string> allFiles = matcher.GetResultsInFullPath(root);
+            IEnumerable<string> allFiles = _fileService.GetFiles(root, includes, _config.DocumentationFiles.Exclude);
 
             var mdFiles = allFiles.Where(x => Path.GetExtension(x).ToUpperInvariant() == ".MD");
             if (!mdFiles.Any())
@@ -78,7 +69,7 @@
                 {
                     if (Path.GetExtension(file).ToLowerInvariant() == ".md")
                     {
-                        _console.Verbose($"Parsing markdown in '{FileHelper.GetRelativePath(file, _config.DocumentationFiles.SourceFolder)}'.");
+                        _console.Verbose($"Parsing markdown in '{_fileService.GetRelativePath(file, _config.DocumentationFiles.SourceFolder)}'.");
                         var result = await MarkdownHelper.ParseMarkdownFileAsync(file, _config.DocLinkChecker.ValidatePipeTableFormatting);
                         objects.AddRange(result.objects);
                         errors.AddRange(result.errors);

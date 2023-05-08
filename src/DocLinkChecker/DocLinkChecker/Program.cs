@@ -13,6 +13,7 @@ namespace DocLinkChecker
     using CommandLine;
     using DocLinkChecker.Constants;
     using DocLinkChecker.Enums;
+    using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using DocLinkChecker.Services;
     using Microsoft.Extensions.DependencyInjection;
@@ -75,7 +76,9 @@ namespace DocLinkChecker
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddSingleton<AppConfig>(_appConfig);
-                    services.AddSingleton<CustomConsoleLogger>(new CustomConsoleLogger(_appConfig.Verbose));
+
+                    services.AddSingleton<ICustomConsoleLogger, CustomConsoleLogger>();
+
                     services.AddSingleton<CrawlerService>();
                     services.AddSingleton<LinkValidatorService>();
                     services.AddSingleton<ResourceValidatorService>();
@@ -123,7 +126,7 @@ namespace DocLinkChecker
         /// <param name="args">Commandline parameters.</param>
         private static void DetermineConfiguration(string[] args)
         {
-            CustomConsoleLogger console = new CustomConsoleLogger(true);
+            CustomConsoleLogger console = new CustomConsoleLogger(new () { Verbose = true });
 
             // if first argument is "INIT", we'll generate a basic settings file
             // NOTE: We don't use verbs with CommandlineParser because of backwards compatability
@@ -154,7 +157,7 @@ namespace DocLinkChecker
                 .WithParsed<CommandLineOptions>(ProcessCommandlineParameters)
                 .WithNotParsed(HandleParameterErrors);
 
-            console = new CustomConsoleLogger(_appConfig.Verbose);
+            console = new CustomConsoleLogger(_appConfig);
             console.Verbose($"=== App settings ===");
             console.Verbose($"{_appConfig}");
         }
@@ -175,7 +178,7 @@ namespace DocLinkChecker
         /// <param name="o">Parsed commandline options.</param>
         private static void ProcessCommandlineParameters(CommandLineOptions o)
         {
-            CustomConsoleLogger console = new CustomConsoleLogger(true);
+            CustomConsoleLogger console = new CustomConsoleLogger(new () { Verbose = true });
             _appConfig = new ();
 
             if (!string.IsNullOrEmpty(o.ConfigFilePath))

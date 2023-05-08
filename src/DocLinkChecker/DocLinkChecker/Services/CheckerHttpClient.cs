@@ -7,7 +7,6 @@
     using System.Net.Http;
     using System.Threading.Tasks;
     using DocLinkChecker.Models;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     /// HttpClient used to check external links.
@@ -21,10 +20,10 @@
         /// </summary>
         /// <param name="client">Http client.</param>
         /// <param name="config">App configuration.</param>
-        public CheckerHttpClient(HttpClient client, IOptions<AppConfig> config)
+        public CheckerHttpClient(HttpClient client, AppConfig config)
         {
             Client = client;
-            _config = config.Value;
+            _config = config;
         }
 
         private HttpClient Client { get; }

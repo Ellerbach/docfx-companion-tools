@@ -94,6 +94,17 @@
                 if (_config.DocLinkChecker.CheckForOrphanedResources)
                 {
                     var resourceValidationResult = _resourceValidator.CheckForOrphanedResources(links);
+                    if (resourceValidationResult.orphanedResources.Any() &&
+                        _config.DocLinkChecker.CleanupOrphanedResources &&
+                        !errors.Any())
+                    {
+                        // if there are orphaned resources AND
+                        // AND we didn't have any other errors ... cleanup
+                        // This is done, as errors can indicate mistake(s) in the links. That has to be
+                        // corrected first, before we can cleanup the orphaned resources.
+                        _resourceValidator.CleanupOrphanedResources(resourceValidationResult.orphanedResources);
+                    }
+
                     errors.AddRange(resourceValidationResult.errors);
                 }
 

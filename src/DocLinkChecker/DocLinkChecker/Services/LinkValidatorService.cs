@@ -10,6 +10,7 @@
     using System.Threading.Tasks;
     using DocLinkChecker.Enums;
     using DocLinkChecker.Helpers;
+    using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +21,8 @@
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly AppConfig _config;
-        private readonly CustomConsoleLogger _console;
+        private readonly IFileService _fileService;
+        private readonly ICustomConsoleLogger _console;
 
         private ManualResetEvent _quit = new ManualResetEvent(false);
         private int _timeoutMilliseconds = 500;
@@ -36,14 +38,17 @@
         /// </summary>
         /// <param name="serviceProvider">Service provider.</param>
         /// <param name="config">App configuration.</param>
+        /// <param name="fileService">File service.</param>
         /// <param name="console">Console logger.</param>
         public LinkValidatorService(
             IServiceProvider serviceProvider,
             AppConfig config,
-            CustomConsoleLogger console)
+            IFileService fileService,
+            ICustomConsoleLogger console)
         {
             _serviceProvider = serviceProvider;
             _config = config;
+            _fileService = fileService;
             _console = console;
             RunningTasks = StartWorkers(_config.DocLinkChecker.ConcurrencyLevel);
         }
@@ -75,6 +80,26 @@
         public void EnqueueLinkForValidation(Hyperlink link)
         {
             _inputLinks.Enqueue(link);
+        }
+
+        /// <summary>
+        /// Verify the given hyperlink.
+        /// </summary>
+        /// <param name="hyperlink">Hyperlink.</param>
+        /// <returns>A <see cref="Task"/> for asynchronous handling.</returns>
+        public Task VerifyHyperlink(Hyperlink hyperlink)
+        {
+            if (hyperlink.IsWeb)
+            {
+                return VerifyWebHyperlink(hyperlink);
+            }
+
+            if (hyperlink.IsLocal)
+            {
+                return VerifyLocalHyperlink(hyperlink);
+            }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -144,26 +169,6 @@
         }
 
         /// <summary>
-        /// Verify the given hyperlink.
-        /// </summary>
-        /// <param name="hyperlink">Hyperlink.</param>
-        /// <returns>A <see cref="Task"/> for asynchronous handling.</returns>
-        private Task VerifyHyperlink(Hyperlink hyperlink)
-        {
-            if (hyperlink.IsWeb)
-            {
-                return VerifyWebHyperlink(hyperlink);
-            }
-
-            if (hyperlink.IsLocal)
-            {
-                return VerifyLocalHyperlink(hyperlink);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Verify provided web hyperlink.
         /// </summary>
         /// <param name="hyperlink">Hyperlink to validate.</param>
@@ -174,11 +179,12 @@
             {
                 if (hyperlink.Url.StartsWith(whitelistUrl))
                 {
+                    _console.Verbose($"Skipping whitelisted url {hyperlink.Url}");
                     return;
                 }
             }
 
-            _console.Verbose($"Validating {hyperlink.Url} in {FileHelper.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
+            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
             using var scope = _serviceProvider.CreateScope();
             var client = scope.ServiceProvider.GetRequiredService<CheckerHttpClient>();
 
@@ -226,7 +232,7 @@
         /// <returns>A <see cref="Task"/> for asynchronous handling.</returns>
         private Task VerifyLocalHyperlink(Hyperlink hyperlink)
         {
-            _console.Verbose($"Validating {hyperlink.Url} in {FileHelper.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
+            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
             string folderPath = Path.GetDirectoryName(hyperlink.FilePath);
             var parts = GetLinkDetails(folderPath, hyperlink.Url);
 
@@ -244,8 +250,7 @@
             }
 
             // compute link of the url relative to the path of the file.
-            if (!File.Exists(parts.fullpath) &&
-                !Directory.Exists(parts.fullpath))
+            if (!_fileService.ExistsFileOrDirectory(parts.fullpath))
             {
                 // referenced file doesn't exist
                 _errors.Enqueue(
@@ -268,7 +273,7 @@
                         hyperlink.Line,
                         hyperlink.Column,
                         MarkdownErrorSeverity.Error,
-                        $"File referenced outside of the docs hierarchy: {hyperlink.Url}"));
+                        $"File referenced outside of the docs hierarchy not allowed: {hyperlink.Url}"));
                 return Task.CompletedTask;
             }
 
@@ -301,7 +306,7 @@
         private (string path, string fullpath, string heading) GetLinkDetails(string folderPath, string url)
         {
             string path = url;
-            string fullpath = Path.GetFullPath(Path.Combine(folderPath, url)).TrimEnd(Path.DirectorySeparatorChar);
+            string fullpath = _fileService.GetFullPath(Path.Combine(folderPath, url)).TrimEnd(Path.DirectorySeparatorChar);
             string topic = string.Empty;
             if (fullpath.Contains("#"))
             {

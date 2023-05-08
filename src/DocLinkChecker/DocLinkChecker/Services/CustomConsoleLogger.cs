@@ -3,22 +3,24 @@
 namespace DocLinkChecker.Services
 {
     using System;
+    using DocLinkChecker.Interfaces;
+    using DocLinkChecker.Models;
 
     /// <summary>
     /// Custom console logger. It's a wrapper around the Console class.
     /// It handles output colors and only shows verbose when it is enabled.
     /// </summary>
-    public class CustomConsoleLogger
+    public class CustomConsoleLogger : ICustomConsoleLogger
     {
-        private readonly bool _verbose;
+        private readonly AppConfig _config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomConsoleLogger"/> class.
         /// </summary>
-        /// <param name="verbose">The verbose switch.</param>
-        public CustomConsoleLogger(bool verbose)
+        /// <param name="config">Application configuration.</param>
+        public CustomConsoleLogger(AppConfig config)
         {
-            _verbose = verbose;
+            _config = config;
         }
 
         /// <summary>
@@ -36,7 +38,7 @@ namespace DocLinkChecker.Services
         /// <param name="message">Message to show in verbose mode.</param>
         public void Verbose(string message)
         {
-            if (_verbose)
+            if (_config.Verbose)
             {
                 Console.WriteLine(message);
             }
