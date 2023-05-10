@@ -177,14 +177,14 @@
         {
             foreach (string whitelistUrl in _config.DocLinkChecker.WhitelistUrls)
             {
-                if (hyperlink.Url.StartsWith(whitelistUrl))
+                if (hyperlink.Url.Matches(whitelistUrl))
                 {
                     _console.Verbose($"Skipping whitelisted url {hyperlink.Url}");
                     return;
                 }
             }
 
-            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
+            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, hyperlink.FilePath)}");
             using var scope = _serviceProvider.CreateScope();
             var client = scope.ServiceProvider.GetRequiredService<CheckerHttpClient>();
 
@@ -232,11 +232,10 @@
         /// <returns>A <see cref="Task"/> for asynchronous handling.</returns>
         private Task VerifyLocalHyperlink(Hyperlink hyperlink)
         {
-            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(hyperlink.FilePath, _config.DocumentationFiles.SourceFolder)}");
+            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, hyperlink.FilePath)}");
             string folderPath = Path.GetDirectoryName(hyperlink.FilePath);
-            var parts = GetLinkDetails(folderPath, hyperlink.Url);
 
-            if (string.Compare(hyperlink.Url.TrimEnd(Path.DirectorySeparatorChar), parts.fullpath, true) == 0)
+            if (Path.IsPathRooted(hyperlink.Url))
             {
                 // url equals fullpath. We don't allow full local path references
                 _errors.Enqueue(
@@ -250,7 +249,7 @@
             }
 
             // compute link of the url relative to the path of the file.
-            if (!_fileService.ExistsFileOrDirectory(parts.fullpath))
+            if (!_fileService.ExistsFileOrDirectory(hyperlink.UrlFullPath))
             {
                 // referenced file doesn't exist
                 _errors.Enqueue(
@@ -263,62 +262,65 @@
                 return Task.CompletedTask;
             }
 
-            if (!parts.fullpath.StartsWith(_config.DocumentationFiles.SourceFolder) &&
-                !_config.DocLinkChecker.AllowResourcesOutsideDocumentsRoot)
+            if (!hyperlink.UrlFullPath.StartsWith(_config.DocumentationFiles.SourceFolder))
             {
                 // url references a path outside of the document root
-                _errors.Enqueue(
-                    new MarkdownError(
-                        hyperlink.FilePath,
-                        hyperlink.Line,
-                        hyperlink.Column,
-                        MarkdownErrorSeverity.Error,
-                        $"File referenced outside of the docs hierarchy not allowed: {hyperlink.Url}"));
-                return Task.CompletedTask;
-            }
-
-            if (!string.IsNullOrEmpty(parts.heading))
-            {
-                // validate if heading exists in file
-                if (Headings.FirstOrDefault(x => string.Compare(parts.fullpath, x.FilePath, true) == 0 && x.Id == parts.heading) == null)
+                if (!_config.DocLinkChecker.AllowResourcesOutsideDocumentsRoot)
                 {
-                    // url references a path outside of the document root
+                    // configured: not allowed
                     _errors.Enqueue(
                         new MarkdownError(
                             hyperlink.FilePath,
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"Heading '{parts.heading}' not found '{parts.path}'"));
+                            $"File referenced outside of the docs hierarchy not allowed: {hyperlink.Url}"));
+                }
+                else
+                {
+                    // allowed, but it can cause issues (warning)
+                    _errors.Enqueue(
+                        new MarkdownError(
+                            hyperlink.FilePath,
+                            hyperlink.Line,
+                            hyperlink.Column,
+                            MarkdownErrorSeverity.Warning,
+                            $"File referenced outside of the docs hierarchy can cause issues: {hyperlink.Url}"));
+                }
+
+                return Task.CompletedTask;
+            }
+
+            if (!string.IsNullOrEmpty(hyperlink.UrlTopic))
+            {
+                // validate if heading exists in file
+                if (Headings
+                    .FirstOrDefault(x => string.Compare(hyperlink.UrlFullPath, x.FilePath, true) == 0 &&
+                                    x.Id == hyperlink.UrlTopic) == null)
+                {
+                    var hs = Headings
+                        .Where(x => string.Compare(hyperlink.UrlFullPath, x.FilePath, true) == 0)
+                        .OrderBy(x => x.Id)
+                        .ToList();
+                    Debug.WriteLine($"====== FOR {hyperlink.UrlFullPath} [{hyperlink.UrlTopic}] in {hyperlink.FilePath} {hyperlink.Line}:{hyperlink.Column} WE HAVE THESE OPTIONS:");
+                    foreach (var h in hs)
+                    {
+                        Debug.WriteLine($"{h.Id}");
+                    }
+
+                    // url references a path outside of the document root
+                    _errors.Enqueue(
+                        new MarkdownError(
+                            hyperlink.FilePath,
+                            hyperlink.Line,
+                            hyperlink.Column,
+                            MarkdownErrorSeverity.Warning,
+                            $"Heading '{hyperlink.UrlTopic}' not found in '{hyperlink.UrlWithoutTopic}'"));
                     return Task.CompletedTask;
                 }
             }
 
             return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Get the link and the heading-id if available.
-        /// </summary>
-        /// <param name="folderPath">Folder path.</param>
-        /// <param name="url">Url.</param>
-        /// <returns>Relative path, Full path and heading.</returns>
-        private (string path, string fullpath, string heading) GetLinkDetails(string folderPath, string url)
-        {
-            string path = url;
-            string fullpath = _fileService.GetFullPath(Path.Combine(folderPath, url)).TrimEnd(Path.DirectorySeparatorChar);
-            string topic = string.Empty;
-            if (fullpath.Contains("#"))
-            {
-                int pos = fullpath.IndexOf("#");
-                topic = fullpath.Substring(pos + 1);
-                fullpath = fullpath.Substring(0, pos);
-
-                pos = path.IndexOf("#");
-                path = path.Substring(0, pos);
-            }
-
-            return (path, fullpath, topic);
         }
     }
 }

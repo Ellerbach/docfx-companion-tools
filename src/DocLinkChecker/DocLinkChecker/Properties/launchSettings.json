@@ -2,7 +2,7 @@
   "profiles": {
     "DocLinkChecker": {
       "commandName": "Project",
-      "commandLineArgs": "-d \"D:\\Git\\CSE\\Windmill\\docfx-companion-tools\\src\\DocLinkChecker\\DocLinkChecker.Test\\SampleDocs\\DocsBrokenLinks\" -f \"D:\\Git\\CSE\\Windmill\\docfx-companion-tools\\src\\DocLinkChecker\\DocLinkChecker.Test\\SampleDocs\\check-local-and-external.json\" -t"
+      "commandLineArgs": "-d \"D:\\Git\\CSE\\ZF\\DMP\\docs\" -ax"
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿namespace DocLinkChecker.Models
 {
+    using System.Diagnostics;
     using System.IO;
     using DocLinkChecker.Enums;
 
@@ -88,20 +89,64 @@
         }
 
         /// <summary>
-        /// Gets the full path of the URL when it's a local reference.
+        /// Gets the topic in the url. This is the id after the # in a local link.
+        /// Otherwise it's returned empty.
+        /// </summary>
+        public string UrlTopic
+        {
+            get
+            {
+                if (IsLocal)
+                {
+                    int pos = Url.IndexOf("#");
+                    return pos == -1 ? string.Empty : Url.Substring(pos + 1);
+                }
+
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Gets the url without a (possible) topic. This is the id after the # in a local link.
+        /// </summary>
+        public string UrlWithoutTopic
+        {
+            get
+            {
+                if (IsLocal)
+                {
+                    int pos = Url.IndexOf("#");
+                    switch (pos)
+                    {
+                        case -1:
+                            return Url;
+                        case 0:
+                            return FilePath;
+                        default:
+                            return Url.Substring(0, pos);
+                    }
+                }
+
+                return Url;
+            }
+        }
+
+        /// <summary>
+        /// Gets the full path of the URL when it's a local reference, but without the topic.
         /// It's calculated relative to the file path.
         /// </summary>
         public string UrlFullPath
         {
             get
             {
-                if (!IsLocal)
+                if (IsLocal)
                 {
-                    return Url;
+                    int pos = Url.IndexOf("#");
+                    string destFullPath = pos > 0 ? Path.Combine(Path.GetDirectoryName(FilePath), UrlWithoutTopic) : FilePath;
+                    return Path.GetFullPath(destFullPath);
                 }
 
-                string dir = Path.GetDirectoryName(FilePath);
-                return Path.GetFullPath(Path.Combine(dir, Url));
+                return Url;
             }
         }
     }

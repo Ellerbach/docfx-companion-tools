@@ -17,6 +17,12 @@
         }
 
         /// <inheritdoc />
+        public string GetDirectory(string path)
+        {
+            return Path.GetDirectoryName(path);
+        }
+
+        /// <inheritdoc />
         public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
         {
             string fullRoot = GetFullPath(root);

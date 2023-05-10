@@ -21,6 +21,11 @@
             return Exists;
         }
 
+        public string GetDirectory(string path)
+        {
+            return System.IO.Path.GetDirectoryName(path);
+        }
+
         public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
         {
             return Files;

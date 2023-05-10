@@ -78,6 +78,7 @@ namespace DocLinkChecker
                     services.AddSingleton<AppConfig>(_appConfig);
 
                     services.AddSingleton<ICustomConsoleLogger, CustomConsoleLogger>();
+                    services.AddSingleton<IFileService, FileService>();
 
                     services.AddSingleton<CrawlerService>();
                     services.AddSingleton<LinkValidatorService>();

@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using DocLinkChecker.Enums;
     using DocLinkChecker.Models;
@@ -67,16 +69,22 @@
                 .Select(x =>
                 {
                     string title = string.Empty;
-                    LiteralInline child = x.Inline.Descendants<LiteralInline>().FirstOrDefault();
+
+                    var child = x.Inline.Descendants<LiteralInline>().FirstOrDefault();
                     if (child != null)
                     {
-                        title = markdown.Substring(child.Span.Start, child.Span.Length);
+                        title = markdown.Substring(child.Span.Start, x.Span.Length - (child.Span.Start - x.Span.Start));
                     }
 
-                    var attr = x.GetAttributes();
-                    return new Heading(markdownFilePath, x.Line + 1, x.Column + 1, title, attr.Id);
+                    // custom generation of the id
+                    string id = title.ToLower();
+                    id = Regex.Replace(id, "[ _]", "-");
+                    id = Regex.Replace(id, "[^a-zA-Z0-9-]*", string.Empty);
+
+                    return new Heading(markdownFilePath, x.Line + 1, x.Column + 1, title, id);
                 })
                 .ToList();
+
             if (headings != null)
             {
                 objects.AddRange(headings);
@@ -91,7 +99,7 @@
                     foreach (Table table in tables)
                     {
                         // validate the table and store the result in the list
-                        var result = ValidatePipeTable(markdownFilePath, markdown, table);
+                        var result = ValidatePipeTableWithText(markdownFilePath, markdown, table);
                         errors.AddRange(result.errors);
                     }
                 }
@@ -190,6 +198,123 @@
                                 $"Second line of a table should have at least 3 pipe characters ('---') per column."));
                     }
                 }
+            }
+
+            return (pipeTable, errors);
+        }
+
+        /// <summary>
+        /// Validate tables for consistent number of columns, use of pipe characters and
+        /// a valid separator line.
+        /// NOTE:
+        /// This is the implementation based on just text parsing, not using markdig objects.
+        /// The reason for this implementation is that we found markdig tables to be inconsistent
+        /// in the spans it returns, not always returning the full table.
+        /// In this implementation we chose to start with the indicated starting position, but
+        /// then loop over all lines by newline until we have an empty line or EOF.
+        /// </summary>
+        /// <param name="markdownFilePath">Markdown file path.</param>
+        /// <param name="markdown">Markdown content.</param>
+        /// <param name="table">Table.</param>
+        /// <returns>Pipetable definition and list of (possible) errors.</returns>
+        private static (PipeTable table, List<MarkdownError> errors)
+            ValidatePipeTableWithText(string markdownFilePath, string markdown, Table table)
+        {
+            PipeTable pipeTable = new (markdownFilePath, table.Line, table.Column);
+            List<MarkdownError> errors = new ();
+
+            int start = table.Span.Start;
+            while (start > 0 && markdown.Substring(start, 1) != "\n")
+            {
+                start--;
+            }
+
+            int len = markdown.IndexOf('\r', start) - start;
+            string line = markdown.Substring(start, len);
+
+            int row = 0;
+            int nrCols = -1;
+            while (!string.IsNullOrEmpty(line))
+            {
+                string rowtext = line.Trim();
+                if (rowtext.StartsWith("|"))
+                {
+                    // we cannot use TrimStart, because it will remove all '|' characters in stead of just one.
+                    rowtext = rowtext.Substring(1);
+                }
+
+                if (rowtext.EndsWith("|"))
+                {
+                    // we cannot use TrimEnd, because it will remove all '|' characters in stead of just one.
+                    rowtext = rowtext.Substring(0, rowtext.Length - 1);
+                }
+
+                string[] columnEntries = rowtext.Split("|");
+                int cols = columnEntries.Length;
+
+                // determine columns from the actual text of the row
+                if (nrCols == -1)
+                {
+                    // if this is the first row, it determines the size of the table
+                    nrCols = cols;
+                }
+
+                // validate number of columns
+                if (cols != nrCols)
+                {
+                    errors.Add(
+                        new MarkdownError(
+                            markdownFilePath,
+                            table.Line + 1 + row,
+                            1,
+                            MarkdownErrorSeverity.Error,
+                            $"All rows in this table must have {nrCols} columns."));
+                }
+
+                if (row == 1)
+                {
+                    // now parse the raw table markdown to check the seperator-line (second)
+                    // This should be something like "|---|---|---|"
+
+                    // check every column to have at least three '-' characters to make it work properly in Azure DevOps and such
+                    foreach (string entry in columnEntries)
+                    {
+                        if (!entry.Contains("---"))
+                        {
+                            errors.Add(
+                                new MarkdownError(
+                                    markdownFilePath,
+                                    table.Line + 2,
+                                    table.Column,
+                                    MarkdownErrorSeverity.Error,
+                                    $"Second line of a table should have at least 3 pipe characters ('---') per column."));
+                        }
+                    }
+                }
+                else
+                {
+                    if (!line.EndsWith('|'))
+                    {
+                        errors.Add(
+                            new MarkdownError(
+                                markdownFilePath,
+                                table.Line + 1 + row,
+                                line.Length - 1,
+                                MarkdownErrorSeverity.Error,
+                                "All rows in a table must start and end with a pipe character ('|')."));
+                    }
+                }
+
+                start += len + 2;   // add 2 for the \r\n
+                if (start >= markdown.Length)
+                {
+                    // end of file
+                    break;
+                }
+
+                len = markdown.IndexOf('\r', start) - start;
+                line = markdown.Substring(start, len);
+                row++;
             }
 
             return (pipeTable, errors);

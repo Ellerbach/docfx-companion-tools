@@ -8,6 +8,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using DocLinkChecker.Enums;
+    using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using DocLinkChecker.Services;
     using Microsoft.Extensions.Hosting;
@@ -21,7 +22,7 @@
         private readonly CrawlerService _crawler;
         private readonly LinkValidatorService _linkValidator;
         private readonly ResourceValidatorService _resourceValidator;
-        private readonly CustomConsoleLogger _console;
+        private readonly ICustomConsoleLogger _console;
         private readonly IHostApplicationLifetime _hostApplicationLifetime;
 
         /// <summary>
@@ -38,7 +39,7 @@
             CrawlerService crawler,
             LinkValidatorService linkValidator,
             ResourceValidatorService resourceValidator,
-            CustomConsoleLogger console,
+            ICustomConsoleLogger console,
             IHostApplicationLifetime hostApplicationLifetime)
         {
             _config = config;
@@ -80,7 +81,10 @@
                 List<Hyperlink> links = parsed.objects.OfType<Hyperlink>().ToList();
                 foreach (Hyperlink link in links)
                 {
-                    _linkValidator.EnqueueLinkForValidation(link);
+                    if (!link.IsWeb || _config.DocLinkChecker.ValidateExternalLinks)
+                    {
+                        _linkValidator.EnqueueLinkForValidation(link);
+                    }
                 }
 
                 _linkValidator.SignalNoMoreInput();
@@ -134,7 +138,10 @@
                     }
                 }
 
-                _console.Verbose($"Total Time: {sw.Elapsed.TotalSeconds}s");
+                _console.Output($"Total Time: {sw.Elapsed.TotalSeconds}s");
+                _console.Output($"Warnings: {errors.Count(x => x.Severity == MarkdownErrorSeverity.Warning)}");
+                _console.Output($"Errors: {errors.Count(x => x.Severity == MarkdownErrorSeverity.Error)}");
+                _console.Output($"Return value: {Program.ReturnValue} ({(int)Program.ReturnValue})");
             }
             catch (Exception ex)
             {

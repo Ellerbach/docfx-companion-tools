@@ -24,6 +24,13 @@
         IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes);
 
         /// <summary>
+        /// Get the directory of the given path.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <returns>Directory.</returns>
+        string GetDirectory(string path);
+
+        /// <summary>
         /// Get the full path of the given path.
         /// </summary>
         /// <param name="path">Relative path.</param>

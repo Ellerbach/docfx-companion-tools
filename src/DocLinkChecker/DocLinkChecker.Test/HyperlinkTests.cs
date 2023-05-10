@@ -13,7 +13,7 @@
     using System.Net;
     using System.Net.Http;
 
-    public class LinkTests
+    public class HyperlinkTests
     {
         private Faker _faker = new Faker();
 
@@ -24,7 +24,7 @@
         private ICustomConsoleLogger _console;
         private IServiceProvider _serviceProvider;
 
-        public LinkTests()
+        public HyperlinkTests()
         {
             _config = new();
             _config.DocumentationFiles.SourceFolder = ".";
@@ -265,6 +265,7 @@
             string sourceHeadingTitle = "Some Heading in the Source document";
             string sourceHeadingId = "some-heading-in-the-source-document";
             string destDoc = @"d:\git\project\docs\dest.md";
+            string destDocRelative = @".\dest.md";
             int line = 432;
             int column = 771;
 
@@ -274,7 +275,30 @@
             service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
 
             //Act
-            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDoc}#{sourceHeadingId}");
+            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDocRelative}#{sourceHeadingId}");
+            await service.VerifyHyperlink(link);
+
+            //Asssert
+            service.Errors.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async void ValidateLocalLinkHeadingInSameDocumentShouldNotHaveErrors()
+        {
+            // Arrange
+            string sourceDoc = @"d:\git\project\docs\source.md";
+            string sourceHeadingTitle = "Some Heading in the Source document";
+            string sourceHeadingId = "some-heading-in-the-source-document";
+            int line = 432;
+            int column = 771;
+
+            ((MockFileService)_fileService).Exists = true;
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+            service.Headings.Add(new(sourceDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
+
+            //Act
+            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"#{sourceHeadingId}");
             await service.VerifyHyperlink(link);
 
             //Asssert
@@ -289,6 +313,7 @@
             string sourceHeadingTitle = "Some Heading in the Source document";
             string sourceHeadingId = "some-heading-in-the-source-document";
             string destDoc = @"d:\git\project\docs\dest.md";
+            string destDocRelative = @".\dest.md";
             int line = 432;
             int column = 771;
 
@@ -298,14 +323,14 @@
             service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
 
             //Act
-            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDoc}#non-existing-header");
+            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDocRelative}#non-existing-header");
             await service.VerifyHyperlink(link);
 
             //Asssert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
+            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Warning);
             service.Errors.First().Message.Should().Contain("Heading");
         }
 

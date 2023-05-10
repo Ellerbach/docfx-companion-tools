@@ -15,7 +15,7 @@
     {
         private readonly AppConfig _config;
         private readonly IFileService _fileService;
-        private readonly CustomConsoleLogger _console;
+        private readonly ICustomConsoleLogger _console;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceValidatorService"/> class.
@@ -26,7 +26,7 @@
         public ResourceValidatorService(
             AppConfig config,
             IFileService fileService,
-            CustomConsoleLogger console)
+            ICustomConsoleLogger console)
         {
             _config = config;
             _fileService = fileService;
@@ -64,7 +64,7 @@
             {
                 try
                 {
-                    _console.Verbose($"Validating {_fileService.GetRelativePath(resource, root)}.");
+                    _console.Verbose($"Validating {_fileService.GetRelativePath(root, resource)}.");
                     string resourceFullPath = Path.GetFullPath(resource);
                     if (usedResources.FirstOrDefault(x => string.Compare(x.UrlFullPath, resourceFullPath, true) == 0) == null)
                     {
@@ -95,7 +95,7 @@
         {
             foreach (string resource in resources)
             {
-                _console.Output($"Deleted '{_fileService.GetRelativePath(resource, _config.DocumentationFiles.SourceFolder)}' because it was not used.");
+                _console.Output($"Deleted '{_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, resource)}' because it was not used.");
                 _fileService.DeleteFile(resource);
             }
         }

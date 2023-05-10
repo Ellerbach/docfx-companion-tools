@@ -17,7 +17,7 @@
     {
         private readonly AppConfig _config;
         private readonly IFileService _fileService;
-        private readonly CustomConsoleLogger _console;
+        private readonly ICustomConsoleLogger _console;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CrawlerService"/> class.
@@ -28,7 +28,7 @@
         /// <param name="logger">Logger.</param>
         public CrawlerService(
             AppConfig config,
-            CustomConsoleLogger console,
+            ICustomConsoleLogger console,
             IFileService fileService,
             ILogger<CrawlerService> logger)
         {
@@ -69,7 +69,7 @@
                 {
                     if (Path.GetExtension(file).ToLowerInvariant() == ".md")
                     {
-                        _console.Verbose($"Parsing markdown in '{_fileService.GetRelativePath(file, _config.DocumentationFiles.SourceFolder)}'.");
+                        _console.Verbose($"Parsing markdown in '{_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, file)}'.");
                         var result = await MarkdownHelper.ParseMarkdownFileAsync(file, _config.DocLinkChecker.ValidatePipeTableFormatting);
                         objects.AddRange(result.objects);
                         errors.AddRange(result.errors);
