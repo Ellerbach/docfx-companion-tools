@@ -57,7 +57,7 @@
                 includes.Add($"**/{folderName}/**.*");
             }
 
-            IEnumerable<string> resources = _fileService.GetFiles(root, includes, new () { "*.md", ".*" });
+            IEnumerable<string> resources = _fileService.GetFiles(root, includes, new () { "*.md" });
 
             _console.Verbose($"Traversing {resources.Count()} resources in {root}");
             foreach (string resource in resources)

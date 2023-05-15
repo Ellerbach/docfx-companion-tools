@@ -46,6 +46,11 @@
         public int MaxHttpRedirects { get; set; } = 20;
 
         /// <summary>
+        /// Gets or sets the number of milliseconds that will trigger a warning of links taking a long time.
+        /// </summary>
+        public int ExternalLinkDurationWarning { get; set; } = 3000;
+
+        /// <summary>
         /// Gets or sets the list of URL's to whitelist. Items have to start with http or https.
         /// But just adding the domain name is enough to whitelist all URLs from that domain.
         /// </summary>

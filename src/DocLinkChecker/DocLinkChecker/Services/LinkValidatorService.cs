@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
     using DocLinkChecker.Enums;
@@ -177,7 +178,16 @@
         {
             foreach (string whitelistUrl in _config.DocLinkChecker.WhitelistUrls)
             {
-                if (hyperlink.Url.Matches(whitelistUrl))
+                string whitelist = whitelistUrl;
+
+                if (!whitelist.Contains("*") && !whitelist.Contains("?"))
+                {
+                    // if no wildcard is given, we'll add one to match the whole domain.
+                    // this will enable to whitelist a domain without wildcards (e.g. "http://localhost").
+                    whitelist += "*";
+                }
+
+                if (hyperlink.Url.Matches(whitelist))
                 {
                     _console.Verbose($"Skipping whitelisted url {hyperlink.Url}");
                     return;
@@ -190,27 +200,39 @@
 
             Stopwatch sw = new ();
             sw.Start();
-            var result = await client.VerifyResource(hyperlink.Url);
+            var result = await client.VerifyResourceSimple(hyperlink.Url);
             sw.Stop();
-            if (sw.ElapsedMilliseconds > 3000)
+            if (sw.ElapsedMilliseconds > _config.DocLinkChecker.ExternalLinkDurationWarning)
             {
                 _console.Warning($"*** WARNING: Checking {hyperlink.Url} took {sw.ElapsedMilliseconds}ms.");
             }
 
-            if (!result.success)
+            if (!result.success &&
+                ((int)result.statusCode < 300 || (int)result.statusCode > 399))
             {
+                // not success and not a redirect
                 if (result.statusCode != null)
                 {
+                    MarkdownErrorSeverity severity = MarkdownErrorSeverity.Warning;
+                    if (result.statusCode == HttpStatusCode.NotFound ||
+                        result.statusCode == HttpStatusCode.Gone ||
+                        result.statusCode == HttpStatusCode.RequestUriTooLong)
+                    {
+                        // only report as error when resource isn't found or URL is too long.
+                        severity = MarkdownErrorSeverity.Error;
+                    }
+
                     _errors.Enqueue(
                         new MarkdownError(
                             hyperlink.FilePath,
                             hyperlink.Line,
                             hyperlink.Column,
-                            MarkdownErrorSeverity.Error,
+                            severity,
                             $"{hyperlink.Url} => {result.statusCode}"));
                 }
                 else
                 {
+                    // no status code, but we received an error, probably an exception.
                     _errors.Enqueue(
                         new MarkdownError(
                             hyperlink.FilePath,

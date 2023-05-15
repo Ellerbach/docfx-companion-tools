@@ -236,7 +236,8 @@
             int nrCols = -1;
             while (!string.IsNullOrEmpty(line))
             {
-                string rowtext = line.Trim();
+                // check the row definition. Make sure escaped seperators are ignored.
+                string rowtext = Regex.Replace(line.Trim(), @"\\\|", string.Empty);
                 if (rowtext.StartsWith("|"))
                 {
                     // we cannot use TrimStart, because it will remove all '|' characters in stead of just one.

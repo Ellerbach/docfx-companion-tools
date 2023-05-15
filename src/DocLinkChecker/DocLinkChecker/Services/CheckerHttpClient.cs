@@ -29,6 +29,17 @@
         private HttpClient Client { get; }
 
         /// <summary>
+        /// Verify resource in a simple way. This means, no redirects are handled.
+        /// As long as we get a response on a url, it's fine.
+        /// </summary>
+        /// <param name="address">Address to verify.</param>
+        /// <returns>Value indicating whether check was succesful, the HTTP status code and error string.</returns>
+        public Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResourceSimple(string address)
+        {
+            return VerifyResourceSimpleInternal(address);
+        }
+
+        /// <summary>
         /// Verify resource.
         /// </summary>
         /// <param name="address">Address to verify.</param>
@@ -36,6 +47,33 @@
         public Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResource(string address)
         {
             return VerifyResource(address, 0);
+        }
+
+        private async Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResourceSimpleInternal(string address)
+        {
+            try
+            {
+                Uri uri = new Uri(address);
+                var ipHost = await Dns.GetHostEntryAsync(uri.DnsSafeHost);
+                if (ipHost == null || ipHost.AddressList.Length == 0)
+                {
+                    return (false, null, $"Invalid host name: {uri.DnsSafeHost}");
+                }
+
+                var ip = ipHost.AddressList.First();
+                using var response = await Client.GetAsync(address, HttpCompletionOption.ResponseHeadersRead);
+                return (response.IsSuccessStatusCode, response.StatusCode, string.Empty);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"HttpRequestException {ex.StatusCode} {ex.Message}");
+                return (false, ex.StatusCode, $"HttpRequestException {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception {ex.Message}");
+                return (false, null, ex.Message);
+            }
         }
 
         private async Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResource(string address, int depth)
