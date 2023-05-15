@@ -207,28 +207,30 @@
                 _console.Warning($"*** WARNING: Checking {hyperlink.Url} took {sw.ElapsedMilliseconds}ms.");
             }
 
-            if (!result.success &&
-                ((int)result.statusCode < 300 || (int)result.statusCode > 399))
+            if (!result.success)
             {
-                // not success and not a redirect
                 if (result.statusCode != null)
                 {
-                    MarkdownErrorSeverity severity = MarkdownErrorSeverity.Warning;
-                    if (result.statusCode == HttpStatusCode.NotFound ||
-                        result.statusCode == HttpStatusCode.Gone ||
-                        result.statusCode == HttpStatusCode.RequestUriTooLong)
+                    if ((int)result.statusCode < 300 || (int)result.statusCode > 399)
                     {
-                        // only report as error when resource isn't found or URL is too long.
-                        severity = MarkdownErrorSeverity.Error;
-                    }
+                        // we ignore redirects. Response was given, so must exist.
+                        MarkdownErrorSeverity severity = MarkdownErrorSeverity.Warning;
+                        if (result.statusCode == HttpStatusCode.NotFound ||
+                            result.statusCode == HttpStatusCode.Gone ||
+                            result.statusCode == HttpStatusCode.RequestUriTooLong)
+                        {
+                            // only report as error when resource isn't found or URL is too long.
+                            severity = MarkdownErrorSeverity.Error;
+                        }
 
-                    _errors.Enqueue(
-                        new MarkdownError(
-                            hyperlink.FilePath,
-                            hyperlink.Line,
-                            hyperlink.Column,
-                            severity,
-                            $"{hyperlink.Url} => {result.statusCode}"));
+                        _errors.Enqueue(
+                            new MarkdownError(
+                                hyperlink.FilePath,
+                                hyperlink.Line,
+                                hyperlink.Column,
+                                severity,
+                                $"{hyperlink.Url} => {result.statusCode}"));
+                    }
                 }
                 else
                 {
@@ -287,7 +289,7 @@
             if (!hyperlink.UrlFullPath.StartsWith(_config.DocumentationFiles.SourceFolder))
             {
                 // url references a path outside of the document root
-                if (!_config.DocLinkChecker.AllowResourcesOutsideDocumentsRoot)
+                if (!_config.DocLinkChecker.AllowLinksOutsideDocumentsRoot)
                 {
                     // configured: not allowed
                     _errors.Enqueue(

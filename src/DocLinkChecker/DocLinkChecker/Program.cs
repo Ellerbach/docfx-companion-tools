@@ -148,7 +148,7 @@ namespace DocLinkChecker
                     console.Output($"Initial configuration saved in {AppConstants.AppConfigFileName}");
 
                     // indicate we're done with an error
-                    ReturnValue = ReturnValue.OK;
+                    ReturnValue = ReturnValue.Success;
                     return;
                 }
             }
@@ -169,7 +169,7 @@ namespace DocLinkChecker
         /// </summary>
         private static void HandleParameterErrors(IEnumerable<Error> obj)
         {
-            ReturnValue = ReturnValue.ParameterErrors;
+            ReturnValue = ReturnValue.CommandError;
         }
 
         /// <summary>

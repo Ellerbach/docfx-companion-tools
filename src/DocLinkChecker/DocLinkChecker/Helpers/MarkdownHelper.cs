@@ -288,7 +288,7 @@
                                     table.Line + 2,
                                     table.Column,
                                     MarkdownErrorSeverity.Error,
-                                    $"Second line of a table should have at least 3 pipe characters ('---') per column."));
+                                    $"Second line of a table should have at least 3 dashes ('---') per column."));
                         }
                     }
                 }

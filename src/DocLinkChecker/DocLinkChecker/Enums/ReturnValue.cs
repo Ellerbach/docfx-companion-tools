@@ -11,19 +11,14 @@
         Processing = -1,
 
         /// <summary>
-        /// All went well.
+        /// Successful validation. No errors, no warnings.
         /// </summary>
-        OK = 0,
+        Success = 0,
 
         /// <summary>
-        /// Command errors in the commandline.
+        /// Errors in the commandline.
         /// </summary>
         CommandError = 1,
-
-        /// <summary>
-        /// Errors in the parameters of the commandline.
-        /// </summary>
-        ParameterErrors = 2,
 
         /// <summary>
         /// Errors in the configuration by file.
@@ -31,8 +26,13 @@
         ConfigurationFileErrors = 3,
 
         /// <summary>
-        /// Processing errors of the files.
+        /// There were only warnings in processing the files, no errors.
         /// </summary>
-        ProcessingErrors = 1000,
+        WarningsOnly = 1000,
+
+        /// <summary>
+        /// There were errors in processing the files.
+        /// </summary>
+        Errors = 1001,
     }
 }

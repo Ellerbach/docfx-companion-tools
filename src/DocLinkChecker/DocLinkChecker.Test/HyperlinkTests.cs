@@ -1,6 +1,7 @@
 ﻿namespace DocLinkChecker.Test
 {
     using Bogus;
+    using DocLinkChecker.Enums;
     using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using DocLinkChecker.Services;
@@ -55,7 +56,7 @@
             Hyperlink link = new Hyperlink(_faker.System.FilePath(), 15, 8, "https://www.microsoft.com");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().BeEmpty();
         }
 
@@ -74,7 +75,7 @@
             Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, "https://www.microsoft.com/non-existing-path");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
@@ -97,7 +98,7 @@
             Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, "https://www.non-existing-domain-microsoft.com/non-existing-path");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
@@ -105,6 +106,7 @@
             service.Errors.First().Message.Should().Contain("No such host");
         }
 
+        /* we only use the simplified version for now
         [Fact]
         public async void ValidateNormalRedirectLinkShouldNotHaveErrors()
         {
@@ -132,10 +134,12 @@
             Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, requestUrl);
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().BeEmpty();
         }
+        */
 
+        /* we only use the simplified version for now
         [Fact]
         public async void ValidateWebLinkWithTooManyRedirectsShouldHaveErrors()
         {
@@ -165,13 +169,14 @@
             Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, requestUrl);
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
             service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
             service.Errors.First().Message.Should().Contain("Excessive number of redirects");
         }
+        */
 
         [Fact]
         public async void ValidateExistingLocalLinkShouldNotHaveErrors()
@@ -187,8 +192,8 @@
             Hyperlink link = new Hyperlink("./start-document.md", line, column, "./an-existing-document.md");
             await service.VerifyHyperlink(link);
 
-            //Asssert
-            service.Errors.Should().BeEmpty();
+            // Assert
+            service.Errors.Where(x => x.Severity == MarkdownErrorSeverity.Error).Should().BeEmpty();
         }
 
         [Fact]
@@ -205,7 +210,7 @@
             Hyperlink link = new Hyperlink("./start-document.md", line, column, "./non-existing-document.md");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
@@ -218,7 +223,7 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = @"d:\Git\Project\docs";
-            _config.DocLinkChecker.AllowResourcesOutsideDocumentsRoot = false;
+            _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = false;
             ((MockFileService)_fileService).Exists = true;
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
@@ -229,7 +234,7 @@
             Hyperlink link = new Hyperlink(@"d:\Git\Projects\docs\start-document.md", line, column, @"..\document-outside-docs-hierarchy.md");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
@@ -242,7 +247,7 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = @"d:\Git\Project\docs";
-            _config.DocLinkChecker.AllowResourcesOutsideDocumentsRoot = true;
+            _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = true;
             ((MockFileService)_fileService).Exists = true;
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
@@ -253,8 +258,9 @@
             Hyperlink link = new Hyperlink(@"d:\Git\Projects\docs\start-document.md", line, column, @"..\document-outside-docs-hierarchy.md");
             await service.VerifyHyperlink(link);
 
-            //Asssert
-            service.Errors.Should().BeEmpty();
+            // Assert
+            service.Errors.Where(x => x.Severity == MarkdownErrorSeverity.Error).Should().BeEmpty();
+            service.Errors.Count(x => x.Severity == MarkdownErrorSeverity.Warning).Should().Be(1);
         }
 
         [Fact]
@@ -270,6 +276,7 @@
             int column = 771;
 
             ((MockFileService)_fileService).Exists = true;
+            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
@@ -278,7 +285,7 @@
             Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDocRelative}#{sourceHeadingId}");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().BeEmpty();
         }
 
@@ -293,6 +300,7 @@
             int column = 771;
 
             ((MockFileService)_fileService).Exists = true;
+            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(sourceDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
@@ -301,7 +309,7 @@
             Hyperlink link = new Hyperlink(sourceDoc, line, column, $"#{sourceHeadingId}");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().BeEmpty();
         }
 
@@ -318,6 +326,7 @@
             int column = 771;
 
             ((MockFileService)_fileService).Exists = true;
+            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
@@ -326,12 +335,12 @@
             Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDocRelative}#non-existing-header");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
-            service.Errors.First().Line.Should().Be(line);
-            service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Warning);
-            service.Errors.First().Message.Should().Contain("Heading");
+            var headingError = service.Errors.FirstOrDefault(x => x.Message.Contains("Heading"));
+            headingError.Line.Should().Be(line);
+            headingError.Column.Should().Be(column);
+            headingError.Severity.Should().Be(Enums.MarkdownErrorSeverity.Warning);
         }
 
         [Fact]
@@ -348,7 +357,7 @@
             Hyperlink link = new Hyperlink("./start-document.md", line, column, @"D:\Git\Project\docs\another-document.md");
             await service.VerifyHyperlink(link);
 
-            //Asssert
+            // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);

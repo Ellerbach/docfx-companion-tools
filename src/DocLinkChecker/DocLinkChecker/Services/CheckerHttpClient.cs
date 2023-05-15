@@ -39,6 +39,7 @@
             return VerifyResourceSimpleInternal(address);
         }
 
+        /* we'll use the simplified version for now
         /// <summary>
         /// Verify resource.
         /// </summary>
@@ -48,6 +49,7 @@
         {
             return VerifyResource(address, 0);
         }
+        */
 
         private async Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResourceSimpleInternal(string address)
         {
@@ -76,6 +78,7 @@
             }
         }
 
+        /* we use the simplified version for now.
         private async Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResource(string address, int depth)
         {
             try
@@ -139,5 +142,6 @@
                 return (false, null, ex.Message);
             }
         }
+        */
     }
 }

@@ -116,7 +116,18 @@
                 errors = errors.OrderBy(x => x.MarkdownFilePath).ThenBy(x => x.Line).ThenBy(x => x.Column).ToList();
                 if (errors.Any())
                 {
-                    Program.ReturnValue = ReturnValue.ProcessingErrors;
+                    if (errors.FirstOrDefault(x => x.Severity == MarkdownErrorSeverity.Error) != null)
+                    {
+                        Program.ReturnValue = ReturnValue.Errors;
+                    }
+                    else if (errors.FirstOrDefault(x => x.Severity == MarkdownErrorSeverity.Warning) != null)
+                    {
+                        Program.ReturnValue = ReturnValue.WarningsOnly;
+                    }
+                    else
+                    {
+                        Program.ReturnValue = ReturnValue.Success;
+                    }
                 }
 
                 foreach (MarkdownError error in errors)

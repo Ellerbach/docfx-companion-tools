@@ -8,10 +8,10 @@
     public class DocLinkCheckerSettings
     {
         /// <summary>
-        /// Gets or sets a value indicating whether resources outside the documents root are allowed.
+        /// Gets or sets a value indicating whether links to documents outside the documents root are allowed.
         /// Default is true for backwards compatibility.
         /// </summary>
-        public bool AllowResourcesOutsideDocumentsRoot { get; set; } = true;
+        public bool AllowLinksOutsideDocumentsRoot { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether resources actually used.
@@ -39,11 +39,11 @@
         /// </summary>
         public int ConcurrencyLevel { get; set; } = 5;
 
-        /// <summary>
+        /*/// <summary>
         /// Gets or sets the maximum number of HTTP redirects that will be handled
         /// to prevent getting stuck in redirection loops, but still handle stacked redirects.
         /// </summary>
-        public int MaxHttpRedirects { get; set; } = 20;
+        public int MaxHttpRedirects { get; set; } = 20; */
 
         /// <summary>
         /// Gets or sets the number of milliseconds that will trigger a warning of links taking a long time.
@@ -62,13 +62,13 @@
         /// <returns>String with settings.</returns>
         public override string ToString()
         {
-            string result = $"Allow reference to resources outside documents root: {AllowResourcesOutsideDocumentsRoot}\n";
+            string result = $"Allow reference to files outside documents root: {AllowLinksOutsideDocumentsRoot}\n";
             result += $"Check for orphaned resources: {CheckForOrphanedResources}\n";
             result += $"Cleanup orphaned resources: {CleanupOrphanedResources}\n";
             result += $"Validate pipe table formatting: {ValidatePipeTableFormatting}\n";
             result += $"Validate external links: {ValidateExternalLinks}\n";
             result += $"Concurrency level: {ConcurrencyLevel}\n";
-            result += $"Max HTTP redirects: {MaxHttpRedirects}\n";
+            ////result += $"Max HTTP redirects: {MaxHttpRedirects}\n";
             result += $"Whitelist URLs: {string.Join(",", WhitelistUrls)}\n";
             return result;
         }
