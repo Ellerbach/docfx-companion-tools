@@ -50,7 +50,7 @@ If you have one or more PR's and want to release a new version, just make sure t
 
 ### Chocolatey
 
-The tools can be installed by dowloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
+The tools can be installed by downloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
 
 ```shell
 choco install docfx-companion-tools
@@ -84,6 +84,26 @@ DocLinkChecker -d .\docs -va
 
 * [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use the [DocFxTocGenerator](./src/DocFxTocGenerator) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
 * [Documentation build pipeline](./PipelineExamples/documentation-build.yml): a sample pipeline to use [markdownlint](https://github.com/markdownlint/markdownlint) to validate markdown style and the [DocLinkChecker](./src/DocLinkChecker) to validate the links and attachments.
+
+## Docker
+
+Build a Docker image. Below example based on `DocLinkChecker`, adjust `--tag` and `--build-arg` accordantly for the other tools.
+
+```shell
+docker build --tag doclinkchecker:latest --build-arg tool=DocLinkChecker -f Dockerfile .
+```
+
+Run from `PowerShell`:
+
+```PowerShell
+docker run --rm -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
+```
+
+Run from Linux/macOS `shell`:
+
+```shell
+docker run --rm -v $(pwd):/workspace doclinkchecker:latest -d /workspace
+```
 
 ## Documentation
 
