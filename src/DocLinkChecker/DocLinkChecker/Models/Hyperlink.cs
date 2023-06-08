@@ -12,6 +12,13 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Hyperlink"/> class.
         /// </summary>
+        public Hyperlink()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hyperlink"/> class.
+        /// </summary>
         /// <param name="filePath">Path of the markdown file.</param>
         /// <param name="line">Line number.</param>
         /// <param name="col">Column.</param>
@@ -142,7 +149,12 @@
                 if (IsLocal)
                 {
                     int pos = Url.IndexOf("#");
-                    string destFullPath = pos > 0 ? Path.Combine(Path.GetDirectoryName(FilePath), UrlWithoutTopic) : FilePath;
+
+                    // we want to know that the link is not starting with a # for local reference.
+                    // if local reference, return the filename otherwise the calculated path.
+                    string destFullPath = pos != 0 ?
+                        Path.Combine(Path.GetDirectoryName(FilePath), UrlWithoutTopic) :
+                        FilePath;
                     return Path.GetFullPath(destFullPath);
                 }
 

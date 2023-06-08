@@ -5,11 +5,13 @@
     using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using DocLinkChecker.Services;
+    using DocLinkChecker.Test.Helpers;
     using FluentAssertions;
     using Microsoft.Extensions.DependencyInjection;
     using Moq;
     using Moq.Contrib.HttpClient;
     using System;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -22,6 +24,7 @@
         private HttpClient _client;
         private AppConfig _config;
         private IFileService _fileService;
+        private MockFileService _fileServiceMock;
         private ICustomConsoleLogger _console;
         private IServiceProvider _serviceProvider;
 
@@ -33,8 +36,10 @@
 
             _handler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             _client = _handler.CreateClient();
-            
-            _fileService = new MockFileService();
+
+            _fileServiceMock = new MockFileService();
+            _fileServiceMock.FillDemoSet();
+            _fileService = _fileServiceMock;
 
             _console = GetMockedConsoleLogger();
 
@@ -106,90 +111,16 @@
             service.Errors.First().Message.Should().Contain("No such host");
         }
 
-        /* we only use the simplified version for now
-        [Fact]
-        public async void ValidateNormalRedirectLinkShouldNotHaveErrors()
-        {
-            // Arrange
-            string requestUrl = "https://www.microsoft.com/redirect-path";
-            string redirectedUrl1 = "https://www.microsoft.com/redirected-path";
-            string redirectedUrl2 = "https://www.microsoft.com/end-path";
-
-            // setup HttpClient moq
-            _handler.SetupRequest(HttpMethod.Get, requestUrl).ReturnsResponse(HttpStatusCode.Redirect, configure: response =>
-            {
-                response.Headers.Location = new Uri(redirectedUrl1);
-            });
-            _handler.SetupRequest(HttpMethod.Get, redirectedUrl1).ReturnsResponse(HttpStatusCode.Redirect, configure: response =>
-            {
-                response.Headers.Location = new Uri(redirectedUrl2);
-            });
-            _handler.SetupRequest(HttpMethod.Get, redirectedUrl2).ReturnsResponse(HttpStatusCode.OK);
-
-            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-
-            //Act
-            int line = 22;
-            int column = 38;
-            Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, requestUrl);
-            await service.VerifyHyperlink(link);
-
-            // Assert
-            service.Errors.Should().BeEmpty();
-        }
-        */
-
-        /* we only use the simplified version for now
-        [Fact]
-        public async void ValidateWebLinkWithTooManyRedirectsShouldHaveErrors()
-        {
-            // Arrange
-            _config.DocLinkChecker.MaxHttpRedirects = 2;
-
-            string requestUrl = "https://www.microsoft.com/redirect-path";
-            string redirectedUrl1 = "https://www.microsoft.com/redirected-path";
-            string redirectedUrl2 = "https://www.microsoft.com/end-path";
-
-            // setup HttpClient moq
-            _handler.SetupRequest(HttpMethod.Get, requestUrl).ReturnsResponse(HttpStatusCode.Redirect, configure: response =>
-            {
-                response.Headers.Location = new Uri(redirectedUrl1);
-            });
-            _handler.SetupRequest(HttpMethod.Get, redirectedUrl1).ReturnsResponse(HttpStatusCode.Redirect, configure: response =>
-            {
-                response.Headers.Location = new Uri(redirectedUrl2);
-            });
-            _handler.SetupRequest(HttpMethod.Get, redirectedUrl2).ReturnsResponse(HttpStatusCode.OK);
-
-            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-
-            //Act
-            int line = 22;
-            int column = 38;
-            Hyperlink link = new Hyperlink(_faker.System.FilePath(), line, column, requestUrl);
-            await service.VerifyHyperlink(link);
-
-            // Assert
-            service.Errors.Should().NotBeEmpty();
-            service.Errors.First().Line.Should().Be(line);
-            service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
-            service.Errors.First().Message.Should().Contain("Excessive number of redirects");
-        }
-        */
-
         [Fact]
         public async void ValidateExistingLocalLinkShouldNotHaveErrors()
         {
             // Arrange
-            ((MockFileService)_fileService).Exists = true;
-
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
             //Act
             int line = 14;
             int column = 31;
-            Hyperlink link = new Hyperlink("./start-document.md", line, column, "./an-existing-document.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, "getting-started/README.md");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -200,14 +131,12 @@
         public async void ValidateNonExistingLocalLinkShouldHaveErrors()
         {
             // Arrange
-            ((MockFileService)_fileService).Exists = false;
-
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink("./start-document.md", line, column, "./non-existing-document.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\start-document.md", line, column, "./non-existing-document.md");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -222,16 +151,21 @@
         public async void ValidateLocalLinkOutsideDocsHierarchyShouldHaveErrors()
         {
             // Arrange
-            _config.DocumentationFiles.SourceFolder = @"d:\Git\Project\docs";
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
             _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = false;
-            ((MockFileService)_fileService).Exists = true;
+
+            string filename = "..\\document-outside-docs-hierarchy.md";
+            string path = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, filename));
+            _fileServiceMock.Files.Add(path, string.Empty
+                .AddHeading("Document outside docs root", 1)
+                .AddParagraphs(3));
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink(@"d:\Git\Projects\docs\start-document.md", line, column, @"..\document-outside-docs-hierarchy.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, "..\\document-outside-docs-hierarchy.md");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -246,16 +180,22 @@
         public async void ValidateLocalLinkOutsideHierarchyWithConfigShouldNotHaveErrors()
         {
             // Arrange
-            _config.DocumentationFiles.SourceFolder = @"d:\Git\Project\docs";
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
             _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = true;
-            ((MockFileService)_fileService).Exists = true;
+
+            string filename = "..\\document-outside-docs-hierarchy.md";
+            string path = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, filename));
+            string empty = string.Empty;
+            _fileServiceMock.Files.Add(path, empty
+                .AddHeading("Document outside docs root", 1)
+                .AddParagraphs(3));
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink(@"d:\Git\Projects\docs\start-document.md", line, column, @"..\document-outside-docs-hierarchy.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, filename);
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -267,22 +207,17 @@
         public async void ValidateLocalLinkHeadingShouldNotHaveErrors()
         {
             // Arrange
-            string sourceDoc = @"d:\git\project\docs\source.md";
-            string sourceHeadingTitle = "Some Heading in the Source document";
-            string sourceHeadingId = "some-heading-in-the-source-document";
-            string destDoc = @"d:\git\project\docs\dest.md";
-            string destDocRelative = @".\dest.md";
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+            service.Headings.Add(new(source, 99, 1, "Third.1 Header", "third-1-header"));
+
+            //Act
             int line = 432;
             int column = 771;
 
-            ((MockFileService)_fileService).Exists = true;
-            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
-
-            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-            service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
-
-            //Act
-            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"{destDocRelative}#{sourceHeadingId}");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, $".\\general\\another-sample.md#third-1-header");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -293,20 +228,17 @@
         public async void ValidateLocalLinkHeadingInSameDocumentShouldNotHaveErrors()
         {
             // Arrange
-            string sourceDoc = @"d:\git\project\docs\source.md";
-            string sourceHeadingTitle = "Some Heading in the Source document";
-            string sourceHeadingId = "some-heading-in-the-source-document";
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+            service.Headings.Add(new(source, 99, 1, "First Header", "first-header"));
+
+            //Act
             int line = 432;
             int column = 771;
 
-            ((MockFileService)_fileService).Exists = true;
-            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
-
-            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-            service.Headings.Add(new(sourceDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
-
-            //Act
-            Hyperlink link = new Hyperlink(sourceDoc, line, column, $"#{sourceHeadingId}");
+            Hyperlink link = new Hyperlink(source, line, column, $"#first-header");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -317,16 +249,14 @@
         public async void ValidateLocalLinkNonExistingHeadingShouldHaveErrors()
         {
             // Arrange
-            string sourceDoc = @"d:\git\project\docs\source.md";
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
             string sourceHeadingTitle = "Some Heading in the Source document";
             string sourceHeadingId = "some-heading-in-the-source-document";
-            string destDoc = @"d:\git\project\docs\dest.md";
-            string destDocRelative = @".\dest.md";
+            string destDoc = $"{_fileServiceMock.Root}\\general\\general-sample.md";
+            string destDocRelative = ".\\general-sample.md";
             int line = 432;
             int column = 771;
-
-            ((MockFileService)_fileService).Exists = true;
-            _config.DocumentationFiles.SourceFolder = @"d:\git\project\docs";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(destDoc, 99, 1, sourceHeadingTitle, sourceHeadingId));
@@ -347,7 +277,7 @@
         public async void ValidateLocalLinkWithFullPathShouldHaveErrors()
         {
             // Arrange
-            ((MockFileService)_fileService).Exists = true;
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
