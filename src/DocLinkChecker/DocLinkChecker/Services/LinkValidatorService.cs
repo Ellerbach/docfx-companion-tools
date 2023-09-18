@@ -250,7 +250,7 @@
         /// Verify local hyperlink.
         /// - must exist.
         /// - must be relative.
-        /// - must be within document folder hierarchy (except for config.AllowLinksOutsideHierarchy = true).
+        /// - must be met congifured link strategy.
         /// </summary>
         /// <param name="hyperlink">Hyperlink.</param>
         /// <returns>A <see cref="Task"/> for asynchronous handling.</returns>
@@ -286,33 +286,41 @@
                 return Task.CompletedTask;
             }
 
-            if (!hyperlink.UrlFullPath.StartsWith(_config.DocumentationFiles.SourceFolder))
+            switch (_config.DocLinkChecker.RelativeLinkStrategy)
             {
-                // url references a path outside of the document root
-                if (!_config.DocLinkChecker.AllowLinksOutsideDocumentsRoot)
-                {
-                    // configured: not allowed
-                    _errors.Enqueue(
-                        new MarkdownError(
-                            hyperlink.FilePath,
-                            hyperlink.Line,
-                            hyperlink.Column,
-                            MarkdownErrorSeverity.Error,
-                            $"File referenced outside of the docs hierarchy not allowed: {hyperlink.Url}"));
-                }
-                else
-                {
-                    // allowed, but it can cause issues (warning)
-                    _errors.Enqueue(
-                        new MarkdownError(
-                            hyperlink.FilePath,
-                            hyperlink.Line,
-                            hyperlink.Column,
-                            MarkdownErrorSeverity.Warning,
-                            $"File referenced outside of the docs hierarchy can cause issues: {hyperlink.Url}"));
-                }
+                case RelativeLinkType.SameDocsHierarchyOnly:
+                    if (!hyperlink.UrlFullPath.StartsWith(_config.DocumentationFiles.SourceFolder))
+                    {
+                        _errors.Enqueue(
+                            new MarkdownError(
+                                hyperlink.FilePath,
+                                hyperlink.Line,
+                                hyperlink.Column,
+                                MarkdownErrorSeverity.Error,
+                                $"File referenced outside of the same /docs hierarchy not allowed: {hyperlink.Url}"));
+                        return Task.CompletedTask;
+                    }
 
-                return Task.CompletedTask;
+                    break;
+
+                case RelativeLinkType.AnyDocsHierarchy:
+                    if (!hyperlink.UrlFullPath.Replace("\\", "/").Contains("/docs"))
+                    {
+                        _errors.Enqueue(
+                            new MarkdownError(
+                                hyperlink.FilePath,
+                                hyperlink.Line,
+                                hyperlink.Column,
+                                MarkdownErrorSeverity.Error,
+                                $"File referenced outside of anything else then a /docs hierarchy not allowed: {hyperlink.Url}"));
+                        return Task.CompletedTask;
+                    }
+
+                    break;
+
+                case RelativeLinkType.All:
+                default:
+                    break;
             }
 
             if (!string.IsNullOrEmpty(hyperlink.UrlTopic))

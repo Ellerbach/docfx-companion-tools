@@ -147,14 +147,16 @@
             service.Errors.First().Message.Should().Contain("Not found");
         }
 
-        [Fact]
-        public async void ValidateLocalLinkOutsideDocsHierarchyShouldHaveErrors()
+        [Theory]
+        [InlineData("../../another/docs/document-outside-docs-hierarchy.md", RelativeLinkType.SameDocsHierarchyOnly)]
+        [InlineData("../../src/solution1/README.md", RelativeLinkType.SameDocsHierarchyOnly)]
+        [InlineData("../../src/solution1/README.md", RelativeLinkType.AnyDocsHierarchy)]
+        public async void ValidateLocalLinkOutsideDocsHierarchyShouldHaveErrors(string filename, RelativeLinkType strategy)
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = false;
+            _config.DocLinkChecker.RelativeLinkStrategy = strategy;
 
-            string filename = "..\\document-outside-docs-hierarchy.md";
             string path = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, filename));
             _fileServiceMock.Files.Add(path, string.Empty
                 .AddHeading("Document outside docs root", 1)
@@ -165,15 +167,14 @@
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, "..\\document-outside-docs-hierarchy.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, filename);
             await service.VerifyHyperlink(link);
 
             // Assert
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
-            service.Errors.First().Message.Should().Contain("referenced outside of the docs hierarchy not allowed");
+            service.Errors.First().Severity.Should().Be(MarkdownErrorSeverity.Error);
         }
 
         [Fact]
@@ -181,9 +182,9 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            _config.DocLinkChecker.AllowLinksOutsideDocumentsRoot = true;
+            _config.DocLinkChecker.RelativeLinkStrategy = RelativeLinkType.All;
 
-            string filename = "..\\document-outside-docs-hierarchy.md";
+            string filename = "../../src/solution1/README.md";
             string path = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, filename));
             string empty = string.Empty;
             _fileServiceMock.Files.Add(path, empty
@@ -200,7 +201,6 @@
 
             // Assert
             service.Errors.Where(x => x.Severity == MarkdownErrorSeverity.Error).Should().BeEmpty();
-            service.Errors.Count(x => x.Severity == MarkdownErrorSeverity.Warning).Should().Be(1);
         }
 
         [Fact]

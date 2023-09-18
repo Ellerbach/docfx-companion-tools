@@ -143,7 +143,16 @@ namespace DocLinkChecker
                 }
                 else
                 {
-                    string json = JsonSerializer.Serialize(_appConfig, new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                        Converters =
+                        {
+                            new JsonStringEnumConverter(),
+                        },
+                    };
+                    string json = JsonSerializer.Serialize(_appConfig, options);
                     File.WriteAllText(AppConstants.AppConfigFileName, json);
                     console.Output($"Initial configuration saved in {AppConstants.AppConfigFileName}");
 
@@ -197,7 +206,14 @@ namespace DocLinkChecker
                 try
                 {
                     string json = File.ReadAllText(o.ConfigFilePath);
-                    AppConfig parsed = JsonSerializer.Deserialize<AppConfig>(json);
+                    JsonSerializerOptions options = new JsonSerializerOptions
+                    {
+                        Converters =
+                        {
+                            new JsonStringEnumConverter(),
+                        },
+                    };
+                    AppConfig parsed = JsonSerializer.Deserialize<AppConfig>(json, options);
                     _appConfig = parsed;
                 }
                 catch (Exception ex)

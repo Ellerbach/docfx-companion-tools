@@ -65,7 +65,7 @@ If a `docfx-companion-tools.json` file already exists in the working directory, 
     ".attachments"
   ],
   "DocLinkChecker": {
-    "AllowResourcesOutsideDocumentsRoot": true,
+    "RelativeLinkStrategy": "All",
     "CheckForOrphanedResources": false,
     "CleanupOrphanedResources": false,
     "ValidatePipeTableFormatting": false,
@@ -94,9 +94,9 @@ The configuration file has an entry `DocumentationFiles` that can be partially f
   }
 ```
 
-These properties are used in combination with the [File Globbing in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing) pattern. 
+These properties are used in combination with the [File Globbing in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing) pattern.
 
-The `src` property indicates the folder where the documentation hierarchy is located. This value can be overwritten by the `-d <folder>` command line parameter. 
+The `src` property indicates the folder where the documentation hierarchy is located. This value can be overwritten by the `-d <folder>` command line parameter.
 
 The `Files` property is a list of [patterns](https://learn.microsoft.com/en-us/dotnet/core/extensions/file-globbing#pattern-formats) of files to include in the check. If nothing is provided, `**/*.md` is automatically added to include all markdown files.
 
@@ -116,7 +116,7 @@ Various settings can be provided in the configuration file, specific for the Doc
 
 | Setting                        | Purpose                                                      | Default value        |
 | ------------------------------ | ------------------------------------------------------------ | -------------------- |
-| AllowLinksOutsideDocumentsRoot | If the value is set to **false** the tool will report an error for all links to documents that are not in the documentation root. If the value is set to **true** the tool will report a warning that this can cause issues. | *true*               |
+| RelativeLinkStrategy | "All" allows links to all existing files, "SameDocsHierarchyOnly" only allows links to files in the same /docs hierarchy, and "AnyDocsHierarchy" only allows links to files in any /docs hierarchy.  | *All* |
 | CheckForOrphanedResources      | If this value is set to **true** the tool checks for files in the folders with a name from the `ResourceFolderNames` list that are not used in any markdown file that was scanned. Those files will be reported with an error. | *false*              |
 | CleanupOrphanedResources       | If this value is set to **true** AND if no errors are reported, the tool will delete orphaned resources from all folders with a name from the `ResourceFolderNames` list. | *false*              |
 | ValidatePipeTableFormatting    | If this value is set to **true** the tool will validate all pipe table definitions for proper definition. For more information on what's validated, see [Table Validation](#table-validation). | *false*              |
@@ -124,7 +124,6 @@ Various settings can be provided in the configuration file, specific for the Doc
 | ConcurrencyLevel               | This value defines the number of concurrent threads used to validate links, both local and web links. You can use this to improve the performance of the tool, where it will have most impact when web links are validated. | *5*                  |
 | ExternalLinkDurationWarning    | When the validation of an external link takes longer than this value, the tool will report a warning. The value is given in milliseconds. This value is only used when external links are validated. | *3000*               |
 | WhitelistUrls                  | This is a list of URL's that will be skipped for external link validation. For more details, see [Whitelisting web links](#whitelisting-web-links). | *"http://localhost"* |
-
 
 ## What is validated
 
@@ -170,7 +169,7 @@ Examples of valid patterns are:
 
 If no wildcards are used, the * wildcard is automatically appended to the URL. But if one or more wildcards are used this is not done.
 
-If the link is a web URL, an internal reference (starting with a '#') an e-mail address or a reference to a folder, it's not checked. Other links are checked if they exist in the existing docs hierarchy or on local disc (for code references). Errors are written to the ouput mentioning the filename, the linenumber and position in the line. In the check we also decode the references to make sure we properly check HTML enccoded strings as well (using %20 for instance).
+If the link is a web URL, an internal reference (starting with a '#') an e-mail address or a reference to a folder, it's not checked. Other links are checked if they exist in the existing docs hierarchy or on local disc (for code references). Errors are written to the output mentioning the filename, the line number and position in the line. In the check we also decode the references to make sure we properly check HTML encoded strings as well (using %20 for instance).
 
 All references are stored in a table to use in the check of the .attachments folder (with the -a flag). All files in this folder that are not referenced are marked as 'unreferenced'. If the -c flag is provided as well, the files are removed from the .attachments folder.
 

@@ -1,6 +1,7 @@
 ﻿namespace DocLinkChecker.Models
 {
     using System.Collections.Generic;
+    using DocLinkChecker.Enums;
 
     /// <summary>
     /// Model class for doc link checker settings.
@@ -8,10 +9,10 @@
     public class DocLinkCheckerSettings
     {
         /// <summary>
-        /// Gets or sets a value indicating whether links to documents outside the documents root are allowed.
-        /// Default is true for backwards compatibility.
+        /// Gets or sets the relative link strategy to validate.
+        /// Default is <see cref="RelativeLinkType.All"/> for backwards compatibility.
         /// </summary>
-        public bool AllowLinksOutsideDocumentsRoot { get; set; } = true;
+        public RelativeLinkType RelativeLinkStrategy { get; set; } = RelativeLinkType.All;
 
         /// <summary>
         /// Gets or sets a value indicating whether resources actually used.
@@ -62,7 +63,7 @@
         /// <returns>String with settings.</returns>
         public override string ToString()
         {
-            string result = $"Allow reference to files outside documents root: {AllowLinksOutsideDocumentsRoot}\n";
+            string result = $"Relative link strategy: {RelativeLinkStrategy}\n";
             result += $"Check for orphaned resources: {CheckForOrphanedResources}\n";
             result += $"Cleanup orphaned resources: {CleanupOrphanedResources}\n";
             result += $"Validate pipe table formatting: {ValidatePipeTableFormatting}\n";
