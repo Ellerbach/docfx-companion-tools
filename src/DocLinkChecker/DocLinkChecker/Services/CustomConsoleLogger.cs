@@ -1,25 +1,26 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-
-namespace DocLinkChecker.Helpers
+namespace DocLinkChecker.Services
 {
     using System;
-    using DocLinkChecker.Domain;
+    using DocLinkChecker.Interfaces;
+    using DocLinkChecker.Models;
 
     /// <summary>
-    /// Helper methods to write messages to the console.
+    /// Custom console logger. It's a wrapper around the Console class.
+    /// It handles output colors and only shows verbose when it is enabled.
     /// </summary>
-    public class MessageHelper
+    public class CustomConsoleLogger : ICustomConsoleLogger
     {
-        private readonly CommandlineOptions options;
+        private readonly AppConfig _config;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageHelper"/> class.
+        /// Initializes a new instance of the <see cref="CustomConsoleLogger"/> class.
         /// </summary>
-        /// <param name="options">Command line options.</param>
-        public MessageHelper(CommandlineOptions options)
+        /// <param name="config">Application configuration.</param>
+        public CustomConsoleLogger(AppConfig config)
         {
-            this.options = options;
+            _config = config;
         }
 
         /// <summary>
@@ -32,12 +33,12 @@ namespace DocLinkChecker.Helpers
         }
 
         /// <summary>
-        /// Helper method for verbose messages.
+        /// Helper method for verbose messages. Only displays when verbose is enabled.
         /// </summary>
         /// <param name="message">Message to show in verbose mode.</param>
         public void Verbose(string message)
         {
-            if (this.options == null || this.options.Verbose)
+            if (_config.Verbose)
             {
                 Console.WriteLine(message);
             }
@@ -47,7 +48,6 @@ namespace DocLinkChecker.Helpers
         /// Helper method for warning messages.
         /// </summary>
         /// <param name="message">Message to show in verbose mode.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "We want same access for all methods.")]
         public void Warning(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -59,7 +59,6 @@ namespace DocLinkChecker.Helpers
         /// Helper method for error messages.
         /// </summary>
         /// <param name="message">Message to show in verbose mode.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "We want same access for all methods.")]
         public void Error(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
