@@ -1,14 +1,9 @@
 ﻿using Bogus;
-using Bogus.DataSets;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocLinkChecker.Test.Helpers
 {
-    internal static class StringExtensions
+    internal static class MarkdownExtensions
     {
         internal static string AddHeading(this string s, string title, int level)
         {
