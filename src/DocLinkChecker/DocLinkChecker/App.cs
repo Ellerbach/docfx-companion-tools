@@ -129,6 +129,10 @@
                         Program.ReturnValue = ReturnValue.Success;
                     }
                 }
+                else
+                {
+                    Program.ReturnValue = ReturnValue.Success;
+                }
 
                 foreach (MarkdownError error in errors)
                 {
