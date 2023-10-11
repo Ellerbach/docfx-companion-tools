@@ -39,7 +39,7 @@ if ($publish) {
     # if token is given, we will publish the package to Chocolatey here
     if ($env:CHOCO_TOKEN) {
         & $chocoCommand apiKey -k $env:CHOCO_TOKEN -source https://push.chocolatey.org/
-        & $chocoCommand push $nupkgName
+        & $chocoCommand push $nupkgName -source https://push.chocolatey.org/
     } else {
         Write-Warning "Chocolatey token was not set. Publication skipped."
     }

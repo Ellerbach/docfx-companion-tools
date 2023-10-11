@@ -17,5 +17,6 @@
       <LangVersion>9.0</LangVersion>
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
       <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)/CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+      <_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
     </PropertyGroup>
 </Project>
