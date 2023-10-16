@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>10.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Authors>DocFx Companion Tools contributors</Authors>
@@ -16,8 +16,6 @@
     <PackageProjectUrl>https://github.com/Ellerbach/docfx-companion-tools</PackageProjectUrl>
     <Description>This tool can be used to check references in markdown files.</Description>
     <PackageTags>docfx tools companion link check</PackageTags>
-    <SelfContained>true</SelfContained>
-    <UseAppHost>true</UseAppHost>
   </PropertyGroup>
 
   <ItemGroup>
