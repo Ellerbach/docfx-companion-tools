@@ -80,7 +80,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _console.Error($"*** ERROR: {ex.Message}");
+                    _console.Verbose($"*** ERROR in {nameof(CheckForOrphanedResources)} processing {resource} [ignored]: {ex.Message}.\n{ex}");
                 }
             }
 
