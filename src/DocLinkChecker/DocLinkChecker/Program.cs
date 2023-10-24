@@ -135,7 +135,7 @@ namespace DocLinkChecker
             {
                 if (File.Exists(AppConstants.AppConfigFileName))
                 {
-                    console.Error($"***ERROR: {AppConstants.AppConfigFileName} already exists in this folder. We don't overwrite.");
+                    console.Error($"*** ERROR: {AppConstants.AppConfigFileName} already exists in this folder. We don't overwrite.");
 
                     // indicate we're done with an error
                     ReturnValue = ReturnValue.CommandError;
@@ -196,7 +196,7 @@ namespace DocLinkChecker
                 _appConfig.ConfigFilePath = Path.GetFullPath(o.ConfigFilePath);
                 if (!File.Exists(o.ConfigFilePath))
                 {
-                    console.Error($"***ERROR: configuration file {o.ConfigFilePath} not found.");
+                    console.Error($"*** ERROR: configuration file {o.ConfigFilePath} not found.");
 
                     // indicate we're done with errors in the configuration file
                     ReturnValue = ReturnValue.ConfigurationFileErrors;
@@ -218,7 +218,7 @@ namespace DocLinkChecker
                 }
                 catch (Exception ex)
                 {
-                    console.Error($"***ERROR: reading {o.ConfigFilePath} - {ex.Message}");
+                    console.Error($"*** ERROR: reading {o.ConfigFilePath} - {ex.Message}");
 
                     // indicate we're done with errors in the configuration file
                     ReturnValue = ReturnValue.ConfigurationFileErrors;
@@ -234,7 +234,7 @@ namespace DocLinkChecker
 
             if (string.IsNullOrEmpty(_appConfig.DocumentationFiles.SourceFolder))
             {
-                console.Error("***ERROR: No document folder was configured, either through -d or in the config file.");
+                console.Error("*** ERROR: No document folder was configured, either through -d or in the config file.");
                 ReturnValue = ReturnValue.ConfigurationFileErrors;
                 return;
             }

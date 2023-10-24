@@ -77,7 +77,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _console.Error($"*** ERROR: {ex.Message}");
+                    _console.Verbose($"*** ERROR in {nameof(ParseMarkdownFiles)} processing {file} [ignored]: {ex.Message}.\n{ex}");
                 }
             }
 
