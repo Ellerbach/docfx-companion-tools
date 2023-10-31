@@ -66,6 +66,7 @@ namespace DocFxTocGenerator
             _message.Verbose($"Use .override       : {_options.UseOverride}");
             _message.Verbose($"Use .ignore         : {_options.UseIgnore}");
             _message.Verbose($"Auto index          : {_options.AutoIndex}\n");
+            _message.Verbose($"Split toc depth     : {_options.SplitTocDepth}\n");
 
             if (!Directory.Exists(_options.DocFolder))
             {
@@ -86,6 +87,94 @@ namespace DocFxTocGenerator
             DirectoryInfo rootDir = new DirectoryInfo(_options.DocFolder);
             WalkDirectoryTree(rootDir, tocRootItems);
 
+            if (_options.SplitTocDepth > 0)
+            {
+                WriteChildTocItems(tocRootItems, string.Empty, 0);
+            }
+            else
+            {
+                // write the tocitems to disk as one large file
+                WriteToc(tocRootItems, _options.OutputFolder);
+            }
+        }
+
+        /// <summary>
+        /// Walks the yaml tree looking for child nodes that are parents to other children
+        /// and corrects the paths to be relative the number toc files that should be generated.
+        /// </summary>
+        /// <param name="parentTocItem">Parent toc item to walk.</param>
+        /// <param name="parentFolder">Location where the toc should be written.</param>
+        /// <param name="treeDepth">Indicates the level the toc item is at in the tree.</param>
+        private static ICollection<TocItem> WriteChildTocItems(TocItem parentTocItem, string parentFolder, int treeDepth = 0)
+        {
+            var childTocItems = new TocItem();
+            foreach (var tocItem in parentTocItem.Items)
+            {
+                ICollection<TocItem> childItems = null;
+
+                // split the href, may need the folder or filename later on
+                var hrefParts = tocItem.Href.Split('/');
+
+                // if the child is a leaf, use the href and remove the parent folder so it's relative
+                // if the child has children then the href will point to the toc in the child folder
+                var childHref = tocItem.Items?.Any() ?? false && treeDepth <= _options.SplitTocDepth
+                        ? string.Join('/', hrefParts.Take(hrefParts.Length == 1 ? 1 : hrefParts.Length - 1))
+                        : tocItem.Href.Substring(parentFolder.Length).TrimStart('/');
+
+                if (tocItem.Items?.Any() ?? false)
+                {
+                    childItems = WriteChildTocItems(tocItem, treeDepth < _options.SplitTocDepth ? childHref : parentFolder, treeDepth + 1);
+                }
+
+                childTocItems.AddItem(new TocItem()
+                {
+                    Title = tocItem.Title.Trim(),
+                    Filename = tocItem.Filename,
+                    Sequence = tocItem.Sequence,
+                    SortableTitle = tocItem.SortableTitle,
+                    Href = childItems != null ? null : childHref,
+                    Items = childItems,
+                });
+            }
+
+            if (treeDepth <= _options.SplitTocDepth)
+            {
+                WriteToc(childTocItems, Path.Combine(_options.OutputFolder, parentFolder));
+                return null;
+            }
+
+            return childTocItems.Items;
+        }
+
+        private static ICollection<TocItem> MakeHrefRelativeTo(ICollection<TocItem> tocItems, string relativePath)
+        {
+            ICollection<TocItem> result = new List<TocItem>();
+
+            foreach (var tocItem in tocItems)
+            {
+                var newTocItem = new TocItem()
+                {
+                    Title = tocItem.Title.Trim(),
+                    Href = tocItem.Href,
+                    Filename = tocItem.Filename,
+                    Sequence = tocItem.Sequence,
+                    SortableTitle = tocItem.SortableTitle,
+                };
+
+                tocItem.Href = tocItem.Href.Substring(relativePath.Length).Trim();
+                if (tocItem.Items != null)
+                {
+                    newTocItem.Items = MakeHrefRelativeTo(tocItem.Items, relativePath);
+                }
+
+                result.Add(newTocItem);
+            }
+
+            return result;
+        }
+
+        private static void WriteToc(TocItem tocRootItems, string outputFolder)
+        {
             // we have the TOC, so serialize to a string
             using (StringWriter sw = new StringWriter())
             {
@@ -96,10 +185,10 @@ namespace DocFxTocGenerator
                 }
 
                 // now write the TOC to disc
-                File.WriteAllText(Path.Combine(_options.OutputFolder, "toc.yml"), sw.ToString());
+                File.WriteAllText(Path.Combine(outputFolder, "toc.yml"), sw.ToString());
             }
 
-            _message.Verbose($"{Path.Combine(_options.OutputFolder, "toc.yml")} created.");
+            _message.Verbose($"{Path.Combine(outputFolder, "toc.yml")} created.");
         }
 
         /// <summary>
@@ -130,6 +219,21 @@ namespace DocFxTocGenerator
 
             // add directories with content to the node
             GetDirectories(folder, order, yamlNode, overrides, ignore);
+
+            // link duplicate yamlnodes where one is a document and one is a folder with children, for ADO Wiki style layouts
+            if (_options.LinkChildFolder)
+            {
+                var nodesWithChildren = yamlNode.Items.Where(x => x.Items != null && x.Items.Any()).ToList();
+                foreach (var item in nodesWithChildren)
+                {
+                    var matchingSiblingNode = yamlNode.Items.Where(x => (x.Items == null || !x.Items.Any()) && x.Title == item.Title).FirstOrDefault();
+                    if (matchingSiblingNode != null)
+                    {
+                        item.Href = matchingSiblingNode.Href;
+                        yamlNode.Items.Remove(matchingSiblingNode);
+                    }
+                }
+            }
 
             if (yamlNode.Items != null)
             {

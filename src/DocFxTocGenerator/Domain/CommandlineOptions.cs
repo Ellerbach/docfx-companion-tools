@@ -35,7 +35,7 @@ namespace DocFxTocGenerator.Domain
         public bool UseOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the .order files are used.
+        /// Gets or sets a value indicating whether the .override files are used.
         /// </summary>
         [Option('r', "override", Required = false, HelpText = "Use the .override files for TOC file name override. Format are raws of: filename-without-extension;Title you want")]
         public bool UseOverride { get; set; }
@@ -58,5 +58,19 @@ namespace DocFxTocGenerator.Domain
         /// </summary>
         [Option('n', "notwithone", Required = false, HelpText = "Do not auto-generate a file index when only contains 1 file. Additional to -i flag.")]
         public bool NoAutoIndexWithOneFile { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether multiple toc files should be generated for each of the first child subfolders instead of building
+        /// one large toc in the root output folder.
+        /// </summary>
+        [Option('m', "multitoc", Required = false, HelpText = "Indicates how deep in the tree toc files should be generated for child subfolders, a depth of 0 is the root only.")]
+        public int SplitTocDepth { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether child folders that have the same name as a sibling document should automatically
+        /// be linked as child items to the document instead of creating two entries for the document and one for the folder.
+        /// </summary>
+        [Option('l', "linkchildren", Required = false, HelpText = "Automatically link folders with same title to parent documents as child items.")]
+        public bool LinkChildFolder { get; set; }
     }
 }

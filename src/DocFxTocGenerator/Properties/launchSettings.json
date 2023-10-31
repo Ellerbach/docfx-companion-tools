@@ -2,7 +2,9 @@
   "profiles": {
     "DocFxTocGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "-d .\\docs -o .\\docs -v -s -i"
+      "commandLineArgs": "-d .\\ -v -s -r -m 1",
+      "workingDirectory": "C:\\Users\\ryrife\\Projects\\OneBranch-Customer-Wiki.wiki",
+      "hotReloadEnabled": false
     }
   }
 }
