@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DocFxTocGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "-d .\\docs -o .\\docs -v -s -i"
+    }
+  }
+}
