@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "DocLanguageTranslator": {
-      "commandName": "Project",
-      "commandLineArgs": "-d ./ -vsr -m 1 -l",
-      "workingDirectory": "C:\\Users\\ryrife\\Projects\\OneBranch-Customer-Wiki.wiki"
-    }
-  }
-}
