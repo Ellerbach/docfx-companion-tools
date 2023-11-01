@@ -108,7 +108,7 @@ namespace DocFxTocGenerator
         private static ICollection<TocItem> WriteChildTocItems(TocItem parentTocItem, string parentFolder, int treeDepth = 0)
         {
             var childTocItems = new TocItem();
-            foreach (var tocItem in parentTocItem.Items)
+            foreach (var tocItem in parentTocItem.Items.OrderBy(x => x.Sequence))
             {
                 ICollection<TocItem> childItems = null;
 
@@ -117,7 +117,7 @@ namespace DocFxTocGenerator
 
                 // if the child is a leaf, use the href and remove the parent folder so it's relative
                 // if the child has children then the href will point to the toc in the child folder
-                var childHref = tocItem.Items?.Any() ?? false && treeDepth <= _options.SplitTocDepth
+                var childHref = ((tocItem.Items?.Any() ?? false) && treeDepth < _options.SplitTocDepth)
                         ? string.Join('/', hrefParts.Take(hrefParts.Length == 1 ? 1 : hrefParts.Length - 1))
                         : tocItem.Href.Substring(parentFolder.Length).TrimStart('/');
 
@@ -132,7 +132,7 @@ namespace DocFxTocGenerator
                     Filename = tocItem.Filename,
                     Sequence = tocItem.Sequence,
                     SortableTitle = tocItem.SortableTitle,
-                    Href = childItems != null ? null : childHref,
+                    Href = childItems != null && treeDepth < _options.SplitTocDepth ? null : childHref,
                     Items = childItems,
                 });
             }
@@ -144,33 +144,6 @@ namespace DocFxTocGenerator
             }
 
             return childTocItems.Items;
-        }
-
-        private static ICollection<TocItem> MakeHrefRelativeTo(ICollection<TocItem> tocItems, string relativePath)
-        {
-            ICollection<TocItem> result = new List<TocItem>();
-
-            foreach (var tocItem in tocItems)
-            {
-                var newTocItem = new TocItem()
-                {
-                    Title = tocItem.Title.Trim(),
-                    Href = tocItem.Href,
-                    Filename = tocItem.Filename,
-                    Sequence = tocItem.Sequence,
-                    SortableTitle = tocItem.SortableTitle,
-                };
-
-                tocItem.Href = tocItem.Href.Substring(relativePath.Length).Trim();
-                if (tocItem.Items != null)
-                {
-                    newTocItem.Items = MakeHrefRelativeTo(tocItem.Items, relativePath);
-                }
-
-                result.Add(newTocItem);
-            }
-
-            return result;
         }
 
         private static void WriteToc(TocItem tocRootItems, string outputFolder)
@@ -219,21 +192,6 @@ namespace DocFxTocGenerator
 
             // add directories with content to the node
             GetDirectories(folder, order, yamlNode, overrides, ignore);
-
-            // link duplicate yamlnodes where one is a document and one is a folder with children, for ADO Wiki style layouts
-            if (_options.LinkChildFolder)
-            {
-                var nodesWithChildren = yamlNode.Items.Where(x => x.Items != null && x.Items.Any()).ToList();
-                foreach (var item in nodesWithChildren)
-                {
-                    var matchingSiblingNode = yamlNode.Items.Where(x => (x.Items == null || !x.Items.Any()) && x.Title == item.Title).FirstOrDefault();
-                    if (matchingSiblingNode != null)
-                    {
-                        item.Href = matchingSiblingNode.Href;
-                        yamlNode.Items.Remove(matchingSiblingNode);
-                    }
-                }
-            }
 
             if (yamlNode.Items != null)
             {

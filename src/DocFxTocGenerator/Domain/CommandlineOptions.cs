@@ -65,12 +65,5 @@ namespace DocFxTocGenerator.Domain
         /// </summary>
         [Option('m', "multitoc", Required = false, HelpText = "Indicates how deep in the tree toc files should be generated for child subfolders, a depth of 0 is the root only.")]
         public int SplitTocDepth { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether child folders that have the same name as a sibling document should automatically
-        /// be linked as child items to the document instead of creating two entries for the document and one for the folder.
-        /// </summary>
-        [Option('l', "linkchildren", Required = false, HelpText = "Automatically link folders with same title to parent documents as child items.")]
-        public bool LinkChildFolder { get; set; }
     }
 }
