@@ -71,7 +71,7 @@
                         orphanedResources.Add(resourceFullPath);
                         errors.Add(
                             new MarkdownError(
-                                _fileService.GetRelativePath(resourceFullPath, _config.DocumentationFiles.SourceFolder),
+                                _fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, resourceFullPath),
                                 0,
                                 0,
                                 MarkdownErrorSeverity.Error,
