@@ -1,6 +1,7 @@
 ﻿namespace DocLinkChecker.Helpers
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -220,17 +221,29 @@
         private static (PipeTable table, List<MarkdownError> errors)
             ValidatePipeTableWithText(string markdownFilePath, string markdown, Table table)
         {
-            PipeTable pipeTable = new (markdownFilePath, table.Line, table.Column);
+            PipeTable pipeTable = null;
+            int start = 0;
+            int len = 0;
+            string line = string.Empty;
             List<MarkdownError> errors = new ();
 
-            int start = table.Span.Start;
-            while (start > 0 && markdown.Substring(start, 1) != "\n")
+            try
             {
-                start--;
-            }
+                pipeTable = new (markdownFilePath, table.Line, table.Column);
 
-            int len = markdown.IndexOf('\r', start) - start;
-            string line = markdown.Substring(start, len);
+                start = Math.Max(table.Span.Start, 0);
+                while (start > 0 && markdown.Substring(start, 1) != "\n")
+                {
+                    start--;
+                }
+
+                len = markdown.IndexOf('\r', start) - start;
+                line = markdown.Substring(start, len);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PipeTable error {ex.Message}.\nfilepath: {markdownFilePath}\nmarkdown: {markdown.Substring(0, 40)}...\nTable: line={table.Line} col={table.Column} start={table.Span.Start}");
+            }
 
             int row = 0;
             int nrCols = -1;
