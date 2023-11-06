@@ -237,12 +237,23 @@
                     start--;
                 }
 
-                len = markdown.IndexOf('\r', start) - start;
-                line = markdown.Substring(start, len);
+                if (markdown.IndexOf('\r') >= 0)
+                {
+                    len = markdown.IndexOf('\r', start) - start;
+                }
+                else if (markdown.IndexOf('\n') >= 0)
+                {
+                    len = markdown.IndexOf('\n', start) - start;
+                }
+
+                if (len > 0)
+                {
+                    line = markdown.Substring(start, len);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"PipeTable error {ex.Message}.\nfilepath: {markdownFilePath}\nmarkdown: {markdown.Substring(0, 40)}...\nTable: line={table.Line} col={table.Column} start={table.Span.Start}");
+                Console.WriteLine($"PipeTable error\nPATH: {markdownFilePath} MD: {markdown.Substring(0, 10)}...  TABLE: line={table.Line} col={table.Column} start={table.Span.Start}\n{ex}");
             }
 
             int row = 0;
