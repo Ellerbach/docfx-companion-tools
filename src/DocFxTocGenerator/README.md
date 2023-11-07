@@ -66,4 +66,4 @@ The generated INDEX.md contains of an H1-header with the name of the folder, fol
 
 ## Generating mutiple child toc files
 
-The `-m or --multitoc` option will control how far down the folder tree to generating toc files and allows you to generate multiple smaller, more managable TOC files for large DocFX projects.  If the parameter is omitted, the default of 0 is assumed, which means only one large TOC at the root level will generated. Any value greater than 0 indicates how deep into the child folder structure TOC files will be generated, with the parent TOC having references to those located in the child folders.  
+The `-m or --multitoc` option will control how far down the folder tree structure to generating toc files and allows you to generate multiple smaller, more managable TOC files for large DocFX projects. If the parameter is omitted, the default of 0 is assumed, which means only one large TOC at the root level will generated. Any value greater than 0 indicates how deep into the child folder structure TOC files will be generated, with the parent TOC having references to those located in the child folders.  
