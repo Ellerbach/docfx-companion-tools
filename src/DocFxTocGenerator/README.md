@@ -7,16 +7,16 @@ This tool allow to generate a yaml compatible `toc.yml` file for DocFX.
 ```text
 TocGenerator -d <docs folder> [-o <output folder>] [-vsi]
 
--d, --docfolder			Required. Folder containing the documents.
--o, --outputfolder		Folder to write the resulting toc.yml in.
--v, --verbose			Show verbose messages.
--s, --sequence			Use the .order files for TOC sequence. Format are raws of: filename-without-extension
--r, --override			Use the .override files for TOC file name override. Format are raws of: filename-without-extension;Title you want
--i, --index				Auto-generate a file index in each folder.
--g, --ignore			Use the .ignore files for TOC directory ignore. Format are raws of directory names: directory-to-ignore
--m, --multitoc <depth>	Generate multiple toc files for child folders down to a certain child depth, default is 0 (root only generation).
---help					Display this help screen.
---version				Display version information.
+-d, --docfolder         Required. Folder containing the documents.
+-o, --outputfolder      Folder to write the resulting toc.yml in.
+-v, --verbose           Show verbose messages.
+-s, --sequence          Use the .order files for TOC sequence. Format are raws of: filename-without-extension
+-r, --override          Use the .override files for TOC file name override. Format are raws of: filename-without-extension;Title you want
+-i, --index             Auto-generate a file index in each folder.
+-g, --ignore            Use the .ignore files for TOC directory ignore. Format are raws of directory names: directory-to-ignore
+-m, --multitoc <depth>  Generate multiple toc files for child folders down to a certain child depth, default is 0 (root only generation).
+--help                  Display this help screen.
+--version               Display version information.
 ```
 
 If the `-o or --outputfolder` is not provided, the output folder is set to the docfolder.
