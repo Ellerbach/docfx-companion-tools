@@ -361,7 +361,11 @@ namespace DocFxTocGenerator
                 FileInfo[] subFiles = _filePatternsForToc
                     .SelectMany(pattern => dirInfo.GetFiles(pattern, _caseSetting))
                     .ToArray();
-                if (subFiles.Any() == false)
+
+                // Given warning we will stop in this folder when
+                // 1) we don't have any markdown or API specs in this folder
+                // 2) there are subfolders
+                if (subFiles.Any() == false && Directory.GetDirectories(dirInfo.FullName).Length > 0)
                 {
                     _message.Warning($"WARNING: Folder {dirInfo.FullName} skipped as it doesn't contain {_filePatternsForTocJoined} files. This might skip further sub-folders. Solve this by adding a README.md or INDEX.md in the folder.");
                     continue;
