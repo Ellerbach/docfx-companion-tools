@@ -578,7 +578,7 @@ namespace DocFxTocGenerator
             {
                 writer.WriteLine($"- name: {tocItem.Title}");
 
-                // href can't be singleton, you alwyas have to have a name before
+                // href can't be singleton, you always have to have a name before
                 if (!string.IsNullOrEmpty(tocItem.Href))
                 {
                     writer.WriteLine($"  href: {tocItem.Href}");
