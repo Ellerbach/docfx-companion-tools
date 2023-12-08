@@ -200,18 +200,18 @@ namespace DocFxTocGenerator
                 _message.Verbose($"Items ordered in {folder.FullName}");
             }
 
-            if (!string.IsNullOrWhiteSpace(yamlNode.Filename))
+            // if indicated, add a folder index - but not for the root folder.
+            if (_options.AutoIndex)
             {
-                // if indicated, add a folder index - but not for the root folder.
-                if (_options.AutoIndex)
+                string indexFile = AddIndex(folder, yamlNode, GetOverrides(folder.Parent));
+                if (!string.IsNullOrEmpty(indexFile))
                 {
-                    string indexFile = AddIndex(folder, yamlNode, GetOverrides(folder.Parent));
-                    if (!string.IsNullOrEmpty(indexFile))
-                    {
-                        yamlNode.Href = GetRelativePath(indexFile, _options.DocFolder);
-                    }
+                    yamlNode.Href = GetRelativePath(indexFile, _options.DocFolder);
                 }
-                else
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(yamlNode.Filename))
                 {
                     if (yamlNode.Items != null && yamlNode.Items.Any())
                     {
@@ -538,7 +538,9 @@ namespace DocFxTocGenerator
             // read lines if existing file.
             List<string> lines = new List<string>();
 
-            lines.Add($"# {yamlNode.Title}");
+            // We are taking the node name as title, if it's the root one, then the name of the parent folder
+            var title = string.IsNullOrWhiteSpace(yamlNode.Title) ? ToTitleCase(Directory.GetParent(outputFile).Name) : yamlNode.Title;
+            lines.Add($"# {title}");
             lines.Add(string.Empty);
             foreach (TocItem item in yamlNode.Items)
             {
@@ -575,11 +577,12 @@ namespace DocFxTocGenerator
             if (!string.IsNullOrEmpty(tocItem.Title))
             {
                 writer.WriteLine($"- name: {tocItem.Title}");
-            }
 
-            if (!string.IsNullOrEmpty(tocItem.Href))
-            {
-                writer.WriteLine($"  href: {tocItem.Href}");
+                // href can't be singleton, you always have to have a name before
+                if (!string.IsNullOrEmpty(tocItem.Href))
+                {
+                    writer.WriteLine($"  href: {tocItem.Href}");
+                }
             }
 
             if (tocItem.Items != null)
