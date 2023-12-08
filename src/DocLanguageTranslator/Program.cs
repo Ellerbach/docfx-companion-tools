@@ -201,7 +201,7 @@ namespace DocFXLanguageGenerator
                     if (links.Count > 0)
                     {
                         // We know that a space will be inserted sometimes
-                        res = res.Replace("] (", "](").Replace("! [", "![");
+                        res = res.Replace("] (", "](").Replace("! [", "![").Replace("[! ", "[!");
                         foreach (var link in links)
                         {
                             int firstLink = res.IndexOf("]()");
