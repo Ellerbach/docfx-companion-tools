@@ -80,7 +80,9 @@
                     // custom generation of the id
                     string id = title.ToLower();
                     id = Regex.Replace(id, "[ _]", "-");
-                    id = Regex.Replace(id, "[^a-zA-Z0-9-]*", string.Empty);
+
+                    // replace all non-characters. \p[L] takes all unicode variants in account as well like ö and á
+                    id = Regex.Replace(id, @"[^\p{L}0-9-]*", string.Empty);
 
                     return new Heading(markdownFilePath, x.Line + 1, x.Column + 1, title, id);
                 })

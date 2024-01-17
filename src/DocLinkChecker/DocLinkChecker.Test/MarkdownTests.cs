@@ -1,6 +1,7 @@
-namespace DocLinkChecker.Test
+﻿namespace DocLinkChecker.Test
 {
     using System.Linq;
+    using Bogus;
     using DocLinkChecker.Helpers;
     using DocLinkChecker.Models;
     using DocLinkChecker.Test.Helpers;
@@ -53,6 +54,17 @@ namespace DocLinkChecker.Test
                 .AddNewLine()
                 .AddParagraphs(2);
 
+        private string _codeLinkingDocument = string.Empty
+                .AddHeading("Code Linking Document", 1)
+                .AddParagraphs(1).AddCodeLink("Code", "scripts/foo.cs")
+                .AddParagraphs(1).AddCodeLink("Code", "scripts/foo.cs?name=Bravo")
+                .AddNewLine()
+                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs#starting")
+                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs#L3-5")
+                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs?highlight=2,5-7,9-)")
+                .AddNewLine()
+                .AddParagraphs(2);
+
         [Fact]
         public void FindAllLinks()
         {
@@ -82,6 +94,31 @@ namespace DocLinkChecker.Test
         }
 
         [Fact]
+        public void FindAllHeadingsWithUnicodeCharacters()
+        {
+            string markdown = string.Empty
+                .AddHeading("Test Unicode Characters", 1)
+                .AddParagraphs(1).AddLink("#")
+                .AddHeading("abcdefghijklmnopqrstuvwxyz 0123456789", 2)
+                .AddParagraphs(1)
+                .AddHeading("ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789", 2)
+                .AddParagraphs(1)
+                .AddHeading("UNICODE-!@#$%^&*+=~`<>,.?/:;€|Æäßéóčúįǯ-CHARS", 2)
+                .AddParagraphs(1);
+
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
+
+            var headings = result.objects
+                .OfType<Heading>()
+                .ToList();
+
+            headings.Count.Should().Be(4);
+            headings[1].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
+            headings[2].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
+            headings[3].Id.Should().Be("unicode-æäßéóčúįǯ-chars");
+        }
+
+        [Fact]
         public void FindAllTables()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _correctDocument, true);
@@ -93,6 +130,13 @@ namespace DocLinkChecker.Test
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _errorDocument, true);
             result.errors.Count.Should().Be(5);
+        }
+
+        [Fact]
+        public void FindAllCodeLinks()
+        {
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, _codeLinkingDocument, false);
+            result.errors.Should().BeEmpty();
         }
     }
 }

@@ -48,6 +48,17 @@ namespace DocLinkChecker.Test.Helpers
             return s + Environment.NewLine + content;
         }
 
+        internal static string AddCodeLink(this string s, string name, string url)
+        {
+            Faker faker = new Faker();
+            string content = $" [!code-csharp[{name}]({url})]" + Environment.NewLine;
+            if (string.IsNullOrEmpty(s))
+            {
+                return content;
+            }
+            return s + Environment.NewLine + content;
+        }
+
         internal static string AddTableStart(this string s, int columns = 3)
         {
             Faker faker = new Faker();
@@ -101,6 +112,15 @@ namespace DocLinkChecker.Test.Helpers
                 return markdown;
             }
             return s + markdown;
+        }
+
+        internal static string AddRawContent(this string s, string content)
+        {
+            if (string.IsNullOrEmpty(s))
+            {
+                return content;
+            }
+            return s + content;
         }
     }
 }
