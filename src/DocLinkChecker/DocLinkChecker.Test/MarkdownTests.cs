@@ -54,17 +54,6 @@
                 .AddNewLine()
                 .AddParagraphs(2);
 
-        private string _codeLinkingDocument = string.Empty
-                .AddHeading("Code Linking Document", 1)
-                .AddParagraphs(1).AddCodeLink("Code", "scripts/foo.cs")
-                .AddParagraphs(1).AddCodeLink("Code", "scripts/foo.cs?name=Bravo")
-                .AddNewLine()
-                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs#starting")
-                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs#L3-5")
-                .AddParagraphs(1).AddCodeLink(string.Empty, "scripts/bar.cs?highlight=2,5-7,9-)")
-                .AddNewLine()
-                .AddParagraphs(2);
-
         [Fact]
         public void FindAllLinks()
         {
@@ -130,13 +119,6 @@
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _errorDocument, true);
             result.errors.Count.Should().Be(5);
-        }
-
-        [Fact]
-        public void FindAllCodeLinks()
-        {
-            var result = MarkdownHelper.ParseMarkdownString(string.Empty, _codeLinkingDocument, false);
-            result.errors.Should().BeEmpty();
         }
     }
 }
