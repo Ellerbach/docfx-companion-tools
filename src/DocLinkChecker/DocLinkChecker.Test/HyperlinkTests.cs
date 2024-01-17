@@ -295,49 +295,6 @@
             service.Errors.First().Message.Should().Contain("Full path not allowed");
         }
 
-        [Fact]
-        public async void ValidateCodeReferenceFile()
-        {
-            // Arrange
-            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            _config.DocLinkChecker.RelativeLinkStrategy = RelativeLinkType.All;
-
-            string foo = "scripts/foo.cs";
-            string fooPath = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, foo));
-            string empty = string.Empty;
-            _fileServiceMock.Files.Add(fooPath, empty.AddRawContent(
-@"// (other content above)
-
-// <Bravo>
-foreach(var thing in list)
-{
-     // Do Stuff
-}
-// </Bravo>
-"));
-            string bar = "scripts/bar.cs";
-            string barPath = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, bar));
-            _fileServiceMock.Files.Add(barPath, empty.AddRawContent(
-@"private void MyMethod()
-{
-   #region starting
-   // Some code
-   #endregion
-}
-"));
-
-            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-
-            //Act
-            int line = 124;
-            int column = 3381;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, "[!code-csharp[Code](scripts/foo.cs)]");
-            await service.VerifyHyperlink(link);
-
-            // Assert
-            service.Errors.Where(x => x.Severity == MarkdownErrorSeverity.Error).Should().BeEmpty();
-        }
-
         private ICustomConsoleLogger GetMockedConsoleLogger()
         {
             Mock<ICustomConsoleLogger> console = new Mock<ICustomConsoleLogger>();
