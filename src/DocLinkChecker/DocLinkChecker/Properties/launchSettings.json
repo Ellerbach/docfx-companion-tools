@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "DocLinkChecker": {
-      "commandName": "Project",
-      "commandLineArgs": "-d \"D:\\Git\\CSE\\LSEG\\LSEG-ef-doc\\docs\" -tavx -f \"D:\\Git\\CSE\\ZF\\DMPwork\\docfx-companion-tools.json\""
-    }
-  }
-}

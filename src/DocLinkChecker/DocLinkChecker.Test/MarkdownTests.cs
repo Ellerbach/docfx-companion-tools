@@ -1,6 +1,7 @@
-namespace DocLinkChecker.Test
+﻿namespace DocLinkChecker.Test
 {
     using System.Linq;
+    using Bogus;
     using DocLinkChecker.Helpers;
     using DocLinkChecker.Models;
     using DocLinkChecker.Test.Helpers;
@@ -79,6 +80,31 @@ namespace DocLinkChecker.Test
                 .ToList();
 
             headings.Count.Should().Be(6);
+        }
+
+        [Fact]
+        public void FindAllHeadingsWithUnicodeCharacters()
+        {
+            string markdown = string.Empty
+                .AddHeading("Test Unicode Characters", 1)
+                .AddParagraphs(1).AddLink("#")
+                .AddHeading("abcdefghijklmnopqrstuvwxyz 0123456789", 2)
+                .AddParagraphs(1)
+                .AddHeading("ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789", 2)
+                .AddParagraphs(1)
+                .AddHeading("UNICODE-!@#$%^&*+=~`<>,.?/:;€|Æäßéóčúįǯ-CHARS", 2)
+                .AddParagraphs(1);
+
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
+
+            var headings = result.objects
+                .OfType<Heading>()
+                .ToList();
+
+            headings.Count.Should().Be(4);
+            headings[1].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
+            headings[2].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
+            headings[3].Id.Should().Be("unicode-æäßéóčúįǯ-chars");
         }
 
         [Fact]
