@@ -5,7 +5,7 @@ This tool allow to generate a yaml compatible `toc.yml` file for DocFX.
 ## Usage
 
 ```text
-TocGenerator -d <docs folder> [-o <output folder>] [-vsi]
+DocFxTocGenerator -d <docs folder> [-o <output folder>] [-vsi]
 
 -d, --docfolder          Required. Folder containing the documents.
 -o, --outputfolder       Folder to write the resulting toc.yml in.
