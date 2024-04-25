@@ -6,14 +6,15 @@ This tool converts existing [OpenAPI](https://www.openapis.org/) specification f
 
 ```text
 DocFxOpenApi -s <specs folder> [-o <output folder>] [-v]
-  -s, --specfolder        Required. Folder containing the OpenAPI specification.
+  -s, --specsource      Required. Folder or file containing the OpenAPI specification.
   -o, --outputfolder	Folder to write the resulting specifications in.
-  -v, --verbose           Show verbose messages.
-  --help                	  Display this help screen.
-  --version              	Display version information.
+  -v, --verbose         Show verbose messages.
+  --help                Display this help screen.
+  --version             Display version information.
 ```
 
-The tool converts any `*.json`, `*.yaml`, `*.yml` file from the provided specification folder into the output folder. It supports JSON or YAML-format, OpenAPI v2 or v3 (including 3.0.1) format files.
+When a folder is provided to the `specsource` parameter, the tool converts all `*.json`, `*.yaml`, `*.yml` files in the folder and its subfolders. When a file is provided, the tool converts only that file.
+It supports JSON or YAML-format, OpenAPI v2 or v3 (including 3.0.1) format files.
 
 If the `-o or --outputfolder` is not provided, the output folder is set to the input specs folder.
 
