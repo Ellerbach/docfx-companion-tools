@@ -75,13 +75,13 @@ namespace DocFxOpenApi
                 _options.OutputFolder = _options.SpecFolder;
             }
 
-            _message.Verbose($"Specification folder: {_options.SpecFolder}");
+            _message.Verbose($"Specification file/folder: {_options.SpecFolder ?? _options.SpecFile}");
             _message.Verbose($"Output folder       : {_options.OutputFolder}");
             _message.Verbose($"Verbose             : {_options.Verbose}");
 
-            if (!Directory.Exists(_options.SpecFolder))
+            if ((_options.SpecFolder ?? _options.SpecFile) == null)
             {
-                _message.Error($"ERROR: Specification folder '{_options.SpecFolder}' doesn't exist.");
+                _message.Error($"ERROR: Specification folder/file '{_options.SpecSource}' doesn't exist.");
                 _returnvalue = 1;
                 return;
             }
@@ -93,9 +93,16 @@ namespace DocFxOpenApi
 
         private void ConvertOpenApiFiles()
         {
-            foreach (var extension in _openApiFileExtensions)
+            if (_options.SpecFolder != null)
             {
-                this.ConvertOpenApiFiles(extension);
+                foreach (var extension in _openApiFileExtensions)
+                {
+                    this.ConvertOpenApiFiles(extension);
+                }
+            }
+            else
+            {
+                this.ConvertOpenApiFile(_options.SpecFile!);
             }
         }
 

@@ -3,18 +3,23 @@
 
 namespace DocFxOpenApi.Domain
 {
+    using System.IO;
     using CommandLine;
 
     /// <summary>
-    /// Class for command line options.
+    ///  Class for command line options.
     /// </summary>
     public class CommandlineOptions
     {
         /// <summary>
         /// Gets or sets the folder with specifications.
         /// </summary>
-        [Option('s', "specfolder", Required = true, HelpText = "Folder containing the OpenAPI specification.")]
-        public string? SpecFolder { get; set; }
+        [Option('s', "specsource", Required = true, HelpText = "Folder or File containing the OpenAPI specification.")]
+        public string? SpecSource
+        {
+            get => SpecFolder ?? SpecFile;
+            set => SetSource(value);
+        }
 
         /// <summary>
         /// Gets or sets the output folder.
@@ -27,5 +32,32 @@ namespace DocFxOpenApi.Domain
         /// </summary>
         [Option('v', "verbose", Required = false, HelpText = "Show verbose messages.")]
         public bool Verbose { get; set; }
+
+        /// <summary>
+        /// Gets the folder with specifications, if the source is a folder.
+        /// </summary>
+        public string? SpecFolder { get; private set; }
+
+        /// <summary>
+        /// Gets the file with specifications, if the source is a file.
+        /// </summary>
+        public string? SpecFile { get; private set; }
+
+        private void SetSource(string? value)
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            if (Directory.Exists(value))
+            {
+                SpecFolder = value;
+            }
+            else if (File.Exists(value))
+            {
+                SpecFile = value;
+            }
+        }
     }
 }
