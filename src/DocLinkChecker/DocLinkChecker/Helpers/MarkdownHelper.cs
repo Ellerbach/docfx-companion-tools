@@ -77,6 +77,13 @@
                     videoref.LinkType = HyperlinkType.Webpage;
                 }
 
+                // Tabs
+                var tabrefs = links.Where(x => x.Url.StartsWith("#tab/"));
+                foreach (var tabref in tabrefs)
+                {
+                    tabref.LinkType = HyperlinkType.Tab;
+                }
+
                 objects.AddRange(links);
             }
 

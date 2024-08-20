@@ -205,6 +205,32 @@
             service.Errors.Where(x => x.Severity == MarkdownErrorSeverity.Error).Should().BeEmpty();
         }
 
+        [Theory]
+        [InlineData("# [Linux](#tab/linux)")]
+        [InlineData("# [Windows](#tab/windows)")]
+        public async void ValidateTabHeadersShouldNotHaveErrors(string codeLink)
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+
+            //Act
+            (List<MarkdownObjectBase> objects, List<MarkdownError> errors) result =
+                MarkdownHelper.ParseMarkdownString($"{_fileServiceMock.Root}/start-document.md", codeLink, false);
+
+            Heading heading = (Heading)result.objects.FirstOrDefault(result => result is Heading);
+            Hyperlink link = (Hyperlink)result.objects.FirstOrDefault(result => result is Hyperlink);
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            heading.Should().NotBeNull();
+
+            link.LinkType.Should().Be(HyperlinkType.Tab);
+
+            service.Errors.Should().BeEmpty();
+        }
+
         [Fact]
         public async void ValidateLocalLinkHeadingShouldNotHaveErrors()
         {

@@ -36,6 +36,11 @@
         Resource,
 
         /// <summary>
+        /// A tab - DocFx special. See https://dotnet.github.io/docfx/docs/markdown.html?tabs=linux%2Cdotnet#tabs.
+        /// </summary>
+        Tab,
+
+        /// <summary>
         /// Empty link.
         /// </summary>
         Empty,
