@@ -7,7 +7,6 @@
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using DocLinkChecker.Enums;
@@ -324,7 +323,10 @@
                     break;
             }
 
-            if (!string.IsNullOrEmpty(hyperlink.UrlTopic))
+            // if the link references a markdown file and references a header,
+            // we check if it exists.
+            if (string.Compare(Path.GetExtension(hyperlink.UrlFullPath), ".md", true) == 0 &&
+                !string.IsNullOrEmpty(hyperlink.UrlTopic))
             {
                 // validate if heading exists in file
                 if (Headings

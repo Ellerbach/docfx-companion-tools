@@ -93,6 +93,8 @@
                 .AddHeading("ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789", 2)
                 .AddParagraphs(1)
                 .AddHeading("UNICODE-!@#$%^&*+=~`<>,.?/:;€|Æäßéóčúįǯ-CHARS", 2)
+                .AddParagraphs(1)
+                .AddHeading("`Commented header`", 2)
                 .AddParagraphs(1);
 
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
@@ -101,10 +103,27 @@
                 .OfType<Heading>()
                 .ToList();
 
-            headings.Count.Should().Be(4);
+            headings.Count.Should().Be(5);
             headings[1].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
             headings[2].Id.Should().Be("abcdefghijklmnopqrstuvwxyz-0123456789");
             headings[3].Id.Should().Be("unicode-æäßéóčúįǯ-chars");
+            headings[4].Id.Should().Be("commented-header");
+        }
+
+        [Fact]
+        public void FindAllFileInclusionLinks()
+        {
+            string markdown = string.Empty
+                .AddHeading("Test file inclusion links", 1)
+                .AddParagraphs(1).AddLink("!code-csharp[](Program.cs)");
+
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
+
+            var links = result.objects
+                .OfType<Hyperlink>()
+                .ToList();
+
+            links.Count.Should().Be(1);
         }
 
         [Fact]

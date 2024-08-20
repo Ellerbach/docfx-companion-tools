@@ -2,6 +2,7 @@
 {
     using Bogus;
     using DocLinkChecker.Enums;
+    using DocLinkChecker.Helpers;
     using DocLinkChecker.Interfaces;
     using DocLinkChecker.Models;
     using DocLinkChecker.Services;
@@ -11,6 +12,7 @@
     using Moq;
     using Moq.Contrib.HttpClient;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -224,21 +226,23 @@
             service.Errors.Should().BeEmpty();
         }
 
-        [Fact]
-        public async void ValidateLocalLinkHeadingInSameDocumentShouldNotHaveErrors()
+        [Theory]
+        [InlineData("First header", "first-header", "#first-header")]
+        [InlineData("`Second header`", "second-header", "#second-header")]
+        public async void ValidateLocalLinkHeadingInSameDocumentShouldNotHaveErrors(string title, string id, string reference)
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
             string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
-            service.Headings.Add(new(source, 99, 1, "First Header", "first-header"));
+            service.Headings.Add(new(source, 99, 1, title, id));
 
             //Act
             int line = 432;
             int column = 771;
 
-            Hyperlink link = new Hyperlink(source, line, column, $"#first-header");
+            Hyperlink link = new Hyperlink(source, line, column, reference);
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -291,8 +295,62 @@
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
+            service.Errors.First().Severity.Should().Be(MarkdownErrorSeverity.Error);
             service.Errors.First().Message.Should().Contain("Full path not allowed");
+        }
+
+        [Theory]
+        [InlineData("[!code-csharp[](src/sample.cs)]")]
+        [InlineData("[!code-csharp[](src/sample.cs#region)]")]
+        [InlineData("[!code-csharp[](src/sample.cs#L8-11)]")]
+        [InlineData("[!code-csharp[](src/sample.cs?name=MainLoop)]")]
+        [InlineData("[!code-csharp[](src/sample.cs?highlight=3,5)]")]
+        [InlineData("[!INCLUDE [the defined way to include](getting-started/README.md)]")]
+        [InlineData("[!include [using lowercase to include](getting-started/README.md)]")]
+        public async void ValidateFileInclusionLinksShouldNotHaveErrors(string codeLink)
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+
+            //Act
+            (List<MarkdownObjectBase> objects, List<MarkdownError> errors) result = 
+                MarkdownHelper.ParseMarkdownString($"{_fileServiceMock.Root}/start-document.md", codeLink, false);
+
+            Hyperlink link = (Hyperlink)result.objects.FirstOrDefault(result => result is Hyperlink);
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            service.Errors.Should().BeEmpty();
+        }
+
+        [Theory]
+        [InlineData("[!code-csharp[](src/sample_NOT_EXISTING.cs)]")]
+        [InlineData("[!code-csharp[](src/sample_NOT_EXISTING.cs#region)]")]
+        [InlineData("[!code-csharp[](src/sample_NOT_EXISTING.cs#L8-11)]")]
+        [InlineData("[!code-csharp[](src/sample_NOT_EXISTING.cs?name=MainLoop)]")]
+        [InlineData("[!code-csharp[](src/sample_NOT_EXISTING.cs?highlight=3,5)]")]
+        [InlineData("[!INCLUDE [the defined way to include](getting-started/README_NOT_EXISTING.md)]")]
+        [InlineData("[!include [using lowercase to include](getting-started/README_NOT_EXISTING.md)]")]
+        public async void ValidateFileInclusionLinksShouldHaveErrors(string codeLink)
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+
+            //Act
+            (List<MarkdownObjectBase> objects, List<MarkdownError> errors) result =
+                MarkdownHelper.ParseMarkdownString($"{_fileServiceMock.Root}/start-document.md", codeLink, false);
+
+            Hyperlink link = (Hyperlink)result.objects.FirstOrDefault(result => result is Hyperlink);
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            service.Errors.Should().NotBeEmpty();
+            service.Errors.First().Severity.Should().Be(MarkdownErrorSeverity.Error);
+            service.Errors.First().Message.Should().Contain("Not found");
         }
 
         private ICustomConsoleLogger GetMockedConsoleLogger()
