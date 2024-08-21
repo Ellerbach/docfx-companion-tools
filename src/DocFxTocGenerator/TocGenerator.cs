@@ -403,7 +403,16 @@ namespace DocFxTocGenerator
 
                 if (subFiles.Length == 1 && dirInfo.GetDirectories().Length == 0)
                 {
-                    newTocItem.Href = GetRelativePath(subFiles[0].FullName, _options.DocFolder);
+                    if (!string.IsNullOrEmpty(entryFile))
+                    {
+                        // if we have added an index file, so we'll point to that one
+                        newTocItem.Href = GetRelativePath(entryFile, _options.DocFolder);
+                    }
+                    else
+                    {
+                        // otherwise: the first file.
+                        newTocItem.Href = GetRelativePath(subFiles[0].FullName, _options.DocFolder);
+                    }
                 }
                 else
                 {
