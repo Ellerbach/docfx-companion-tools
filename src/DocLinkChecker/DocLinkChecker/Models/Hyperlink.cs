@@ -106,6 +106,12 @@
                 if (IsLocal)
                 {
                     int pos = Url.IndexOf("#");
+                    if (pos == -1)
+                    {
+                        // if we don't have a header delimiter, we might have a url delimiter
+                        pos = Url.IndexOf("?");
+                    }
+
                     return pos == -1 ? string.Empty : Url.Substring(pos + 1);
                 }
 
@@ -123,6 +129,12 @@
                 if (IsLocal)
                 {
                     int pos = Url.IndexOf("#");
+                    if (pos == -1)
+                    {
+                        // if we don't have a header delimiter, we might have a url delimiter
+                        pos = Url.IndexOf("?");
+                    }
+
                     switch (pos)
                     {
                         case -1:
@@ -149,6 +161,11 @@
                 if (IsLocal)
                 {
                     int pos = Url.IndexOf("#");
+                    if (pos == -1)
+                    {
+                        // if we don't have a header delimiter, we might have a url delimiter
+                        pos = Url.IndexOf("?");
+                    }
 
                     // we want to know that the link is not starting with a # for local reference.
                     // if local reference, return the filename otherwise the calculated path.

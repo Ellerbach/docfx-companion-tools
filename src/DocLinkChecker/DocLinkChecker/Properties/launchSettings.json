@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DocLinkChecker": {
+      "commandName": "Project",
+      "commandLineArgs": "-d \"c:\\temp\\docs\""
+    }
+  }
+}

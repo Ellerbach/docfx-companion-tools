@@ -1,9 +1,7 @@
 ﻿namespace DocLinkChecker.Helpers
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -12,7 +10,6 @@
     using DocLinkChecker.Models;
     using Markdig;
     using Markdig.Extensions.Tables;
-    using Markdig.Renderers.Html;
     using Markdig.Syntax;
     using Markdig.Syntax.Inlines;
 
@@ -61,6 +58,32 @@
                 .ToList();
             if (links != null)
             {
+                // Support for DocFx specific links. See https://dotnet.github.io/docfx/docs/markdown.html
+                // File inclusion links and Code references
+                var filerefs = links.Where(x => x.Url.StartsWith("!code-", StringComparison.OrdinalIgnoreCase) ||
+                                                x.Url.StartsWith("!INCLUDE", StringComparison.OrdinalIgnoreCase));
+                foreach (var fileref in filerefs)
+                {
+                    string url = Regex.Match(fileref.Url, @"\\((.*?)\\)").Value;
+                    fileref.Url = url;
+                }
+
+                // Video inclusion links
+                var videorefs = links.Where(x => x.Url.StartsWith("!Video"));
+                foreach (var videoref in videorefs)
+                {
+                    string url = Regex.Match(videoref.Url, @"!Video (.*)").Value;
+                    videoref.Url = url;
+                    videoref.LinkType = HyperlinkType.Webpage;
+                }
+
+                // Tabs
+                var tabrefs = links.Where(x => x.Url.StartsWith("#tab/"));
+                foreach (var tabref in tabrefs)
+                {
+                    tabref.LinkType = HyperlinkType.Tab;
+                }
+
                 objects.AddRange(links);
             }
 
@@ -75,6 +98,11 @@
                     if (child != null)
                     {
                         title = markdown.Substring(child.Span.Start, x.Span.Length - (child.Span.Start - x.Span.Start));
+                    }
+                    else if (x.Inline.FirstChild != null)
+                    {
+                        // fallback for complex headers, like "# `text with quotes`" and such
+                        title = markdown.Substring(x.Inline.FirstChild.Span.Start, x.Span.Length - (x.Inline.FirstChild.Span.Start - x.Span.Start));
                     }
 
                     // custom generation of the id
