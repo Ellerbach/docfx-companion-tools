@@ -303,6 +303,52 @@
             headingError.Severity.Should().Be(Enums.MarkdownErrorSeverity.Warning);
         }
 
+        [Theory]
+        [InlineData("~/general/images/nature.jpeg")]
+        [InlineData("~\\general\\images\\nature.jpeg")]
+        public async void ValidateRootLinkShouldHaveNoErrors(string path)
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+
+            //Act
+            int line = 499;
+            int column = 75;
+            Hyperlink link = new Hyperlink(sourceDoc, line, column, path);
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            service.Errors.Should().BeEmpty();
+        }
+
+        [Theory]
+        [InlineData("~/general/images/NON_EXISTING.jpeg")]
+        [InlineData("~\\NON_EXISTING\\images\\nature.jpeg")]
+        public async void ValidateInvalidRootLinkShouldHaveErrors(string path)
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+
+            //Act
+            int line = 499;
+            int column = 75;
+            Hyperlink link = new Hyperlink(sourceDoc, line, column, path);
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            service.Errors.Should().NotBeEmpty();
+            var linkError = service.Errors.FirstOrDefault(x => x.Message.Contains("Not found"));
+            linkError.Line.Should().Be(line);
+            linkError.Column.Should().Be(column);
+            linkError.Severity.Should().Be(MarkdownErrorSeverity.Error);
+        }
+
         [Fact]
         public async void ValidateLocalLinkWithFullPathShouldHaveErrors()
         {
