@@ -272,18 +272,38 @@
                 return Task.CompletedTask;
             }
 
-            // compute link of the url relative to the path of the file.
-            if (!_fileService.ExistsFileOrDirectory(hyperlink.UrlFullPath))
+            if (hyperlink.Url.StartsWith("~"))
             {
-                // referenced file doesn't exist
-                _errors.Enqueue(
-                    new MarkdownError(
-                        hyperlink.FilePath,
-                        hyperlink.Line,
-                        hyperlink.Column,
-                        MarkdownErrorSeverity.Error,
-                        $"Not found: {hyperlink.Url}"));
-                return Task.CompletedTask;
+                // special case for a reference to the root of the docs. Calculate full path differently.
+                string url = hyperlink.Url.Replace("~", _config.DocumentationFiles.SourceFolder);
+                if (!_fileService.ExistsFileOrDirectory(url))
+                {
+                    // referenced file doesn't exist
+                    _errors.Enqueue(
+                        new MarkdownError(
+                            hyperlink.FilePath,
+                            hyperlink.Line,
+                            hyperlink.Column,
+                            MarkdownErrorSeverity.Error,
+                            $"Not found: {hyperlink.Url}"));
+                    return Task.CompletedTask;
+                }
+            }
+            else
+            {
+                // compute link of the url relative to the path of the file.
+                if (!_fileService.ExistsFileOrDirectory(hyperlink.UrlFullPath))
+                {
+                    // referenced file doesn't exist
+                    _errors.Enqueue(
+                        new MarkdownError(
+                            hyperlink.FilePath,
+                            hyperlink.Line,
+                            hyperlink.Column,
+                            MarkdownErrorSeverity.Error,
+                            $"Not found: {hyperlink.Url}"));
+                    return Task.CompletedTask;
+                }
             }
 
             switch (_config.DocLinkChecker.RelativeLinkStrategy)

@@ -1,6 +1,5 @@
 ﻿namespace DocLinkChecker.Models
 {
-    using System.Diagnostics;
     using System.IO;
     using DocLinkChecker.Enums;
 
