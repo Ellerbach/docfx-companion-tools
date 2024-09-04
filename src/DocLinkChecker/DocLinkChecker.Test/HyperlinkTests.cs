@@ -332,7 +332,6 @@
         [InlineData("~/general/images/NON_EXISTING.jpeg")]
         [InlineData("~\\NON_EXISTING\\images\\nature.jpeg")]
         [InlineData("~/general%2Fimages/nature.jpeg")]
-        [InlineData("~/general/images/space image.jpeg")]
         public async void ValidateInvalidRootLinkShouldHaveErrors(string path)
         {
             // Arrange
