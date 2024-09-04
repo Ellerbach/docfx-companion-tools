@@ -48,6 +48,11 @@
                 }
                 else
                 {
+                    // Logic for DocFx RelativePath class is complex <https://github.com/dotnet/docfx/blob/cca05f505e30c5ede36973c4b989fce711f2e8ad/src/Docfx.Common/Path/RelativePath.cs>
+                    // Cannot use `Uri.UnescapeDataString` as it would also decode `%2F` to `/'. DocFX does not do this.
+                    // To avoid writing a complex logic. Just basic replacing of some chars.
+                    Url = Url.Replace("%20", " ").Replace("%7E", "~");
+
                     if (Path.GetExtension(url).ToLower() == ".md" || Path.GetExtension(url) == string.Empty)
                     {
                         // link to an MD file or a folder

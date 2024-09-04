@@ -306,6 +306,10 @@
         [Theory]
         [InlineData("~/general/images/nature.jpeg")]
         [InlineData("~\\general\\images\\nature.jpeg")]
+        [InlineData("~/general/images/space%20image.jpeg")]
+        [InlineData("~\\general\\images\\space%20image.jpeg")]
+        [InlineData("%7E/general/images/space%20image.jpeg")]
+        [InlineData("%7E\\general\\images\\space%20image.jpeg")]
         public async void ValidateRootLinkShouldHaveNoErrors(string path)
         {
             // Arrange
@@ -327,6 +331,8 @@
         [Theory]
         [InlineData("~/general/images/NON_EXISTING.jpeg")]
         [InlineData("~\\NON_EXISTING\\images\\nature.jpeg")]
+        [InlineData("~/general%2Fimages/nature.jpeg")]
+        [InlineData("~/general/images/space image.jpeg")]
         public async void ValidateInvalidRootLinkShouldHaveErrors(string path)
         {
             // Arrange
