@@ -354,6 +354,28 @@
             linkError.Severity.Should().Be(MarkdownErrorSeverity.Error);
         }
 
+        [Theory]
+        // Adopted behaviour from DocFx tests <https://github.com/dotnet/docfx/blob/cca05f505e30c5ede36973c4b989fce711f2e8ad/test/Docfx.Common.Tests/RelativePathTest.cs#L400-L412>
+        // Modified that expected result of Encoded var is upper case, instead of same case as original.
+        [InlineData("a/b/c", "a/b/c")]
+        [InlineData("../a/b/c", "../a/b/c")]
+        [InlineData("a/b/c%20d", "a/b/c d")]
+        [InlineData("../a%2Bb/c/d", "../a+b/c/d")]
+        [InlineData("a%253fb", "a%3fb")]
+        [InlineData("a%2fb", "a%2Fb")]
+        [InlineData("%2A%2F%3A%3F%5C", "%2A%2F%3A%3F%5C")] //*/:?\
+        [InlineData("%2a%2f%3a%3f%5c", "%2A%2F%3A%3F%5C")]
+        public void ValidateLocalUrlDecode(string path, string expected)
+        {
+            //Act
+            int line = 499;
+            int column = 75;
+            Hyperlink link = new Hyperlink(null, line, column, path);
+
+            Assert.Equal(path, link.OriginalUrl);
+            Assert.Equal(expected, link.Url);
+        }
+
         [Fact]
         public async void ValidateLocalLinkWithFullPathShouldHaveErrors()
         {

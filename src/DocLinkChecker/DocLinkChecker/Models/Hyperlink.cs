@@ -1,6 +1,9 @@
 ﻿namespace DocLinkChecker.Models
 {
+    using System;
     using System.IO;
+    using System.Linq;
+    using System.Text;
     using DocLinkChecker.Enums;
 
     /// <summary>
@@ -8,6 +11,10 @@
     /// </summary>
     public class Hyperlink : MarkdownObjectBase
     {
+        private static readonly char[] UriFragmentOrQueryString = new char[] { '#', '?' };
+        private static readonly char[] AdditionalInvalidChars = @"\/?:*".ToArray();
+        private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars().Concat(AdditionalInvalidChars).ToArray();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Hyperlink"/> class.
         /// </summary>
@@ -26,6 +33,7 @@
             : base(filePath, line, col)
         {
             Url = url;
+            OriginalUrl = Url;
 
             LinkType = HyperlinkType.Empty;
             if (!string.IsNullOrWhiteSpace(url))
@@ -48,10 +56,7 @@
                 }
                 else
                 {
-                    // Logic for DocFx RelativePath class is complex <https://github.com/dotnet/docfx/blob/cca05f505e30c5ede36973c4b989fce711f2e8ad/src/Docfx.Common/Path/RelativePath.cs>
-                    // Cannot use `Uri.UnescapeDataString` as it would also decode `%2F` to `/'. DocFX does not do this.
-                    // To avoid writing a complex logic. Just basic replacing of some chars.
-                    Url = Url.Replace("%20", " ").Replace("%7E", "~");
+                    Url = UrlDecode(Url);
 
                     if (Path.GetExtension(url).ToLower() == ".md" || Path.GetExtension(url) == string.Empty)
                     {
@@ -71,6 +76,11 @@
         /// Gets or sets the URL.
         /// </summary>
         public string Url { get; set; }
+
+        /// <summary>
+        /// Gets or sets the original URL as found in the Markdown document. Used for reporting to user so they can find the correct location. Url will be modified.
+        /// </summary>
+        public string OriginalUrl { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this is a web link.
@@ -181,6 +191,63 @@
 
                 return Url;
             }
+        }
+
+        /// <summary>
+        /// Decoding of local Urls. Similar to logic from DocFx RelativePath class.
+        /// https://github.com/dotnet/docfx/blob/cca05f505e30c5ede36973c4b989fce711f2e8ad/src/Docfx.Common/Path/RelativePath.cs .
+        /// </summary>
+        /// <param name="url">Url.</param>
+        /// <returns>Decoded Url.</returns>
+        private string UrlDecode(string url)
+        {
+            // This logic only applies to relative paths.
+            if (Path.IsPathRooted(url))
+            {
+                return url;
+            }
+
+            var anchor = string.Empty;
+            var index = url.IndexOfAny(UriFragmentOrQueryString);
+            if (index != -1)
+            {
+                anchor = url.Substring(index);
+                url = url.Remove(index);
+            }
+
+            var parts = url.Split('/', '\\');
+            var newUrl = new StringBuilder();
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (i > 0)
+                {
+                    newUrl.Append('/');
+                }
+
+                var origin = parts[i];
+                var value = Uri.UnescapeDataString(origin);
+
+                var splittedOnInvalidChars = value.Split(InvalidPathChars);
+                var originIndex = 0;
+                var valueIndex = 0;
+                for (int j = 0; j < splittedOnInvalidChars.Length; j++)
+                {
+                    if (j > 0)
+                    {
+                        var invalidChar = value[valueIndex];
+                        valueIndex++;
+                        newUrl.Append(Uri.EscapeDataString(invalidChar.ToString()));
+                    }
+
+                    var splitOnInvalidChars = splittedOnInvalidChars[j];
+                    originIndex += splitOnInvalidChars.Length;
+                    valueIndex += splitOnInvalidChars.Length;
+                    newUrl.Append(splitOnInvalidChars);
+                }
+            }
+
+            newUrl.Append(anchor);
+            return newUrl.ToString();
         }
     }
 }
