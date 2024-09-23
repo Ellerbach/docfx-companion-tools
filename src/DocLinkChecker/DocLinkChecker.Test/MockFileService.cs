@@ -63,6 +63,7 @@
 
             Files.Add($"{Root}\\general\\images\\nature.jpeg", "<image>");
             Files.Add($"{Root}\\general\\images\\another-image.png", "<image>");
+            Files.Add($"{Root}\\general\\images\\space image.jpeg", "<image>");
 
             Files.Add($"{Root}\\src", null);
             Files.Add($"{Root}\\src\\sample.cs", @"namespace MySampleApp;

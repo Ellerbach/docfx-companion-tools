@@ -189,12 +189,12 @@
 
                 if (hyperlink.Url.Matches(whitelist))
                 {
-                    _console.Verbose($"Skipping whitelisted url {hyperlink.Url}");
+                    _console.Verbose($"Skipping whitelisted url {hyperlink.OriginalUrl}");
                     return;
                 }
             }
 
-            _console.Verbose($"Validating {hyperlink.Url} in {_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, hyperlink.FilePath)}");
+            _console.Verbose($"Validating {hyperlink.OriginalUrl} in {_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, hyperlink.FilePath)}");
             using var scope = _serviceProvider.CreateScope();
             var client = scope.ServiceProvider.GetRequiredService<CheckerHttpClient>();
 
@@ -204,7 +204,7 @@
             sw.Stop();
             if (sw.ElapsedMilliseconds > _config.DocLinkChecker.ExternalLinkDurationWarning)
             {
-                _console.Warning($"*** WARNING: Checking {hyperlink.Url} took {sw.ElapsedMilliseconds}ms.");
+                _console.Warning($"*** WARNING: Checking {hyperlink.OriginalUrl} took {sw.ElapsedMilliseconds}ms.");
             }
 
             if (!result.success)
@@ -229,7 +229,7 @@
                                 hyperlink.Line,
                                 hyperlink.Column,
                                 severity,
-                                $"{hyperlink.Url} => {result.statusCode}"));
+                                $"{hyperlink.OriginalUrl} => {result.statusCode}"));
                     }
                 }
                 else
@@ -241,7 +241,7 @@
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"{hyperlink.Url} => {result.error}"));
+                            $"{hyperlink.OriginalUrl} => {result.error}"));
                 }
             }
         }
@@ -268,7 +268,7 @@
                         hyperlink.Line,
                         hyperlink.Column,
                         MarkdownErrorSeverity.Error,
-                        $"Full path not allowed as link: {hyperlink.Url}"));
+                        $"Full path not allowed as link: {hyperlink.OriginalUrl}"));
                 return Task.CompletedTask;
             }
 
@@ -285,7 +285,7 @@
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"Not found: {hyperlink.Url}"));
+                            $"Not found: {hyperlink.OriginalUrl}"));
                     return Task.CompletedTask;
                 }
             }
@@ -301,7 +301,7 @@
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"Not found: {hyperlink.Url}"));
+                            $"Not found: {hyperlink.OriginalUrl}"));
                     return Task.CompletedTask;
                 }
             }
@@ -317,7 +317,7 @@
                                 hyperlink.Line,
                                 hyperlink.Column,
                                 MarkdownErrorSeverity.Error,
-                                $"File referenced outside of the same /docs hierarchy not allowed: {hyperlink.Url}"));
+                                $"File referenced outside of the same /docs hierarchy not allowed: {hyperlink.OriginalUrl}"));
                         return Task.CompletedTask;
                     }
 
@@ -332,7 +332,7 @@
                                 hyperlink.Line,
                                 hyperlink.Column,
                                 MarkdownErrorSeverity.Error,
-                                $"File referenced outside of anything else then a /docs hierarchy not allowed: {hyperlink.Url}"));
+                                $"File referenced outside of anything else then a /docs hierarchy not allowed: {hyperlink.OriginalUrl}"));
                         return Task.CompletedTask;
                     }
 
