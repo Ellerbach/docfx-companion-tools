@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 ARG tool
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN dotnet restore "src/${tool}/${tool}.csproj"
 RUN dotnet publish "src/${tool}/${tool}.csproj" -c Release -r linux-musl-x64 -o out /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false /p:AssemblyName=docfx-companion-tools-entrypoint --self-contained false
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime:6.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime:8.0
 RUN adduser -D docfx-companion-tools
 COPY --from=build-env /app/out /usr/bin/
 USER docfx-companion-tools
