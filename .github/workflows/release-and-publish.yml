@@ -26,11 +26,11 @@ jobs:
       id: gitversion 
       uses: gittools/actions/gitversion/execute@v0
        
-    # Setup .NET 6
+    # Setup .NET 8
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.x
+        dotnet-version: 8.x
 
     # Build the tools & create the zip-file and nuget packages
     # Chocolatey tools are in .\tools. NuGet packages in .\artifacts
