@@ -25,7 +25,6 @@
     * DocLanguageTranslator - an automatic translator of MD-files using Azure Cognitive Services.
     * DocFxOpenApi - converts existing OpenAPI specification files into the format compatible with DocFX.
     </description>
-    <!--releaseNotes>See https://github.com/mtirion/tirchocotestnew/blob/main/RELEASENOTE.md</releaseNotes -->
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
