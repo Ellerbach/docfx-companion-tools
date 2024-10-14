@@ -1,6 +1,7 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
+using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.FileService;
-using SharpYaml.Tokens;
 
 namespace DocFxTocGenerator.Test.Helpers;
 
@@ -128,7 +129,7 @@ rio-de-janeiro");
     ""swagger"": ""2.0"",
     ""info"": {
       ""title"": ""feature.proto"",
-      ""version"": ""version not set""
+      ""version"": ""1.0.0.3145""
     },
     ""schemes"": [
       ""http"",
@@ -364,13 +365,12 @@ rio-de-janeiro");
   }");
         #endregion
         folder = AddFolder("software/apis/test-plain-api");
-        #region adding swagger.json
+        #region swagger.json
         AddFile(folder, "swagger.json",
 @"{
     ""swagger"": ""2.0"",
     ""info"": {
-      ""title"": ""feature.proto"",
-      ""version"": ""version not set""
+      ""title"": ""SimpleApi.Test""
     },
     ""schemes"": [
       ""http"",
@@ -670,18 +670,20 @@ rio-de-janeiro");
 
     public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
     {
-        return Files.Where(x => !string.IsNullOrEmpty(x.Value)).Select(x => x.Key).ToList();
+        return Files.Where(x => x.Value != string.Empty &&
+                                x.Key.StartsWith(GetFullPath(root)))
+            .Select(x => x.Key).ToList();
     }
 
     public string GetFullPath(string path)
     {
         if (Path.IsPathRooted(path))
         {
-            return path;
+            return path.ToInternal();
         }
         else
         {
-            return Path.Combine(Root, path);
+            return Path.Combine(Root, path).ToInternal();
         }
     }
 
@@ -692,12 +694,17 @@ rio-de-janeiro");
 
     public IEnumerable<string> GetDirectories(string folder)
     {
-        return Files.Where(x => x.Value == string.Empty && x.Key.StartsWith(GetFullPath(folder))).Select(x => x.Key).ToList();
+        return Files.Where(x => x.Value == string.Empty &&
+                                x.Key.StartsWith(GetFullPath(folder)) &&
+                                !x.Key.Substring(Math.Min(GetFullPath(folder).Length + 1, x.Key.Length)).Contains("/") &&
+                                !x.Key.Equals(GetFullPath(folder), StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.Key).ToList();
     }
 
     public string ReadAllText(string path)
     {
-        if (Files.TryGetValue(GetFullPath(path).ToInternal(), out var content) && !string.IsNullOrEmpty(content))
+        string ipath = GetFullPath(path).ToInternal();
+        if (Files.TryGetValue(ipath, out var content) && !string.IsNullOrEmpty(content))
         {
             return content;
         }
@@ -717,16 +724,91 @@ rio-de-janeiro");
 
     public void WriteAllText(string path, string content)
     {
-        if (Files.TryGetValue(GetFullPath(path).ToInternal(), out var x))
+        string ipath = GetFullPath(path).ToInternal();
+        if (Files.TryGetValue(ipath, out var x))
         {
-            Files.Remove(GetFullPath(path));
+            Files.Remove(ipath);
         }
-        Files.Add(GetFullPath(path), content!);
+        Files.Add(ipath, content!);
     }
 
     public Stream OpenRead(string path)
     {
         return new MemoryStream(Encoding.UTF8.GetBytes(ReadAllText(path)));
+    }
+
+    public FolderData? GetFolderDataStructure()
+    {
+        return GetFolderData(null, Root);
+    }
+
+    private FolderData? GetFolderData(FolderData? parent, string dirpath)
+    {
+        // set basic folder information
+        FolderData? folder = new()
+        {
+            Name = Path.GetFileName(dirpath),
+            DisplayName = Path.GetFileNameWithoutExtension(dirpath),
+            Path = dirpath,
+            Parent = parent,
+        };
+
+        // add files in this folder
+        var files = Files.Where(x => x.Value != string.Empty &&
+                        x.Key.StartsWith(dirpath.ToInternal()) &&
+                        !x.Key.Substring(Math.Min(dirpath.ToInternal().Length + 1, x.Key.Length)).Contains("/"));
+        foreach (var file in files)
+        {
+            if (!file.Key.StartsWith("."))
+            {
+                folder.Files.Add(new()
+                {
+                    Parent = folder,
+                    Name = Path.GetFileName(file.Key),
+                    Path = Path.Combine(folder.Path, file.Key).ToInternal(),
+                    DisplayName = Path.GetFileNameWithoutExtension(file.Key),
+                });
+            }
+        }
+        // order on sequence and display name
+        folder.Files = folder.Files.OrderBy(x => x.Sequence).ThenBy(x => x.DisplayName).ToList();
+
+        // add folders in this folder
+        var subdirs = GetDirectories(dirpath.ToInternal());
+        foreach (var subdir in subdirs)
+        {
+            var subfolder = GetFolderData(folder, subdir);
+            if (subfolder != null)
+            {
+                folder.Folders.Add(subfolder);
+            }
+        }
+        // order on sequence and display name
+        folder.Folders = folder.Folders.OrderBy(x => x.Sequence).ThenBy(x => x.DisplayName).ToList();
+
+        return folder;
+    }
+
+    public FolderData? FindFolderData(FolderData root, string path)
+    {
+        string fullPath = GetFullPath(path);
+        string relPath = fullPath.Substring(root.Path.Length + 1);
+        string[] subPaths = relPath.Split('/');
+
+        FolderData? current = root;
+        int i = 0;
+        while (i < subPaths.Length)
+        {
+            current = current!.Folders.FirstOrDefault(x => x.Name.Equals(subPaths[i], StringComparison.OrdinalIgnoreCase));
+            if (current == null)
+            {
+                // sub path not found.
+                return null;
+            }
+            i++;
+        }
+
+        return current;
     }
 }
 

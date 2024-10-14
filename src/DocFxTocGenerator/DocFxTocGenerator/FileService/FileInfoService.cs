@@ -85,10 +85,19 @@ public class FileInfoService
         }
         else if (filePath.EndsWith("swagger.json", StringComparison.OrdinalIgnoreCase))
         {
-            // for open api swagger file, read the title from the data.
-            using var stream = _fileService.OpenRead(filePath);
-            var document = new OpenApiStreamReader().Read(stream, out _);
-            name = $"{document.Info.Title} {document.Info.Version}";
+            try
+            {
+                // for open api swagger file, read the title from the data.
+                using var stream = _fileService.OpenRead(filePath);
+                var document = new OpenApiStreamReader().Read(stream, out _);
+                name = $"{document.Info.Title} {document.Info.Version}".Trim();
+            }
+            catch (Exception ex)
+            {
+                // trim ".swagger", as the first one above just trimmed ".json".
+                name = Path.GetFileNameWithoutExtension(name);
+                _logger.LogError($"Reading {filePath} for the title failed. Error: {ex.Message}. Using file name as display name.");
+            }
         }
 
         return ToTitleCase(name);
@@ -118,7 +127,7 @@ public class FileInfoService
     /// </summary>
     /// <param name="filePath">File path of the markdown file.</param>
     /// <returns>First H1, or the filename as title if that fails.</returns>
-    public string GetMarkdownTitle(string filePath)
+    private string GetMarkdownTitle(string filePath)
     {
         string markdownFilePath = _fileService.GetFullPath(filePath);
         string markdown = _fileService.ReadAllText(markdownFilePath);

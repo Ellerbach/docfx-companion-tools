@@ -18,14 +18,14 @@ public class IndexService
     private readonly ILogger _logger;
 
     private readonly string _defaultIndexTemplate =
-@"
-# {{ current.DisplayName }}
+@"# {{ current.DisplayName }}
 
 {% comment -%}Looping through all the files and show the display name.{%- endcomment -%}
 {% for file in current.Files -%}
+{%- if file.IsMarkdown -%}
 * [{{ file.DisplayName }}]({{ file.Name }})
-{% endfor -%}
-
+{% endif -%}
+{%- endfor %}
 ";
 
     /// <summary>
