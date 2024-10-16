@@ -94,8 +94,8 @@ public class TableOfContentsService
         tocItem.Items = _orderStrategy switch
         {
             TocOrderStrategy.All => tocItem.Items.OrderBy(x => x.Sequence).ThenBy(x => x.Name).ToList(),
-            TocOrderStrategy.FoldersFirst => tocItem.Items.OrderBy(x => x.IsFolder).ThenBy(x => x.Sequence).ThenBy(x => x.Name).ToList(),
-            TocOrderStrategy.FilesFirst => tocItem.Items.OrderBy(x => x.IsFile).ThenBy(x => x.Sequence).ThenBy(x => x.Name).ToList(),
+            TocOrderStrategy.FoldersFirst => tocItem.Items.OrderByDescending(x => x.IsFolder).ThenBy(x => x.Sequence).ThenBy(x => x.Name).ToList(),
+            TocOrderStrategy.FilesFirst => tocItem.Items.OrderByDescending(x => x.IsFile).ThenBy(x => x.Sequence).ThenBy(x => x.Name).ToList(),
             _ => tocItem.Items,
         };
 
@@ -249,7 +249,7 @@ public class TableOfContentsService
             folderEntry = folder.Readme;
             _logger.LogInformation($"  Readme is entry-point for folder '{folder.Name}'");
         }
-        else if (_folderReferenceStrategy == TocFolderReferenceStrategy.First)
+        else if (_folderReferenceStrategy == TocFolderReferenceStrategy.First && folder.Files.Count > 0)
         {
             // first file as entry-point
             folderEntry = folder.Files.First();

@@ -87,7 +87,7 @@ public class ContentInventoryAction
     private FolderData? GetFolderData(FolderData? parent, string dirpath)
     {
         // check if we have any markdown file in the given folder or it's subfolders
-        if (_mdFiles.FirstOrDefault(x => x.StartsWith(dirpath, StringComparison.OrdinalIgnoreCase)) == null)
+        if (_mdFiles.FirstOrDefault(x => x.StartsWith(dirpath.NormalizePath(), StringComparison.OrdinalIgnoreCase)) == null)
         {
             // if not, we can skip this folder.
             _logger!.LogInformation($"No content files found in '{dirpath}'");
@@ -99,7 +99,7 @@ public class ContentInventoryAction
         {
             Name = Path.GetFileName(dirpath),
             DisplayName = _fileDataService.ToTitleCase(Path.GetFileNameWithoutExtension(dirpath)),
-            Path = dirpath,
+            Path = dirpath.NormalizePath(),
             Parent = parent,
         };
 
@@ -163,7 +163,7 @@ public class ContentInventoryAction
 
         foreach (var subdir in subdirs)
         {
-            if (!folder.IgnoreList.Contains(subdir))
+            if (!folder.IgnoreList.Contains(Path.GetFileName(subdir)))
             {
                 var subfolder = GetFolderData(folder, subdir);
                 if (subfolder != null)

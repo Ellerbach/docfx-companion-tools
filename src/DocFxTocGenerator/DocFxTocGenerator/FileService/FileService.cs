@@ -38,7 +38,10 @@ public class FileService : IFileService
             matcher.AddExclude(folderName);
         }
 
-        return matcher.GetResultsInFullPath(fullRoot);
+        // make sure we normalize the directory separator
+        return matcher.GetResultsInFullPath(fullRoot)
+            .Select(x => x.Replace("\\", "/"))
+            .ToList();
     }
 
     /// <inheritdoc />

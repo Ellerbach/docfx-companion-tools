@@ -59,7 +59,7 @@ public class FileInfoServiceTests
         file.Should().NotBeNull();
         file.Parent.Should().Be(folder);
         file.Name.Should().Be(filename);
-        file.Path.ToInternal().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
+        file.Path.NormalizePath().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
         file.DisplayName.Should().Be("Mock file");
         file.Sequence.Should().Be(int.MaxValue);
     }
@@ -87,7 +87,7 @@ public class FileInfoServiceTests
         file.Should().NotBeNull();
         file.Parent.Should().Be(folder);
         file.Name.Should().Be(filename);
-        file.Path.ToInternal().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
+        file.Path.NormalizePath().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
         file.DisplayName.Should().Be("Mock file");
         file.Sequence.Should().Be(2);
     }
@@ -116,7 +116,7 @@ public class FileInfoServiceTests
         file.Should().NotBeNull();
         file.Parent.Should().Be(folder);
         file.Name.Should().Be(filename);
-        file.Path.ToInternal().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
+        file.Path.NormalizePath().Should().Be(_fileService.GetFullPath(Path.Combine(foldername, filename)));
         file.DisplayName.Should().Be(overridename);
         file.Sequence.Should().Be(int.MaxValue);
     }

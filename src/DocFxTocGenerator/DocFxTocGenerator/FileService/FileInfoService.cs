@@ -43,7 +43,7 @@ public class FileInfoService
         {
             Parent = folder,
             Name = Path.GetFileName(file),
-            Path = Path.Combine(folder.Path, file),
+            Path = Path.Combine(folder.Path, file).NormalizePath(),
             DisplayName = ToTitleCase(Path.GetFileNameWithoutExtension(file)),
         };
 

@@ -63,4 +63,40 @@ public record FolderData : FolderFileBase
     /// Gets the index file in this folder, or null if it doesn't exist.
     /// </summary>
     public FileData? Index => Files.FirstOrDefault(x => x.IsIndex);
+
+    /// <summary>
+    /// Find the <see cref="FolderData"/> object for the given relative path.
+    /// </summary>
+    /// <param name="path">Relative path to find in the hierarchy.</param>
+    /// <returns>Found <see cref="FolderData"/> object. Null when not found.</returns>
+    public FolderData? Find(string path)
+    {
+        string search = path.NormalizePath();
+        if ((System.IO.Path.IsPathRooted(search) && search.Equals(Path, StringComparison.OrdinalIgnoreCase)) ||
+            (!System.IO.Path.IsPathRooted(search) && search.Equals(RelativePath, StringComparison.OrdinalIgnoreCase)))
+        {
+            return this;
+        }
+
+        string[] subPaths = search.Split('/');
+
+        FolderData? current = this;
+        int i = 0;
+        while (i < subPaths.Length)
+        {
+            if (!string.IsNullOrEmpty(subPaths[i]))
+            {
+                current = current!.Folders.FirstOrDefault(x => x.Name.Equals(subPaths[i], StringComparison.OrdinalIgnoreCase));
+                if (current == null)
+                {
+                    // sub path not found. Stop searching.
+                    return null;
+                }
+            }
+
+            i++;
+        }
+
+        return current;
+    }
 }
