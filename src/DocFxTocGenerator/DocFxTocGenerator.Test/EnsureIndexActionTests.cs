@@ -3,6 +3,7 @@ using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace DocFxTocGenerator.Test;
 
@@ -10,12 +11,13 @@ public class EnsureIndecxActionTests
 {
     private Faker _faker = new();
     private MockFileService _fileService = new();
+    private MockLogger _mockLogger = new();
     private ILogger _logger;
 
     public EnsureIndecxActionTests()
     {
         _fileService.FillDemoSet();
-        _logger = MockLogger.GetMockedLogger();
+        _logger = _mockLogger.Logger;
     }
 
     [Fact]
@@ -147,5 +149,6 @@ public class EnsureIndecxActionTests
 
         // assert
         ret.Should().Be(2);
+        _mockLogger.VerifyCriticalWasCalled();
     }
 }

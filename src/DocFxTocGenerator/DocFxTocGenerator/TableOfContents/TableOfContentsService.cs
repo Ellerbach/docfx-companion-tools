@@ -178,7 +178,7 @@ public class TableOfContentsService
                         // when we reference folders, we know we're referencing a new TOC level
                         // as this only happens in multi-toc mode. In that case, we always
                         // reference the toc file in that folder.
-                        href = Path.Combine(((FolderData)item.Base!).RelativePath, "toc.yml");
+                        href = Path.Combine(((FolderData)item.Base!).RelativePath, "toc.yml").NormalizePath();
                     }
 
                     writer.WriteLine($"- name: {item.Name}");

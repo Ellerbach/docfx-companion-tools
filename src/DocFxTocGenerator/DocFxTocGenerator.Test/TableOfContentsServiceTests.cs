@@ -14,13 +14,14 @@ public class TableOfContentsServiceTests
 {
     private Faker _faker = new();
     private MockFileService _fileService = new();
+    private MockLogger _mockLogger = new();
     private ILogger _logger;
     private ConfigFilesService _config;
 
     public TableOfContentsServiceTests()
     {
         _fileService.FillDemoSet();
-        _logger = MockLogger.GetMockedLogger();
+        _logger = _mockLogger.Logger;
         _config = new(_fileService, _logger);
     }
 
@@ -132,7 +133,7 @@ public class TableOfContentsServiceTests
 
         toc.Items.Count.Should().Be(1);
         toc.Items[0].Name.Should().Be("Level2");
-        toc.Items[0].Href.Should().Be("deep-tree\\level1\\level2\\index.md");
+        toc.Items[0].Href.Should().Be("deep-tree/level1/level2/index.md");
     }
 
     [Fact]
@@ -158,7 +159,7 @@ public class TableOfContentsServiceTests
 
         toc.Items.Count.Should().Be(1);
         toc.Items[0].Name.Should().Be("Level5");
-        toc.Items[0].Href.Should().Be("deep-tree\\level1\\level2\\level3\\level4\\level5\\README.md");
+        toc.Items[0].Href.Should().Be("deep-tree/level1/level2/level3/level4/level5/README.md");
     }
 
     [Fact]
@@ -185,7 +186,7 @@ public class TableOfContentsServiceTests
         toc.Items.Count.Should().Be(2);
         toc.Items[1].Name.Should().Be("Zuid holland");
         // validate it picked the first file entry, ordered on display name (Rotterdam, The Hague)
-        toc.Items[1].Href.Should().Be("continents\\europe\\netherlands\\zuid-holland\\rotterdam.md");
+        toc.Items[1].Href.Should().Be("continents/europe/netherlands/zuid-holland/rotterdam.md");
     }
 
     [Fact]
@@ -290,11 +291,11 @@ public class TableOfContentsServiceTests
 - name: Main readme
   href: README.md
 - name: Continents
-  href: continents\toc.yml
+  href: continents/toc.yml
 - name: Deep tree
-  href: deep-tree\toc.yml
+  href: deep-tree/toc.yml
 - name: Software
-  href: software\toc.yml
+  href: software/toc.yml
 ";
 
         // act
@@ -326,9 +327,9 @@ public class TableOfContentsServiceTests
 - name: The Americas
   href: README.md
 - name: Brasil
-  href: brasil\toc.yml
+  href: brasil/toc.yml
 - name: United states
-  href: united-states\toc.yml
+  href: united-states/toc.yml
 ";
 
         // act
@@ -360,65 +361,65 @@ public class TableOfContentsServiceTests
 - name: Continents
   items:
   - name: Continents README
-    href: continents\README.md
+    href: continents/README.md
   - name: Unmentioned Continents
-    href: continents\unmentioned-continents.md
+    href: continents/unmentioned-continents.md
   - name: Americas
     items:
     - name: The Americas
-      href: continents\americas\README.md
+      href: continents/americas/README.md
     - name: Brasil
       items:
       - name: Sao Paulo
-        href: continents\americas\brasil\sao-paulo.md
+        href: continents/americas/brasil/sao-paulo.md
       - name: Nova Friburgo
-        href: continents\americas\brasil\nova-friburgo.md
+        href: continents/americas/brasil/nova-friburgo.md
       - name: Rio de Janeiro
-        href: continents\americas\brasil\rio-de-janeiro.md
+        href: continents/americas/brasil/rio-de-janeiro.md
     - name: United states
       items:
       - name: California
         items:
         - name: Los Angeles
-          href: continents\americas\united-states\california\los-angeles.md
+          href: continents/americas/united-states/california/los-angeles.md
         - name: San Diego
-          href: continents\americas\united-states\california\san-diego.md
+          href: continents/americas/united-states/california/san-diego.md
         - name: San Francisco
-          href: continents\americas\united-states\california\san-francisco.md
+          href: continents/americas/united-states/california/san-francisco.md
       - name: New york
         items:
         - name: New York City
-          href: continents\americas\united-states\new-york\new-york-city.md
+          href: continents/americas/united-states/new-york/new-york-city.md
       - name: Washington
         items:
         - name: Seattle
-          href: continents\americas\united-states\washington\seattle.md
+          href: continents/americas/united-states/washington/seattle.md
         - name: This is where the airport is - Tacoma Airport
-          href: continents\americas\united-states\washington\tacoma.md
+          href: continents/americas/united-states/washington/tacoma.md
   - name: Europe
     items:
     - name: Europe
-      href: continents\europe\README.md
+      href: continents/europe/README.md
     - name: Germany
       items:
       - name: Berlin
-        href: continents\europe\germany\berlin.md
+        href: continents/europe/germany/berlin.md
       - name: Germany README
-        href: continents\europe\germany\README.md
+        href: continents/europe/germany/README.md
       - name: München
-        href: continents\europe\germany\munchen.md
+        href: continents/europe/germany/munchen.md
     - name: Netherlands
       items:
       - name: Noord holland
         items:
         - name: Amsterdam
-          href: continents\europe\netherlands\noord-holland\amsterdam.md
+          href: continents/europe/netherlands/noord-holland/amsterdam.md
       - name: Zuid holland
         items:
         - name: Rotterdam
-          href: continents\europe\netherlands\zuid-holland\rotterdam.md
+          href: continents/europe/netherlands/zuid-holland/rotterdam.md
         - name: The Hague
-          href: continents\europe\netherlands\zuid-holland\den-haag.md
+          href: continents/europe/netherlands/zuid-holland/den-haag.md
 - name: Deep tree
   items:
   - name: Level1
@@ -426,7 +427,7 @@ public class TableOfContentsServiceTests
     - name: Level2
       items:
       - name: Index of LEVEL 2
-        href: deep-tree\level1\level2\index.md
+        href: deep-tree/level1/level2/index.md
       - name: Level3
         items:
         - name: Level4
@@ -434,7 +435,7 @@ public class TableOfContentsServiceTests
           - name: Level5
             items:
             - name: Deep tree readme
-              href: deep-tree\level1\level2\level3\level4\level5\README.md
+              href: deep-tree/level1/level2/level3/level4/level5/README.md
 - name: Software
   items:
   - name: Apis
@@ -442,11 +443,11 @@ public class TableOfContentsServiceTests
     - name: Test api
       items:
       - name: Feature.proto 1.0.0.3145
-        href: software\apis\test-api\test-api.swagger.json
+        href: software/apis/test-api/test-api.swagger.json
     - name: Test plain api
       items:
       - name: SimpleApi.Test
-        href: software\apis\test-plain-api\swagger.json
+        href: software/apis/test-plain-api/swagger.json
 ";
         #endregion
 
@@ -474,11 +475,11 @@ public class TableOfContentsServiceTests
 - name: Main readme
   href: README.md
 - name: Continents
-  href: continents\toc.yml
+  href: continents/toc.yml
 - name: Deep tree
-  href: deep-tree\toc.yml
+  href: deep-tree/toc.yml
 - name: Software
-  href: software\toc.yml
+  href: software/toc.yml
 ";
 
         // act

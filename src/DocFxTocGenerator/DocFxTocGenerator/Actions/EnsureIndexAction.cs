@@ -4,7 +4,6 @@
 // </copyright>
 using DocFxTocGenerator.FileService;
 using DocFxTocGenerator.Index;
-using DocFxTocGenerator.Liquid;
 using Microsoft.Extensions.Logging;
 
 namespace DocFxTocGenerator.Actions;
@@ -60,7 +59,7 @@ public class EnsureIndexAction
         }
         catch (Exception ex)
         {
-            _logger!.LogError($"ERROR: {ex.Message}.");
+            _logger!.LogCritical($"Ensure Index error: {ex.Message}.");
             ret = 2;
         }
 

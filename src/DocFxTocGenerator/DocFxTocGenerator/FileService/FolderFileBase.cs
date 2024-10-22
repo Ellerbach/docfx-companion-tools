@@ -44,7 +44,7 @@ public record FolderFileBase
     {
         get
         {
-            return Parent == null ? string.Empty : System.IO.Path.Combine(Parent.RelativePath, Name);
+            return Parent == null ? string.Empty : System.IO.Path.Combine(Parent.RelativePath, Name).NormalizePath();
         }
     }
 

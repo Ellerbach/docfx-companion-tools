@@ -10,12 +10,13 @@ public class ConfigFilesServiceTests
 {
     private Faker _faker = new();
     private MockFileService _fileService = new();
+    private MockLogger _mockLogger = new();
     private ILogger _logger;
 
     public ConfigFilesServiceTests()
     {
         _fileService.FillDemoSet();
-        _logger = MockLogger.GetMockedLogger();
+        _logger = _mockLogger.Logger;
     }
 
     [Fact]

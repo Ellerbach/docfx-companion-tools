@@ -86,7 +86,7 @@ public class ContentInventoryAction
         }
         catch (Exception ex)
         {
-            _logger!.LogError($"ERROR: {ex.Message}.");
+            _logger!.LogCritical($"Inventory error: {ex.Message}.");
             ret = 2;
         }
 

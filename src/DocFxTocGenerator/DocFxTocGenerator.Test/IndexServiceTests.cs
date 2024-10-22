@@ -3,7 +3,6 @@ using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.FileService;
 using DocFxTocGenerator.Index;
-using DocFxTocGenerator.TableOfContents;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -14,13 +13,14 @@ public class IndexServiceTests
 {
     private Faker _faker = new();
     private MockFileService _fileService = new();
+    private MockLogger _mockLogger = new();
     private ILogger _logger;
     private ConfigFilesService _config;
 
     public IndexServiceTests()
     {
         _fileService.FillDemoSet();
-        _logger = MockLogger.GetMockedLogger();
+        _logger = _mockLogger.Logger;
         _config = new(_fileService, _logger);
     }
 
