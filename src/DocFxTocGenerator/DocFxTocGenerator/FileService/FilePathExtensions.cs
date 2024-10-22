@@ -1,8 +1,11 @@
-﻿namespace DocFxTocGenerator.FileService;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace DocFxTocGenerator.FileService;
 
 /// <summary>
 /// File path extension methods.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class FilePathExtensions
 {
     /// <summary>

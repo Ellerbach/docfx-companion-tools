@@ -2,6 +2,7 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -12,6 +13,7 @@ namespace DocFxTocGenerator.Utils;
 /// <summary>
 /// Log utils.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal static class LogUtil
 {
     /// <summary>

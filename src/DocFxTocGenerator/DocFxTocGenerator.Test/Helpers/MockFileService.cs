@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.AccessControl;
-using System.Text;
-using DocFxTocGenerator.ConfigFiles;
+﻿using System.Text;
 using DocFxTocGenerator.FileService;
 
 namespace DocFxTocGenerator.Test.Helpers;
@@ -49,18 +46,18 @@ nova-friburgo
 non-existing
 rio-de-janeiro");
 
-        folder = AddFolder($"continents/americas/united-states");
+        folder = AddFolder("continents/americas/united-states");
         AddFile(folder, ".ignore",
 @"texas");
-        folder = AddFolder($"continents/americas/united-states/texas");
+        folder = AddFolder("continents/americas/united-states/texas");
         AddFile(folder, "README.md", string.Empty
             .AddHeading("Texas", 1)
             .AddParagraphs(2));
-        folder = AddFolder($"continents/americas/united-states/new-york");
+        folder = AddFolder("continents/americas/united-states/new-york");
         AddFile(folder, "new-york-city.md", string.Empty
             .AddHeading("New York City", 1)
             .AddParagraphs(2));
-        folder = AddFolder($"continents/americas/united-states/california");
+        folder = AddFolder("continents/americas/united-states/california");
         AddFile(folder, "san-francisco.md", string.Empty
             .AddHeading("San Francisco", 1)
             .AddParagraphs(2));
@@ -71,7 +68,7 @@ rio-de-janeiro");
             .AddHeading("San Diego", 1)
             .AddParagraphs(2));
 
-        folder = AddFolder($"continents/americas/united-states/washington");
+        folder = AddFolder("continents/americas/united-states/washington");
         AddFile(folder, "seattle.md", string.Empty
             .AddHeading("Seattle", 1)
             .AddParagraphs(2));
@@ -86,7 +83,7 @@ rio-de-janeiro");
             .AddHeading("Europe", 1)
             .AddParagraphs(1));
 
-        folder = AddFolder($"continents/europe/germany");
+        folder = AddFolder("continents/europe/germany");
         AddFile(folder, "README.md", string.Empty
             .AddHeading("Germany README", 1)
             .AddParagraphs(1));
@@ -97,16 +94,16 @@ rio-de-janeiro");
             .AddHeading("München", 1)
             .AddParagraphs(1));
 
-        folder = AddFolder($"continents/europe/netherlands");
+        folder = AddFolder("continents/europe/netherlands");
         // leave folder empty
-        folder = AddFolder($"continents/europe/netherlands/zuid-holland");
+        folder = AddFolder("continents/europe/netherlands/zuid-holland");
         AddFile(folder, "rotterdam.md", string.Empty
             .AddHeading("Rotterdam", 1)
             .AddParagraphs(3));
         AddFile(folder, "den-haag.md", string.Empty
             .AddHeading("The Hague", 1)
             .AddParagraphs(3));
-        folder = AddFolder($"continents/europe/netherlands/noord-holland");
+        folder = AddFolder("continents/europe/netherlands/noord-holland");
         AddFile(folder, "amsterdam.md", string.Empty
             .AddHeading("Amsterdam", 1)
             .AddParagraphs(3));
@@ -610,17 +607,17 @@ rio-de-janeiro");
   }");
         #endregion
     }
-
+    
     public string AddFolder(string relativePath)
     {
-        var fullPath = Path.Combine(Root, relativePath).NormalizePath();
+        var fullPath = InternalPath(Path.Combine(Root, relativePath));
         Files.Add(fullPath, string.Empty);
         return relativePath;
     }
 
     public void AddFile(string folderPath, string filename, string content)
     {
-        var fullPath = Path.Combine(Root, folderPath, filename).NormalizePath();
+        var fullPath = InternalPath(Path.Combine(Root, folderPath, filename));
         Files.Add(fullPath, content);
     }
 
@@ -656,25 +653,26 @@ rio-de-janeiro");
 
     public void Delete(string path)
     {
-        Files.Remove(GetFullPath(path.NormalizePath()));
+        Files.Remove(GetFullPath(path));
     }
 
     public void Delete(string[] paths)
     {
         foreach (var path in paths)
         {
-            Files.Remove(GetFullPath(path).NormalizePath());
+            Files.Remove(GetFullPath(path));
         }
     }
 
     public bool ExistsFileOrDirectory(string path)
     {
-        return Files.ContainsKey(GetFullPath(path).NormalizePath());
+        string fullPath = GetFullPath(path);
+        return InternalPath(Root).Equals(fullPath, StringComparison.OrdinalIgnoreCase) || Files.ContainsKey(fullPath);
     }
 
     public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
     {
-        string fullRoot = GetFullPath(root).NormalizePath();
+        string fullRoot = GetFullPath(root);
         bool localOnly = includes.TrueForAll(x => !x.StartsWith("**/"));
 
         var query = Files.AsQueryable();
@@ -689,7 +687,7 @@ rio-de-janeiro");
             query = query.Where(x => !x.Key.Substring(Math.Min(fullRoot.Length + 1, x.Key.Length)).Contains("/"));
         }
 
-        var list = query.Select(x => x.Key.NormalizePath()).ToList();
+        var list = query.Select(x => InternalPath(x.Key)).ToList();
         return list;
     }
 
@@ -697,17 +695,17 @@ rio-de-janeiro");
     {
         if (Path.IsPathRooted(path))
         {
-            return path.NormalizePath();
+            return InternalPath(path);
         }
         else
         {
-            return Path.Combine(Root, path).NormalizePath();
+            return InternalPath(Path.Combine(Root, path));
         }
     }
 
     public string GetRelativePath(string relativeTo, string path)
     {
-        return Path.GetRelativePath(relativeTo, path);
+        return InternalPath(Path.GetRelativePath(relativeTo, path));
     }
 
     public IEnumerable<string> GetDirectories(string folder)
@@ -721,7 +719,7 @@ rio-de-janeiro");
 
     public string ReadAllText(string path)
     {
-        string ipath = GetFullPath(path).NormalizePath();
+        string ipath = GetFullPath(path);
         if (Files.TryGetValue(ipath, out var content) && !string.IsNullOrEmpty(content))
         {
             return content;
@@ -732,7 +730,7 @@ rio-de-janeiro");
 
     public string[] ReadAllLines(string path)
     {
-        if (Files.TryGetValue(GetFullPath(path).NormalizePath(), out var content) && !string.IsNullOrEmpty(content))
+        if (Files.TryGetValue(GetFullPath(path), out var content) && !string.IsNullOrEmpty(content))
         {
             return content.Replace("'\r", string.Empty).Split('\n');
         }
@@ -742,7 +740,7 @@ rio-de-janeiro");
 
     public void WriteAllText(string path, string content)
     {
-        string ipath = GetFullPath(path).NormalizePath();
+        string ipath = GetFullPath(path);
         if (Files.TryGetValue(ipath, out var x))
         {
             Files.Remove(ipath);
@@ -753,6 +751,11 @@ rio-de-janeiro");
     public Stream OpenRead(string path)
     {
         return new MemoryStream(Encoding.UTF8.GetBytes(ReadAllText(path)));
+    }
+
+    private string InternalPath(string path)
+    {
+        return path.NormalizePath();
     }
 }
 

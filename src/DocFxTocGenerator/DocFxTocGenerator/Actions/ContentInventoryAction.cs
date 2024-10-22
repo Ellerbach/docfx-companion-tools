@@ -4,6 +4,7 @@
 // </copyright>
 using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.FileService;
+using DocFxTocGenerator.Liquid;
 using Microsoft.Extensions.Logging;
 
 namespace DocFxTocGenerator.Actions;
@@ -16,7 +17,6 @@ namespace DocFxTocGenerator.Actions;
 public class ContentInventoryAction
 {
     private readonly string _docsFolder;
-    private readonly string _outputFolder;
     private readonly bool _useOrder;
     private readonly bool _useIgnore;
     private readonly bool _useOverride;
@@ -33,7 +33,6 @@ public class ContentInventoryAction
     /// Initializes a new instance of the <see cref="ContentInventoryAction"/> class.
     /// </summary>
     /// <param name="docsFolder">Documentation folder.</param>
-    /// <param name="outputFolder">Output folder. This is optional.</param>
     /// <param name="useOrder">Use the .order configuration per directory.</param>
     /// <param name="useIgnore">Use the .ignore configuration per directory.</param>
     /// <param name="useOverride">Use the .override configuration per directory.</param>
@@ -41,7 +40,6 @@ public class ContentInventoryAction
     /// <param name="logger">Logger.</param>
     public ContentInventoryAction(
         string docsFolder,
-        string outputFolder,
         bool useOrder,
         bool useIgnore,
         bool useOverride,
@@ -49,7 +47,6 @@ public class ContentInventoryAction
         ILogger logger)
     {
         _docsFolder = docsFolder;
-        _outputFolder = outputFolder;
 
         _useOrder = useOrder;
         _useIgnore = useIgnore;
@@ -72,20 +69,38 @@ public class ContentInventoryAction
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
     public Task<int> RunAsync()
     {
+        int ret = 0;
         _logger!.LogInformation($"\n*** INVENTORY STAGE.");
 
         // find all markdown files
         _mdFiles = _fileService!.GetFiles(_docsFolder, ["**/*.md", "**/*swagger.json"], []).ToList();
         _logger!.LogInformation($"Found {_mdFiles.Count} content files in '{_docsFolder}'");
 
-        RootFolder = GetFolderData(null, _docsFolder);
+        try
+        {
+            RootFolder = GetFolderData(null, _docsFolder);
+            if (RootFolder == null)
+            {
+                ret = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger!.LogError($"ERROR: {ex.Message}.");
+            ret = 2;
+        }
 
-        _logger!.LogInformation($"END OF INVENTORY STAGE. Result: 0");
-        return Task.FromResult(0);
+        _logger!.LogInformation($"END OF INVENTORY STAGE. Result: {ret}");
+        return Task.FromResult(ret);
     }
 
     private FolderData? GetFolderData(FolderData? parent, string dirpath)
     {
+        if (!_fileService!.ExistsFileOrDirectory(dirpath))
+        {
+            throw new ActionException($"ERROR: folder '{dirpath}' doesn't exist!");
+        }
+
         // check if we have any markdown file in the given folder or it's subfolders
         if (_mdFiles.FirstOrDefault(x => x.StartsWith(dirpath.NormalizePath(), StringComparison.OrdinalIgnoreCase)) == null)
         {

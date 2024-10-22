@@ -28,7 +28,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -46,7 +46,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -67,7 +67,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -86,7 +86,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();

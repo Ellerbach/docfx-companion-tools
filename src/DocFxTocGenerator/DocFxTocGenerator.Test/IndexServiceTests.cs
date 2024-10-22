@@ -29,7 +29,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -54,7 +54,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root,  useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -81,7 +81,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -108,7 +108,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, _fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
 
         // act
         await action.RunAsync();

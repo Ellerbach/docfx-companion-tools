@@ -160,7 +160,7 @@ async Task<int> GenerateTocAsync(
     try
     {
         // first, retrieve data for documentation from the files
-        ContentInventoryAction retrieval = new(docsFolder, outputFolder, useOrder, useIngore, useOverride, fileService, logger);
+        ContentInventoryAction retrieval = new(docsFolder, useOrder, useIngore, useOverride, fileService, logger);
         var ret = await retrieval.RunAsync();
 
         if (ret == 0 && retrieval.RootFolder != null)

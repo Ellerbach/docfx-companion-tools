@@ -4,6 +4,7 @@
 // </copyright>
 using DocFxTocGenerator.FileService;
 using DocFxTocGenerator.Index;
+using DocFxTocGenerator.Liquid;
 using Microsoft.Extensions.Logging;
 
 namespace DocFxTocGenerator.Actions;
@@ -50,9 +51,18 @@ public class EnsureIndexAction
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
     public Task<int> RunAsync()
     {
+        int ret = 0;
         _logger!.LogInformation($"\n*** ENSURE INDEX STAGE.");
 
-        int ret = EnsureFolderIndex(_rootFolder);
+        try
+        {
+            ret = EnsureFolderIndex(_rootFolder);
+        }
+        catch (Exception ex)
+        {
+            _logger!.LogError($"ERROR: {ex.Message}.");
+            ret = 2;
+        }
 
         _logger!.LogInformation($"END OF ENSURE INDEX STAGE. Result: {ret}");
         return Task.FromResult(ret);
@@ -60,6 +70,11 @@ public class EnsureIndexAction
 
     private int EnsureFolderIndex(FolderData folder)
     {
+        if (folder == null)
+        {
+            throw new ActionException($"{nameof(EnsureFolderIndex)} received <NULL> as folder.");
+        }
+
         _logger!.LogInformation($"Ensure folder index for '{folder.RelativePath}'");
 
         int ret = 0;
@@ -74,31 +89,22 @@ public class EnsureIndexAction
             _ => false,
         };
 
-        if (folder.FileCount == 0 && !generateIndex)
+        if (generateIndex && (folder.FileCount > 0 || folder.FolderCount > 0))
         {
-            // ERROR: no files in this folder.
-            _logger!.LogError($"Folder `{folder.Path}` doesn't contain files. This cannot be handled when generating a table of contents. Use the --index flag to or add a file yourself.");
-            ret = 2;
-        }
-        else
-        {
-            if (generateIndex && (folder.FileCount > 0 || folder.FolderCount > 0))
+            // We auto generate an index in this folder because of the settings.
+            var indexPath = _indexService.GenerateIndex(_rootFolder, folder);
+            if (!string.IsNullOrEmpty(indexPath))
             {
-                // We auto generate an index in this folder because of the settings.
-                var indexPath = _indexService.GenerateIndex(_rootFolder, folder);
-                if (!string.IsNullOrEmpty(indexPath))
-                {
-                    // generated index, so add to files to the list.
-                    // get the index file from the order list (if added) to determine where to insert.
-                    string? indexName = folder.OrderList.FirstOrDefault(x => string.Equals(x, "index", StringComparison.OrdinalIgnoreCase));
-                    int index = Math.Min(folder.OrderList.IndexOf(indexName ?? "index"), folder.FileCount);
-                    folder.Files.Insert(index < 0 ? 0 : index, _fileDataService.CreateFileData(folder, indexPath));
-                }
-                else
-                {
-                    // Error in generating the index.
-                    ret = 2;
-                }
+                // generated index, so add to files to the list.
+                // get the index file from the order list (if added) to determine where to insert.
+                string? indexName = folder.OrderList.FirstOrDefault(x => string.Equals(x, "index", StringComparison.OrdinalIgnoreCase));
+                int index = Math.Min(folder.OrderList.IndexOf(indexName ?? "index"), folder.FileCount);
+                folder.Files.Insert(index < 0 ? 0 : index, _fileDataService.CreateFileData(folder, indexPath));
+            }
+            else
+            {
+                // Error in generating the index.
+                ret = 2;
             }
         }
 

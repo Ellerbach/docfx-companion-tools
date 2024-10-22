@@ -2,11 +2,14 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics.CodeAnalysis;
+
 namespace DocFxTocGenerator.FileService;
 
 /// <summary>
 /// Folder data record.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record FolderData : FolderFileBase
 {
     /// <summary>
@@ -78,7 +81,13 @@ public record FolderData : FolderFileBase
             return this;
         }
 
-        string[] subPaths = search.Split('/');
+        string relPath = search;
+        if (System.IO.Path.IsPathRooted(search) && search.StartsWith(RootFullPath.NormalizePath(), StringComparison.OrdinalIgnoreCase))
+        {
+            relPath = search.Substring(RootFullPath.NormalizePath().Length + 1);
+        }
+
+        string[] subPaths = relPath.Split('/');
 
         FolderData? current = this;
         int i = 0;

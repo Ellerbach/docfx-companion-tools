@@ -2,6 +2,7 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics.CodeAnalysis;
 using DocFxTocGenerator.FileService;
 
 namespace DocFxTocGenerator.TableOfContents;
@@ -9,6 +10,7 @@ namespace DocFxTocGenerator.TableOfContents;
 /// <summary>
 /// Table of contents item.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TocItem
 {
     /// <summary>

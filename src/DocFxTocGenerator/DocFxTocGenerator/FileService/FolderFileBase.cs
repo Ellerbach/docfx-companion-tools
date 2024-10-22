@@ -2,11 +2,14 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics.CodeAnalysis;
+
 namespace DocFxTocGenerator.FileService;
 
 /// <summary>
 /// Base record for folders and files.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public record FolderFileBase
 {
     /// <summary>
@@ -42,6 +45,17 @@ public record FolderFileBase
         get
         {
             return Parent == null ? string.Empty : System.IO.Path.Combine(Parent.RelativePath, Name);
+        }
+    }
+
+    /// <summary>
+    /// Gets the root full path of the hierarchy.
+    /// </summary>
+    public string RootFullPath
+    {
+        get
+        {
+            return Parent == null ? Path : Parent.RootFullPath;
         }
     }
 }
