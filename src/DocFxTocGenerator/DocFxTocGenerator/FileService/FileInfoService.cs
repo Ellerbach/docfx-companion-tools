@@ -4,6 +4,7 @@
 // </copyright>
 using System.Text.RegularExpressions;
 using Markdig;
+using Markdig.Helpers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.Extensions.Logging;
@@ -47,10 +48,21 @@ public class FileInfoService
             DisplayName = ToTitleCase(Path.GetFileNameWithoutExtension(file)),
         };
 
-        if (folder.OrderList.Contains(fname))
+        StringComparer comparer = StringComparer.Ordinal;
+        StringComparison comparison = StringComparison.Ordinal;
+
+        // readme and index must be handled case-insensitive to work properly
+        if (fname.Equals("readme", StringComparison.OrdinalIgnoreCase) ||
+            fname.Equals("index", StringComparison.OrdinalIgnoreCase))
+        {
+            comparer = StringComparer.OrdinalIgnoreCase;
+            comparison = StringComparison.OrdinalIgnoreCase;
+        }
+
+        if (folder.OrderList.Contains(fname, comparer))
         {
             // set the order
-            filedata.Sequence = folder.OrderList.IndexOf(fname);
+            filedata.Sequence = folder.OrderList.FindIndex(x => x.Equals(fname, comparison));
         }
 
         var title = GetFileDisplayName(file);

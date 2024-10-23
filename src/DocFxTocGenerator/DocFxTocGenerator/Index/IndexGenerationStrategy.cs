@@ -15,6 +15,17 @@ public enum IndexGenerationStrategy
     Never,
 
     /// <summary>
+    /// Generate an index for all folders without a default file (README.md or index.md).
+    /// </summary>
+    NoDefault,
+
+    /// <summary>
+    /// Generate an index for all folders without a default file (README.md or index.md), except
+    /// when it contains only 1 file.
+    /// </summary>
+    NoDefaultMulti,
+
+    /// <summary>
     /// Generate an index for all empty folders only.
     /// </summary>
     EmptyFolders,
@@ -27,5 +38,5 @@ public enum IndexGenerationStrategy
     /// <summary>
     /// Generate an index for all folders that don't have an index file, except when it contains only 1 file.
     /// </summary>
-    NotExistMultipleFiles,
+    NotExistMulti,
 }

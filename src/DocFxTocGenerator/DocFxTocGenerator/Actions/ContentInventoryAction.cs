@@ -4,7 +4,6 @@
 // </copyright>
 using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.FileService;
-using DocFxTocGenerator.Liquid;
 using Microsoft.Extensions.Logging;
 
 namespace DocFxTocGenerator.Actions;

@@ -34,7 +34,7 @@ var sequenceOption = new Option<bool>(
 sequenceOption.AddAlias("-s");
 var overrideOption = new Option<bool>(
     name: "--override",
-    description: "Use .order files per folder to define the sequence of files and directories. Format of the file is filename without extension per line.");
+    description: "Use .override files per folder to define title overrides for files. Format of the file is filename without extension followed by a semi-column followed by the custom title per line.");
 overrideOption.AddAlias("-r");
 var ignoreOption = new Option<bool>(
     name: "--ignore",
@@ -42,15 +42,16 @@ var ignoreOption = new Option<bool>(
 ignoreOption.AddAlias("-g");
 var indexingOption = new Option<IndexGenerationStrategy>(
     name: "--indexing",
-    description: "When to generated an index.md for a folder.\nNever                 - Do not genereate.\nEmptyFolders          - For empty folders.\nNotExists             - When no index found.\nNotExistMultipleFiles - When no index and multiple files.");
+    description: "When to generated an index.md for a folder.\nNever          - Do not genereate.\nNoDefault      - When no index.md or readme.md found.\nNoDefaultMulti - When no index.md or readme.md found and multiple files.\nEmptyFolders   - For empty folders.\nNotExists      - When no index found.\nNotExistMulti  - When no index and multiple files.");
 indexingOption.SetDefaultValue(IndexGenerationStrategy.Never);
 var folderReferenceOption = new Option<TocFolderReferenceStrategy>(
     name: "--folderRef",
-    description: "Strategy for folder-entry references.\nNone        - Never reference anything.\nIndex       - Index.md only if exists.\nIndexReadme - Index.md or readme.md if exists.\nFirst       - First file in folder if any exists (default).");
+    description: "Strategy for folder-entry references.\nNone        - Never reference anything.\nIndex       - Index.md only if exists.\nIndexReadme - Index.md or readme.md if exists.\nFirst       - First file in folder if any exists.");
 folderReferenceOption.SetDefaultValue(TocFolderReferenceStrategy.First);
 var orderingOption = new Option<TocOrderStrategy>(
     name: "--ordering",
     description: "How to order items in a folder.\nAll          - Folders and files combined.\nFoldersFirst - Folders first, then files.\nFilesFirst   - Files first, then folders.");
+orderingOption.SetDefaultValue(TocOrderStrategy.All);
 var multiTocOption = new Option<int>(
     name: "--multitoc",
     description: "Indicates how deep in the tree toc files should be generated for those folders. A depth of 0 is the root only (default behavior).");
@@ -59,7 +60,7 @@ multiTocOption.AddAlias("-m");
 // deprecated options
 var deprecatedIndexOption = new Option<bool>(
     name: "--index",
-    description: "[Deprecated: please use --indexing NotExist]\nAuto generate a index.md for folders without readme.md or index.md file.");
+    description: "[Deprecated: please use --indexing NoDefault]\nAuto generate a index.md for folders without readme.md or index.md file.");
 deprecatedIndexOption.IsHidden = true;
 deprecatedIndexOption.AddAlias("-i");
 
@@ -123,7 +124,7 @@ rootCommand.SetHandler(async (context) =>
     {
         // only use deprecated setting when indexing is not given.
         indexing = context.ParseResult.GetValueForOption(deprecatedNoIndexWithOneFileOption) ?
-                                    IndexGenerationStrategy.NotExistMultipleFiles : IndexGenerationStrategy.NotExists;
+                                    IndexGenerationStrategy.NotExistMulti : IndexGenerationStrategy.NotExists;
     }
 
     // execute the generator
@@ -223,7 +224,7 @@ void LogParameters(
         logger!.LogWarning($"*** You are using deprecated parameters --index|-i and/or --notwithone|-n.\nPlease change to the use of --indexing.");
 
         // only use obsolete setting when indexStrategy is not given.
-        logIndexStrategy = noIndexWithOneFile ? IndexGenerationStrategy.NotExistMultipleFiles : IndexGenerationStrategy.NotExists;
+        logIndexStrategy = noIndexWithOneFile ? IndexGenerationStrategy.NotExistMulti : IndexGenerationStrategy.NotExists;
     }
 
     logger!.LogInformation($"Index strategy  : {logIndexStrategy}");

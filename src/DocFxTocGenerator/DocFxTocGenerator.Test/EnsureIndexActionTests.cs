@@ -39,6 +39,72 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
+    public async void Run_GenerateForFoldersWithoutDefaults()
+    {
+        // arrange
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefault, _fileService, _logger);
+        int originalCount = _fileService.Files.Count;
+
+        // act
+        int ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(0);
+        _fileService.Files.Count.Should().Be(originalCount + 16);
+        int index = originalCount;
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/brasil/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/california/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/new-york/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/washington/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/europe/netherlands/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/europe/netherlands/noord-holland/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/europe/netherlands/zuid-holland/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/level2/level3/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/level2/level3/level4/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/apis/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/apis/test-api/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/apis/test-plain-api/index.md");
+    }
+
+    [Fact]
+    public async void Run_GenerateForFoldersWithoutDefaultsAndMutlipleFiles()
+    {
+        // arrange
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefaultMulti, _fileService, _logger);
+        int originalCount = _fileService.Files.Count;
+
+        // act
+        int ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(0);
+        _fileService.Files.Count.Should().Be(originalCount + 12);
+        int index = originalCount;
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/brasil/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/california/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/washington/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/europe/netherlands/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/europe/netherlands/zuid-holland/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/level2/level3/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/level2/level3/level4/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/index.md");
+        _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/apis/index.md");
+    }
+
+    [Fact]
     public async void Run_GenerateForEmptyFolders()
     {
         // arrange
@@ -112,7 +178,7 @@ public class EnsureIndecxActionTests
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExistMultipleFiles, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExistMulti, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act

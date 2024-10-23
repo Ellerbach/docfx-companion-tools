@@ -77,7 +77,7 @@ dotnet tool install DocFxOpenApi -g
 Once the tools are installed this way you can use them directly from the command line. For example:
 
 ```PowerShell
-DocFxTocGenerator -d .\docs -vsi
+DocFxTocGenerator -d .\docs -vs --indexing NotExists
 DocLanguageTranslator -d .\docs\en -k <key> -v
 DocLinkChecker -d .\docs -va
 ```

@@ -55,7 +55,7 @@ public class TableOfContentsService
 
         var tocItem = new TocItem
         {
-            Name = folder.DisplayName,
+            Name = folderEntry?.DisplayName ?? folder.DisplayName,
             Depth = depth,
             Sequence = folder.Sequence,
             Href = folderEntry?.RelativePath!,
@@ -211,7 +211,7 @@ public class TableOfContentsService
         using IndentedTextWriter writer = new IndentedTextWriter(sw, "  ");
         await writer.WriteLineAsync("# This is an automatically generated file");
 
-        SerializeTocItem(writer, toc, maxDepth);
+        SerializeTocItem(writer, toc, maxDepth, toc.Base!.RelativePath!);
 
         if (maxDepth > 0 && toc.Depth < maxDepth)
         {
@@ -235,7 +235,13 @@ public class TableOfContentsService
     private FileData? GetFolderEntry(FolderData folder)
     {
         FileData? folderEntry = null;
-        if (folder.HasIndex && _folderReferenceStrategy != TocFolderReferenceStrategy.None)
+
+        if (_folderReferenceStrategy == TocFolderReferenceStrategy.None)
+        {
+            return null;
+        }
+
+        if (folder.HasIndex)
         {
             // index as entry-point
             folderEntry = folder.Index;

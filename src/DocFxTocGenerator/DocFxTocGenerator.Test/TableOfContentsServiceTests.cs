@@ -132,7 +132,7 @@ public class TableOfContentsServiceTests
         toc.Href.Should().BeNull();
 
         toc.Items.Count.Should().Be(1);
-        toc.Items[0].Name.Should().Be("Level2");
+        toc.Items[0].Name.Should().Be("Index of LEVEL 2");
         toc.Items[0].Href.Should().Be("deep-tree/level1/level2/index.md");
     }
 
@@ -158,7 +158,7 @@ public class TableOfContentsServiceTests
         toc.Href.Should().BeNull();
 
         toc.Items.Count.Should().Be(1);
-        toc.Items[0].Name.Should().Be("Level5");
+        toc.Items[0].Name.Should().Be("Deep tree readme");
         toc.Items[0].Href.Should().Be("deep-tree/level1/level2/level3/level4/level5/README.md");
     }
 
@@ -184,8 +184,8 @@ public class TableOfContentsServiceTests
         toc.Href.Should().BeNull();
 
         toc.Items.Count.Should().Be(2);
-        toc.Items[1].Name.Should().Be("Zuid holland");
         // validate it picked the first file entry, ordered on display name (Rotterdam, The Hague)
+        toc.Items[1].Name.Should().Be("Rotterdam");
         toc.Items[1].Href.Should().Be("continents/europe/netherlands/zuid-holland/rotterdam.md");
     }
 
@@ -211,8 +211,8 @@ public class TableOfContentsServiceTests
         toc.Href.Should().BeNull();
 
         toc.Items.Count.Should().Be(4);
-        toc.Items[0].Name.Should().Be("Americas");
-        toc.Items[1].Name.Should().Be("Continents README");
+        toc.Items[0].Name.Should().Be("Continents README");
+        toc.Items[1].Name.Should().Be("Americas");
         toc.Items[2].Name.Should().Be("Europe");
         toc.Items[3].Name.Should().Be("Unmentioned Continents");
     }
@@ -402,10 +402,10 @@ public class TableOfContentsServiceTests
       href: continents/europe/README.md
     - name: Germany
       items:
-      - name: Berlin
-        href: continents/europe/germany/berlin.md
       - name: Germany README
         href: continents/europe/germany/README.md
+      - name: Berlin
+        href: continents/europe/germany/berlin.md
       - name: München
         href: continents/europe/germany/munchen.md
     - name: Netherlands

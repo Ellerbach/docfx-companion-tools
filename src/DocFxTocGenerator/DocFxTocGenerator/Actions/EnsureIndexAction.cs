@@ -83,8 +83,10 @@ public class EnsureIndexAction
         {
             IndexGenerationStrategy.Never => false,
             IndexGenerationStrategy.EmptyFolders => folder.FileCount == 0,
+            IndexGenerationStrategy.NoDefault => !folder.HasIndex && !folder.HasReadme,
+            IndexGenerationStrategy.NoDefaultMulti => !folder.HasIndex && !folder.HasReadme && folder.FileCount != 1,
             IndexGenerationStrategy.NotExists => !folder.HasIndex,
-            IndexGenerationStrategy.NotExistMultipleFiles => !folder.HasIndex && folder.FileCount != 1,
+            IndexGenerationStrategy.NotExistMulti => !folder.HasIndex && folder.FileCount != 1,
             _ => false,
         };
 
@@ -103,7 +105,7 @@ public class EnsureIndexAction
             else
             {
                 // Error in generating the index.
-                ret = 2;
+                ret = 1;
             }
         }
 
