@@ -1,4 +1,8 @@
-﻿using Bogus;
+﻿// <copyright file="MarkdownExtensions.cs" company="DocFx Companion Tools">
+// Copyright (c) DocFx Companion Tools. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+using Bogus;
 
 namespace DocFxTocGenerator.Test.Helpers;
 

@@ -1,4 +1,8 @@
-﻿using Bogus;
+﻿// <copyright file="GenerateTocActionTests.cs" company="DocFx Companion Tools">
+// Copyright (c) DocFx Companion Tools. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+using Bogus;
 using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.TableOfContents;
 using DocFxTocGenerator.Test.Helpers;
@@ -42,10 +46,10 @@ public class GenerateTocActionTests
         int originalCount = _fileService.Files.Count();
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
     }
 
@@ -173,10 +177,10 @@ public class GenerateTocActionTests
         int originalCount = _fileService.Files.Count();
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
 
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", string.Empty);
         toc.Should().Be(rootExpected);
@@ -225,10 +229,10 @@ public class GenerateTocActionTests
 ";
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
         toc.Should().Be(expected);
@@ -272,10 +276,10 @@ public class GenerateTocActionTests
 ";
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
         toc.Should().Be(expected);
@@ -321,10 +325,10 @@ public class GenerateTocActionTests
 ";
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
         toc.Should().Be(expected);

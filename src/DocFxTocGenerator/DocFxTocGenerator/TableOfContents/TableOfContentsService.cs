@@ -49,7 +49,7 @@ public class TableOfContentsService
     /// <returns>Created table of contents item.</returns>
     public TocItem GetTocItemsForFolder(FolderData folder, int depth)
     {
-        _logger!.LogInformation($"Get items for folder '{folder.RelativePath}' (depth {depth})");
+        _logger.LogInformation($"Get items for folder '{folder.RelativePath}' (depth {depth})");
 
         FileData? folderEntry = GetFolderEntry(folder);
 
@@ -229,7 +229,7 @@ public class TableOfContentsService
         string outputFile = Path.Combine(_outputFolder, subPath, "toc.yml");
         _fileService.WriteAllText(outputFile, sw.ToString());
 
-        _logger!.LogInformation($"{outputFile} created.");
+        _logger.LogInformation($"{outputFile} created.");
     }
 
     private FileData? GetFolderEntry(FolderData folder)

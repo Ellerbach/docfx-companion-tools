@@ -5,6 +5,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using DocFxTocGenerator;
 using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.FileService;
 using DocFxTocGenerator.Index;
@@ -128,7 +129,7 @@ rootCommand.SetHandler(async (context) =>
     }
 
     // execute the generator
-    context.ExitCode = await GenerateTocAsync(
+    context.ExitCode = (int)await GenerateTocAsync(
         context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
         context.ParseResult.GetValueForOption(outputFolder)?.FullName ?? context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
         context.ParseResult.GetValueForOption(sequenceOption),
@@ -143,7 +144,7 @@ rootCommand.SetHandler(async (context) =>
 return await rootCommand.InvokeAsync(args);
 
 // main process for TOC generation.
-async Task<int> GenerateTocAsync(
+async Task<ReturnCode> GenerateTocAsync(
     string docsFolder,
     string outputFolder,
     bool useOrder,
@@ -162,7 +163,7 @@ async Task<int> GenerateTocAsync(
     {
         // first, retrieve data for documentation from the files
         ContentInventoryAction retrieval = new(docsFolder, useOrder, useIngore, useOverride, fileService, logger);
-        var ret = await retrieval.RunAsync();
+        ReturnCode ret = await retrieval.RunAsync();
 
         if (ret == 0 && retrieval.RootFolder != null)
         {
@@ -191,7 +192,7 @@ async Task<int> GenerateTocAsync(
     catch (Exception ex)
     {
         logger.LogCritical(ex.Message);
-        return 2;
+        return ReturnCode.Error;
     }
 }
 

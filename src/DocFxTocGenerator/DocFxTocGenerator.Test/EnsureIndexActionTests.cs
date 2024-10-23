@@ -1,4 +1,8 @@
-﻿using Bogus;
+﻿// <copyright file="EnsureIndexActionTests.cs" company="DocFx Companion Tools">
+// Copyright (c) DocFx Companion Tools. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+using Bogus;
 using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
@@ -31,10 +35,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount);
     }
 
@@ -49,10 +53,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount + 16);
         int index = originalCount;
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/brasil/index.md");
@@ -84,10 +88,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount + 12);
         int index = originalCount;
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/brasil/index.md");
@@ -115,10 +119,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount + 8);
         int index = originalCount;
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/americas/united-states/index.md");
@@ -142,10 +146,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount + 23);
         int index = originalCount;
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("index.md");
@@ -182,10 +186,10 @@ public class EnsureIndecxActionTests
         int originalCount = _fileService.Files.Count;
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Count.Should().Be(originalCount + 14);
         int index = originalCount;
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("continents/index.md");
@@ -211,10 +215,10 @@ public class EnsureIndecxActionTests
         EnsureIndexAction action = new(null, Index.IndexGenerationStrategy.Never, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(2);
+        ret.Should().Be(ReturnCode.Error);
         _mockLogger.VerifyCriticalWasCalled();
     }
 }

@@ -22,7 +22,7 @@ public class ContentInventoryAction
 
     private readonly IFileService? _fileService;
     private readonly ConfigFilesService _configService;
-    private readonly ILogger? _logger;
+    private readonly ILogger _logger;
 
     private readonly FileInfoService _fileDataService;
 
@@ -66,30 +66,30 @@ public class ContentInventoryAction
     /// Run the action. Result is accessible through the <see cref="RootFolder"/> property.
     /// </summary>
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
-    public Task<int> RunAsync()
+    public Task<ReturnCode> RunAsync()
     {
-        int ret = 0;
-        _logger!.LogInformation($"\n*** INVENTORY STAGE.");
+        ReturnCode ret = ReturnCode.Normal;
+        _logger.LogInformation($"\n*** INVENTORY STAGE.");
 
         // find all markdown files
         _mdFiles = _fileService!.GetFiles(_docsFolder, ["**/*.md", "**/*swagger.json"], []).ToList();
-        _logger!.LogInformation($"Found {_mdFiles.Count} content files in '{_docsFolder}'");
+        _logger.LogInformation($"Found {_mdFiles.Count} content files in '{_docsFolder}'");
 
         try
         {
             RootFolder = GetFolderData(null, _docsFolder);
             if (RootFolder == null)
             {
-                ret = 1;
+                ret = ReturnCode.Warning;
             }
         }
         catch (Exception ex)
         {
-            _logger!.LogCritical($"Inventory error: {ex.Message}.");
-            ret = 2;
+            _logger.LogCritical($"Inventory error: {ex.Message}.");
+            ret = ReturnCode.Error;
         }
 
-        _logger!.LogInformation($"END OF INVENTORY STAGE. Result: {ret}");
+        _logger.LogInformation($"END OF INVENTORY STAGE. Result: {ret}");
         return Task.FromResult(ret);
     }
 
@@ -104,7 +104,7 @@ public class ContentInventoryAction
         if (_mdFiles.FirstOrDefault(x => x.StartsWith(dirpath.NormalizePath(), StringComparison.OrdinalIgnoreCase)) == null)
         {
             // if not, we can skip this folder.
-            _logger!.LogInformation($"No content files found in '{dirpath}'");
+            _logger.LogInformation($"No content files found in '{dirpath}'");
             return null;
         }
 
@@ -154,7 +154,7 @@ public class ContentInventoryAction
 
         // get files
         var files = _fileService!.GetFiles(dirPath, ["*.md", "*swagger.json"], []);
-        _logger!.LogInformation($"Processing {files.Count()} files in '{dirPath}'");
+        _logger.LogInformation($"Processing {files.Count()} files in '{dirPath}'");
 
         foreach (var file in files)
         {
@@ -163,7 +163,7 @@ public class ContentInventoryAction
 
         // order on sequence and display name
         folder.Files = folder.Files.OrderBy(x => x.Sequence).ThenBy(x => x.DisplayName).ToList();
-        _logger!.LogInformation($"Found {folder.FileCount} files in '{dirPath}' to add.");
+        _logger.LogInformation($"Found {folder.FileCount} files in '{dirPath}' to add.");
     }
 
     private void AddFolders(FolderData folder, string dirPath)
@@ -172,7 +172,7 @@ public class ContentInventoryAction
 
         if (subdirs.Any())
         {
-            _logger!.LogInformation($"Processing {subdirs.Count()} directories in '{dirPath}'");
+            _logger.LogInformation($"Processing {subdirs.Count()} directories in '{dirPath}'");
         }
 
         foreach (var subdir in subdirs)
@@ -187,12 +187,12 @@ public class ContentInventoryAction
             }
             else
             {
-                _logger!.LogInformation($"Skipping sub-directory '{subdir}' as it is marked as such in the .ignore file.");
+                _logger.LogInformation($"Skipping sub-directory '{subdir}' as it is marked as such in the .ignore file.");
             }
         }
 
         // order on sequence and display name
         folder.Folders = folder.Folders.OrderBy(x => x.Sequence).ThenBy(x => x.DisplayName).ToList();
-        _logger!.LogInformation($"Found {folder.FolderCount} sub-directories in '{dirPath}' to add.");
+        _logger.LogInformation($"Found {folder.FolderCount} sub-directories in '{dirPath}' to add.");
     }
 }

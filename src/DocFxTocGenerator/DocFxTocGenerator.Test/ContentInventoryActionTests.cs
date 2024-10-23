@@ -1,4 +1,8 @@
-﻿using Bogus;
+﻿// <copyright file="ContentInventoryActionTests.cs" company="DocFx Companion Tools">
+// Copyright (c) DocFx Companion Tools. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+using Bogus;
 using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
@@ -26,10 +30,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         action.RootFolder.Should().NotBeNull();
 
         // root validation
@@ -96,10 +100,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         action.RootFolder.Should().NotBeNull();
 
         // root validation
@@ -166,10 +170,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: true, useOverride: false, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         action.RootFolder.Should().NotBeNull();
 
         // root validation
@@ -235,10 +239,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(0);
+        ret.Should().Be(ReturnCode.Normal);
         action.RootFolder.Should().NotBeNull();
 
         // root validation
@@ -304,10 +308,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(2);
+        ret.Should().Be(ReturnCode.Error);
         action.RootFolder.Should().BeNull();
     }
 
@@ -321,10 +325,10 @@ public class ContentInventoryActionTests
         ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
 
         // act
-        int ret = await action.RunAsync();
+        ReturnCode ret = await action.RunAsync();
 
         // assert
-        ret.Should().Be(1);
+        ret.Should().Be(ReturnCode.Warning);
         action.RootFolder.Should().BeNull();
     }
 }

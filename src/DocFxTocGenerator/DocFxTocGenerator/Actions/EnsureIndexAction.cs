@@ -18,7 +18,7 @@ public class EnsureIndexAction
     private readonly IndexGenerationStrategy _indexGeneration;
 
     private readonly IFileService? _fileService;
-    private readonly ILogger? _logger;
+    private readonly ILogger _logger;
     private readonly IndexService _indexService;
     private readonly FileInfoService _fileDataService;
 
@@ -48,10 +48,10 @@ public class EnsureIndexAction
     /// Run the action.
     /// </summary>
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
-    public Task<int> RunAsync()
+    public Task<ReturnCode> RunAsync()
     {
-        int ret = 0;
-        _logger!.LogInformation($"\n*** ENSURE INDEX STAGE.");
+        ReturnCode ret = ReturnCode.Normal;
+        _logger.LogInformation($"\n*** ENSURE INDEX STAGE.");
 
         try
         {
@@ -59,24 +59,24 @@ public class EnsureIndexAction
         }
         catch (Exception ex)
         {
-            _logger!.LogCritical($"Ensure Index error: {ex.Message}.");
-            ret = 2;
+            _logger.LogCritical($"Ensure Index error: {ex.Message}.");
+            ret = ReturnCode.Error;
         }
 
-        _logger!.LogInformation($"END OF ENSURE INDEX STAGE. Result: {ret}");
+        _logger.LogInformation($"END OF ENSURE INDEX STAGE. Result: {ret}");
         return Task.FromResult(ret);
     }
 
-    private int EnsureFolderIndex(FolderData folder)
+    private ReturnCode EnsureFolderIndex(FolderData folder)
     {
         if (folder == null)
         {
             throw new ActionException($"{nameof(EnsureFolderIndex)} received <NULL> as folder.");
         }
 
-        _logger!.LogInformation($"Ensure folder index for '{folder.RelativePath}'");
+        _logger.LogInformation($"Ensure folder index for '{folder.RelativePath}'");
 
-        int ret = 0;
+        ReturnCode ret = ReturnCode.Normal;
 
         // determine if we have to generate an index.
         bool generateIndex = _indexGeneration switch
@@ -105,14 +105,14 @@ public class EnsureIndexAction
             else
             {
                 // Error in generating the index.
-                ret = 1;
+                ret = ReturnCode.Warning;
             }
         }
 
         // now validate the subfolders
         foreach (var subfolder in folder.Folders)
         {
-            int subRet = EnsureFolderIndex(subfolder);
+            ReturnCode subRet = EnsureFolderIndex(subfolder);
             if (subRet > ret)
             {
                 // make sure we record the highest error value.

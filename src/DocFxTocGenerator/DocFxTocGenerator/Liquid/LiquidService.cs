@@ -10,6 +10,8 @@ namespace DocFxTocGenerator.Liquid;
 
 /// <summary>
 /// The service to process a liquid template with the provided content.
+/// Liquid language reference can be found at https://shopify.github.io/liquid/basics/introduction/.
+/// Some more explanation on using Liquid in solutions can be found in https://mtirion.medium.com/using-liquid-for-text-base-templates-with-net-80ae503fa635.
 /// </summary>
 public class LiquidService
 {

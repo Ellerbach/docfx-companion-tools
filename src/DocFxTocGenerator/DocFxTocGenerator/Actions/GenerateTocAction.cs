@@ -20,7 +20,7 @@ public class GenerateTocAction
     private readonly int _maxDepth;
 
     private readonly IFileService? _fileService;
-    private readonly ILogger? _logger;
+    private readonly ILogger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GenerateTocAction"/> class.
@@ -55,14 +55,14 @@ public class GenerateTocAction
     /// Run the action.
     /// </summary>
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
-    public async Task<int> RunAsync()
+    public async Task<ReturnCode> RunAsync()
     {
-        _logger!.LogInformation($"\n*** GENERATE TABLE OF CONTENTS STAGE.");
-        int ret = 0;
+        _logger.LogInformation($"\n*** GENERATE TABLE OF CONTENTS STAGE.");
+        ReturnCode ret = ReturnCode.Normal;
 
         try
         {
-            TableOfContentsService tocService = new(_outputFolder, _folderReferenceStrategy, _orderStrategy, _fileService!, _logger!);
+            TableOfContentsService tocService = new(_outputFolder, _folderReferenceStrategy, _orderStrategy, _fileService!, _logger);
 
             // first get TOC hierarchy as objects
             TocItem toc = tocService.GetTocItemsForFolder(_rootFolder, 0);
@@ -71,11 +71,11 @@ public class GenerateTocAction
         }
         catch (Exception ex)
         {
-            _logger!.LogCritical($"Write TOC error: {ex.Message}");
-            ret = 2;
+            _logger.LogCritical($"Write TOC error: {ex.Message}");
+            ret = ReturnCode.Error;
         }
 
-        _logger!.LogInformation($"END OF GENERATE TABLE OF CONTENTS STATE. Result: {ret}");
+        _logger.LogInformation($"END OF GENERATE TABLE OF CONTENTS STATE. Result: {ret}");
         return ret;
     }
 }

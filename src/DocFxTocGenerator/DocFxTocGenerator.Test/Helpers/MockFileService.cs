@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿// <copyright file="MockFileService.cs" company="DocFx Companion Tools">
+// Copyright (c) DocFx Companion Tools. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+// </copyright>
+using System.Text;
 using DocFxTocGenerator.FileService;
 
 namespace DocFxTocGenerator.Test.Helpers;
