@@ -1,13 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using DocLinkChecker.Enums;
-using DocLinkChecker.Models;
-using Markdig;
-using Markdig.Extensions.Tables;
-using Markdig.Syntax;
-using Markdig.Syntax.Inlines;
-
-namespace DocLinkChecker.Helpers
+﻿namespace DocLinkChecker.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using DocLinkChecker.Enums;
+    using DocLinkChecker.Models;
+    using Markdig;
+    using Markdig.Extensions.Tables;
+    using Markdig.Syntax;
+    using Markdig.Syntax.Inlines;
+
     /// <summary>
     /// Markdown helper methods.
     /// </summary>
@@ -19,7 +24,7 @@ namespace DocLinkChecker.Helpers
         /// <param name="filepath">File path to read.</param>
         /// <param name="validateTable">Value indicating whether to validate the tables in the markdown.</param>
         /// <returns>List of hyperlinks and list of errors (which can be empty).</returns>
-        public static async Task<(List<MarkdownObjectBase> Objects, List<MarkdownError> Errors)>
+        public static async Task<(List<MarkdownObjectBase> objects, List<MarkdownError> errors)>
             ParseMarkdownFileAsync(string filepath, bool validateTable)
         {
             string markdownFilePath = Path.GetFullPath(filepath);
@@ -35,11 +40,11 @@ namespace DocLinkChecker.Helpers
         /// <param name="markdown">Markdown content.</param>
         /// <param name="validateTable">Value indicating whether to validate the tables in the markdown.</param>
         /// <returns>List of hyperlinks and list of errors (which can be empty).</returns>
-        public static (List<MarkdownObjectBase> Objects, List<MarkdownError> Errors)
+        public static (List<MarkdownObjectBase> objects, List<MarkdownError> errors)
             ParseMarkdownString(string markdownFilePath, string markdown, bool validateTable)
         {
-            List<MarkdownObjectBase> objects = new();
-            List<MarkdownError> errors = new();
+            List<MarkdownObjectBase> objects = new ();
+            List<MarkdownError> errors = new ();
 
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
@@ -126,7 +131,7 @@ namespace DocLinkChecker.Helpers
                     {
                         // validate the table and store the result in the list
                         var result = ValidatePipeTableWithText(markdownFilePath, markdown, table);
-                        errors.AddRange(result.Errors);
+                        errors.AddRange(result.errors);
                     }
                 }
             }
@@ -142,11 +147,11 @@ namespace DocLinkChecker.Helpers
         /// <param name="markdown">Markdown content.</param>
         /// <param name="table">Table.</param>
         /// <returns>Pipetable definition and list of (possible) errors.</returns>
-        private static (PipeTable Table, List<MarkdownError> Errors)
+        private static (PipeTable table, List<MarkdownError> errors)
             ValidatePipeTable(string markdownFilePath, string markdown, Table table)
         {
-            PipeTable pipeTable = new(markdownFilePath, table.Line, table.Column);
-            List<MarkdownError> errors = new();
+            PipeTable pipeTable = new (markdownFilePath, table.Line, table.Column);
+            List<MarkdownError> errors = new ();
             int nrCols = -1;
 
             // get all table rows. This will skip the seperator line in markdig.
@@ -243,18 +248,18 @@ namespace DocLinkChecker.Helpers
         /// <param name="markdown">Markdown content.</param>
         /// <param name="table">Table.</param>
         /// <returns>Pipetable definition and list of (possible) errors.</returns>
-        private static (PipeTable Table, List<MarkdownError> Errors)
+        private static (PipeTable table, List<MarkdownError> errors)
             ValidatePipeTableWithText(string markdownFilePath, string markdown, Table table)
         {
             PipeTable pipeTable = null;
             int start = 0;
             int len = 0;
             string line = string.Empty;
-            List<MarkdownError> errors = new();
+            List<MarkdownError> errors = new ();
 
             try
             {
-                pipeTable = new(markdownFilePath, table.Line, table.Column);
+                pipeTable = new (markdownFilePath, table.Line, table.Column);
 
                 start = Math.Max(table.Span.Start, 0);
                 while (start > 0 && markdown.Substring(start, 1) != "\n")

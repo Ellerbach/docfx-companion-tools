@@ -1,9 +1,13 @@
-﻿using System.Diagnostics;
-using System.Net;
-using DocLinkChecker.Models;
-
-namespace DocLinkChecker.Services
+﻿namespace DocLinkChecker.Services
 {
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using DocLinkChecker.Models;
+
     /// <summary>
     /// HttpClient used to check external links.
     /// </summary>
@@ -30,7 +34,7 @@ namespace DocLinkChecker.Services
         /// </summary>
         /// <param name="address">Address to verify.</param>
         /// <returns>Value indicating whether check was succesful, the HTTP status code and error string.</returns>
-        public Task<(bool Success, HttpStatusCode? StatusCode, string Error)> VerifyResourceSimple(string address)
+        public Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResourceSimple(string address)
         {
             return VerifyResourceSimpleInternal(address);
         }
@@ -47,7 +51,7 @@ namespace DocLinkChecker.Services
         }
         */
 
-        private async Task<(bool Success, HttpStatusCode? StatusCode, string Error)> VerifyResourceSimpleInternal(string address)
+        private async Task<(bool success, HttpStatusCode? statusCode, string error)> VerifyResourceSimpleInternal(string address)
         {
             try
             {

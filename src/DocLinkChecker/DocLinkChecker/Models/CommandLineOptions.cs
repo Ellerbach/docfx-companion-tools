@@ -1,9 +1,10 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using CommandLine;
 
 namespace DocLinkChecker.Models
 {
+    using CommandLine;
+
     /// <summary>
     /// Class for command line options when no config file is available.
     /// This options are the ones of the "old" implementation. This is kept

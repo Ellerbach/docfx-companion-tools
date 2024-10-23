@@ -58,9 +58,9 @@
         public void FindAllLinks()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _correctDocument, true);
-            result.Errors.Should().BeEmpty();
+            result.errors.Should().BeEmpty();
 
-            var links = result.Objects
+            var links = result.objects
                 .OfType<Hyperlink>()
                 .OrderBy(d => d.Line)
                 .ThenBy(d => d.Column)
@@ -73,9 +73,9 @@
         public void FindAllHeadings()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _correctDocument, true);
-            result.Errors.Should().BeEmpty();
+            result.errors.Should().BeEmpty();
 
-            var headings = result.Objects
+            var headings = result.objects
                 .OfType<Heading>()
                 .ToList();
 
@@ -99,7 +99,7 @@
 
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
 
-            var headings = result.Objects
+            var headings = result.objects
                 .OfType<Heading>()
                 .ToList();
 
@@ -119,7 +119,7 @@
 
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
 
-            var links = result.Objects
+            var links = result.objects
                 .OfType<Hyperlink>()
                 .ToList();
 
@@ -130,14 +130,14 @@
         public void FindAllTables()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _correctDocument, true);
-            result.Errors.Should().BeEmpty();
+            result.errors.Should().BeEmpty();
         }
 
         [Fact]
         public void FindAllTablesWithErrors()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _errorDocument, true);
-            result.Errors.Count.Should().Be(5);
+            result.errors.Count.Should().Be(5);
         }
     }
 }

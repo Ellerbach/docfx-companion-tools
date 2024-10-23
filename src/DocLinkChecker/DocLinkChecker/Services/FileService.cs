@@ -1,8 +1,10 @@
-﻿using DocLinkChecker.Interfaces;
-using Microsoft.Extensions.FileSystemGlobbing;
-
-namespace DocLinkChecker.Services
+﻿namespace DocLinkChecker.Services
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using DocLinkChecker.Interfaces;
+    using Microsoft.Extensions.FileSystemGlobbing;
+
     /// <summary>
     /// File service implementation.
     /// </summary>
@@ -24,7 +26,7 @@ namespace DocLinkChecker.Services
         public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
         {
             string fullRoot = GetFullPath(root);
-            Matcher matcher = new();
+            Matcher matcher = new ();
             foreach (string folderName in includes)
             {
                 matcher.AddInclude(folderName);

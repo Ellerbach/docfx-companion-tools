@@ -1,10 +1,11 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using DocLinkChecker.Interfaces;
-using DocLinkChecker.Models;
-
 namespace DocLinkChecker.Services
 {
+    using System;
+    using DocLinkChecker.Interfaces;
+    using DocLinkChecker.Models;
+
     /// <summary>
     /// Custom console logger. It's a wrapper around the Console class.
     /// It handles output colors and only shows verbose when it is enabled.

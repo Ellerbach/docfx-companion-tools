@@ -1,7 +1,7 @@
-﻿using System.Text.RegularExpressions;
-
-namespace DocLinkChecker.Helpers
+﻿namespace DocLinkChecker.Helpers
 {
+    using System.Text.RegularExpressions;
+
     /// <summary>
     /// String extension methods.
     /// </summary>

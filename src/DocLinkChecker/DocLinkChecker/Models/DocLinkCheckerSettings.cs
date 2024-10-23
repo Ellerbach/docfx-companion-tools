@@ -1,7 +1,8 @@
-﻿using DocLinkChecker.Enums;
-
-namespace DocLinkChecker.Models
+﻿namespace DocLinkChecker.Models
 {
+    using System.Collections.Generic;
+    using DocLinkChecker.Enums;
+
     /// <summary>
     /// Model class for doc link checker settings.
     /// </summary>
