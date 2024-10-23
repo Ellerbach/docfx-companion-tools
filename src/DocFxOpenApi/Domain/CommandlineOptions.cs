@@ -1,9 +1,11 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using CommandLine;
 
 namespace DocFxOpenApi.Domain
 {
+    using System.IO;
+    using CommandLine;
+
     /// <summary>
     ///  Class for command line options.
     /// </summary>

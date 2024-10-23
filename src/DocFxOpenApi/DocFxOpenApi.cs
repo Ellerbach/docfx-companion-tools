@@ -1,15 +1,20 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using CommandLine;
-using global::DocFxOpenApi.Domain;
-using global::DocFxOpenApi.Helpers;
-using Microsoft.OpenApi;
-using Microsoft.OpenApi.Extensions;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
 
 namespace DocFxOpenApi
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using CommandLine;
+    using global::DocFxOpenApi.Domain;
+    using global::DocFxOpenApi.Helpers;
+    using Microsoft.OpenApi;
+    using Microsoft.OpenApi.Extensions;
+    using Microsoft.OpenApi.Models;
+    using Microsoft.OpenApi.Readers;
+
     /// <summary>
     /// Open API file converter to V2 JSON files.
     /// </summary>
