@@ -1,8 +1,9 @@
 ﻿namespace DocLinkChecker.Test
 {
-    using System.Collections.Generic;
+    using Bogus;
     using DocLinkChecker.Interfaces;
     using DocLinkChecker.Test.Helpers;
+    using System.Collections.Generic;
 
     public class MockFileService : IFileService
     {
