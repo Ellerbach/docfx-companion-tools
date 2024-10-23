@@ -1,35 +1,31 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using CommandLine;
+using DocLinkChecker.Constants;
+using DocLinkChecker.Enums;
+using DocLinkChecker.Interfaces;
+using DocLinkChecker.Models;
+using DocLinkChecker.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Timeout;
+
 namespace DocLinkChecker
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-    using CommandLine;
-    using DocLinkChecker.Constants;
-    using DocLinkChecker.Enums;
-    using DocLinkChecker.Interfaces;
-    using DocLinkChecker.Models;
-    using DocLinkChecker.Services;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using Polly;
-    using Polly.Extensions.Http;
-    using Polly.Timeout;
-
     /// <summary>
     /// Main program class for documentation link checker tool. It's a command-line tool
     /// that takes parameters. Use -help as parameter to see the syntax.
     /// </summary>
     public class Program
     {
-        private static AppConfig _appConfig = new ();
+        private static AppConfig _appConfig = new();
 
         /// <summary>
         /// Gets or sets the return value of the application.
@@ -127,7 +123,7 @@ namespace DocLinkChecker
         /// <param name="args">Commandline parameters.</param>
         private static void DetermineConfiguration(string[] args)
         {
-            CustomConsoleLogger console = new CustomConsoleLogger(new () { Verbose = true });
+            CustomConsoleLogger console = new CustomConsoleLogger(new() { Verbose = true });
 
             // if first argument is "INIT", we'll generate a basic settings file
             // NOTE: We don't use verbs with CommandlineParser because of backwards compatability
@@ -188,8 +184,8 @@ namespace DocLinkChecker
         /// <param name="o">Parsed commandline options.</param>
         private static void ProcessCommandlineParameters(CommandLineOptions o)
         {
-            CustomConsoleLogger console = new CustomConsoleLogger(new () { Verbose = true });
-            _appConfig = new ();
+            CustomConsoleLogger console = new CustomConsoleLogger(new() { Verbose = true });
+            _appConfig = new();
 
             if (!string.IsNullOrEmpty(o.ConfigFilePath))
             {

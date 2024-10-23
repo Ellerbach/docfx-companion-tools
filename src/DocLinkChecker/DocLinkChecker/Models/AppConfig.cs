@@ -1,9 +1,7 @@
-﻿namespace DocLinkChecker.Models
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
+namespace DocLinkChecker.Models
+{
     /// <summary>
     /// Model for application configuration.
     /// </summary>
@@ -26,18 +24,18 @@
         /// <summary>
         /// Gets or sets the documentation files to scan.
         /// </summary>
-        public FileMappingItem DocumentationFiles { get; set; } = new () { Files = { "**/*.md" } };
+        public FileMappingItem DocumentationFiles { get; set; } = new() { Files = { "**/*.md" } };
 
         /// <summary>
         /// Gets or sets the resource folder names (like .attachments, images or such).
         /// Default is '.attachments' for backward compatability.
         /// </summary>
-        public List<string> ResourceFolderNames { get; set; } = new () { ".attachments" };
+        public List<string> ResourceFolderNames { get; set; } = new() { ".attachments" };
 
         /// <summary>
         /// Gets or sets the DocLinkChecher settings.
         /// </summary>
-        public DocLinkCheckerSettings DocLinkChecker { get; set; } = new ();
+        public DocLinkCheckerSettings DocLinkChecker { get; set; } = new();
 
         /// <summary>
         /// Return all app settings as a string.
