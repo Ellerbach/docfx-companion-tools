@@ -1,9 +1,11 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using DocFXLanguageGenerator.Domain;
 
 namespace DocFXLanguageGenerator.Helpers
 {
+    using System;
+    using DocFXLanguageGenerator.Domain;
+
     /// <summary>
     /// Helper methods to write messages to the console.
     /// </summary>

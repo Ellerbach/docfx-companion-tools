@@ -1,16 +1,23 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
-using CommandLine;
-using DocFXLanguageGenerator.Domain;
-using DocFXLanguageGenerator.Helpers;
-using Markdig;
-using Newtonsoft.Json;
 
 namespace DocFXLanguageGenerator
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using CommandLine;
+    using DocFXLanguageGenerator.Domain;
+    using DocFXLanguageGenerator.Helpers;
+    using Markdig;
+    using Newtonsoft.Json;
+
     /// <summary>
     /// The core program.
     /// </summary>

@@ -1,10 +1,12 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using Markdig.Renderers;
-using Markdig.Syntax;
 
 namespace DocFXLanguageGenerator
 {
+    using System.IO;
+    using Markdig.Renderers;
+    using Markdig.Syntax;
+
     /// <summary>
     /// A Text Renderer MArkdown class used to replace the original text with the translated text.
     /// </summary>
