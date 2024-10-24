@@ -17,16 +17,19 @@ namespace DocFxTocGenerator.FileService;
 /// </summary>
 public class FileInfoService
 {
+    private readonly bool _camelCasing;
     private readonly IFileService _fileService;
     private readonly ILogger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FileInfoService"/> class.
     /// </summary>
+    /// <param name="camelCasing">Use camel casing for titles.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
-    public FileInfoService(IFileService fileService, ILogger logger)
+    public FileInfoService(bool camelCasing, IFileService fileService, ILogger logger)
     {
+        _camelCasing = camelCasing;
         _fileService = fileService;
         _logger = logger;
     }
@@ -45,7 +48,7 @@ public class FileInfoService
             Parent = folder,
             Name = Path.GetFileName(file),
             Path = Path.Combine(folder.Path, file).NormalizePath(),
-            DisplayName = ToTitleCase(Path.GetFileNameWithoutExtension(file)),
+            DisplayName = ToTitleCase(Path.GetFileNameWithoutExtension(file), _camelCasing),
         };
 
         StringComparer comparer = StringComparer.Ordinal;
@@ -65,7 +68,7 @@ public class FileInfoService
             filedata.Sequence = folder.OrderList.FindIndex(x => x.Equals(fname, comparison));
         }
 
-        var title = GetFileDisplayName(file);
+        var title = GetFileDisplayName(file, _camelCasing);
         if (folder.OverrideList.TryGetValue(fname, out string? name))
         {
             // override the display name
@@ -85,8 +88,9 @@ public class FileInfoService
     /// For a OpenAPI swagger file we will get the title and version as title.
     /// </summary>
     /// <param name="filePath">Path to the file.</param>
+    /// <param name="camelCase">Camel case the title (capitalize first letter).</param>
     /// <returns>A cleaned string replacing - and _ as well as non authorized characters.</returns>
-    public string GetFileDisplayName(string filePath)
+    public string GetFileDisplayName(string filePath, bool camelCase)
     {
         string name = Path.GetFileNameWithoutExtension(filePath);
 
@@ -112,15 +116,16 @@ public class FileInfoService
             }
         }
 
-        return ToTitleCase(name);
+        return ToTitleCase(name, camelCase);
     }
 
     /// <summary>
     /// Uppercase first character and remove unwanted characters.
     /// </summary>
     /// <param name="title">The name to clean.</param>
+    /// <param name="camelCase">Camel case the title (capitalize first letter).</param>
     /// <returns>A clean name.</returns>
-    public string ToTitleCase(string title)
+    public string ToTitleCase(string title, bool camelCase)
     {
         if (string.IsNullOrEmpty(title))
         {
@@ -128,9 +133,12 @@ public class FileInfoService
         }
 
         // see if we have to strip a file extension.
-        string cleantitle = string.Concat(title.First().ToString().ToUpperInvariant(), title.AsSpan(1));
+        string cleantitle = title;
         cleantitle = Regex.Replace(cleantitle, @"([\[\]\:`\\{}()\*/])", string.Empty);
         cleantitle = Regex.Replace(cleantitle, @"[-_+\s]+", " ");
+        cleantitle = camelCase ?
+            string.Concat(cleantitle.First().ToString().ToLowerInvariant(), cleantitle.AsSpan(1)) :
+            string.Concat(cleantitle.First().ToString().ToUpperInvariant(), cleantitle.AsSpan(1));
         return cleantitle;
     }
 
@@ -173,6 +181,6 @@ public class FileInfoService
         }
 
         // in case we couldn't get an H1 from markdown, return the filepath sanitized.
-        return ToTitleCase(Path.GetFileNameWithoutExtension(filePath));
+        return ToTitleCase(Path.GetFileNameWithoutExtension(filePath), _camelCasing);
     }
 }

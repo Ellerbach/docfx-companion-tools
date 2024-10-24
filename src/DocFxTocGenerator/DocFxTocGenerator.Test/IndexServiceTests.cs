@@ -25,7 +25,7 @@ public class IndexServiceTests
     {
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
-        _config = new(_fileService, _logger);
+        _config = new(camelCasing: false, _fileService, _logger);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -58,7 +58,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root,  useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root,  useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -85,7 +85,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -112,7 +112,7 @@ public class IndexServiceTests
     {
         // arrange
         IndexService service = new(_fileService, _logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();

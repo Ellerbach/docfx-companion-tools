@@ -28,10 +28,10 @@ public class EnsureIndecxActionTests
     public async void Run_NoIndex()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -46,10 +46,10 @@ public class EnsureIndecxActionTests
     public async void Run_GenerateForFoldersWithoutDefaults()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefault, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefault, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -81,10 +81,10 @@ public class EnsureIndecxActionTests
     public async void Run_GenerateForFoldersWithoutDefaultsAndMutlipleFiles()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefaultMulti, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NoDefaultMulti, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -112,10 +112,10 @@ public class EnsureIndecxActionTests
     public async void Run_GenerateForEmptyFolders()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.EmptyFolders, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.EmptyFolders, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -139,10 +139,10 @@ public class EnsureIndecxActionTests
     public async void Run_GenerateForFoldersWithoutIndex()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -179,10 +179,10 @@ public class EnsureIndecxActionTests
     public async void Run_GenerateForFoldersWithoutIndexAndMultipleFiles()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExistMulti, _fileService, _logger);
+        EnsureIndexAction action = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExistMulti, camelCasing: false, _fileService, _logger);
         int originalCount = _fileService.Files.Count;
 
         // act
@@ -212,7 +212,7 @@ public class EnsureIndecxActionTests
     public async void Run_ErrorWithNullRoot()
     {
         // arrange
-        EnsureIndexAction action = new(null, Index.IndexGenerationStrategy.Never, _fileService, _logger);
+        EnsureIndexAction action = new(null, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();

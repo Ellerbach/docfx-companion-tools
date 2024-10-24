@@ -26,14 +26,14 @@ public class TableOfContentsServiceTests
     {
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
-        _config = new(_fileService, _logger);
+        _config = new(camelCasing: false, _fileService, _logger);
     }
 
     [Fact]
     public async Task GetTocItems_GetTocForFolderWithOrdering()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents/americas/brasil");
@@ -61,7 +61,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocForFolderWithIgnore()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents/americas/united-states");
@@ -90,7 +90,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocForFolderWithOverride()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents/americas/united-states/washington");
@@ -118,7 +118,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocFolderReferenceIndex()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.Index, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("deep-tree/level1");
@@ -144,7 +144,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocFolderReferenceReadme()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.IndexReadme, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("deep-tree/level1/level2/level3/level4");
@@ -170,7 +170,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocFolderReferenceFirst()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.First, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents/europe/netherlands");
@@ -197,7 +197,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocOrderingAll()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.All, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents");
@@ -225,7 +225,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocOrderingFoldersFirst()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FoldersFirst, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents");
@@ -253,7 +253,7 @@ public class TableOfContentsServiceTests
     public async Task GetTocItems_GetTocOrderingFilesFirst()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
         await action.RunAsync();
         FolderData? current = action!.RootFolder!.Find("continents");
@@ -281,7 +281,7 @@ public class TableOfContentsServiceTests
     public async Task SerializeTocItem_OneLevelOnly()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
 
         using StringWriter sw = new StringWriter();
@@ -306,7 +306,7 @@ public class TableOfContentsServiceTests
         service.SerializeTocItem(writer, toc, maxDepth: 1);
 
         // assert
-        string output = sw.ToString().Replace("\r", "");
+        string output = sw.ToString();
         output.Should().Be(expected);
     }
 
@@ -314,7 +314,7 @@ public class TableOfContentsServiceTests
     public async Task SerializeTocItem_OneLevelOnly_WithStartPath()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
 
         using StringWriter sw = new StringWriter();
@@ -340,7 +340,7 @@ public class TableOfContentsServiceTests
         service.SerializeTocItem(writer, toc, maxDepth: 1, startPath: rootPath);
 
         // assert
-        string output = sw.ToString().Replace("\r", "");
+        string output = sw.ToString();
         output.Should().Be(expected);
     }
 
@@ -348,7 +348,7 @@ public class TableOfContentsServiceTests
     public async Task SerializeTocItem_Hierarchy()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
 
         using StringWriter sw = new StringWriter();
@@ -459,7 +459,126 @@ public class TableOfContentsServiceTests
         service.SerializeTocItem(writer, toc, maxDepth: 0);
 
         // assert
-        string output = sw.ToString().Replace("\r", "");
+        string output = sw.ToString();
+        output.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task SerializeTocItem_Hierarchy_CamelCase()
+    {
+        // arrange
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: true, _fileService, _logger);
+        TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
+
+        using StringWriter sw = new StringWriter();
+        using IndentedTextWriter writer = new IndentedTextWriter(sw, "  ");
+
+        await action.RunAsync();
+        var toc = service.GetTocItemsForFolder(action.RootFolder!, 0);
+
+        #region expected output
+        string expected =
+@"- name: docs
+- name: main readme
+  href: README.md
+- name: continents
+  items:
+  - name: continents README
+    href: continents/README.md
+  - name: unmentioned Continents
+    href: continents/unmentioned-continents.md
+  - name: americas
+    items:
+    - name: the Americas
+      href: continents/americas/README.md
+    - name: brasil
+      items:
+      - name: sao Paulo
+        href: continents/americas/brasil/sao-paulo.md
+      - name: nova Friburgo
+        href: continents/americas/brasil/nova-friburgo.md
+      - name: rio de Janeiro
+        href: continents/americas/brasil/rio-de-janeiro.md
+    - name: united states
+      items:
+      - name: california
+        items:
+        - name: los Angeles
+          href: continents/americas/united-states/california/los-angeles.md
+        - name: san Diego
+          href: continents/americas/united-states/california/san-diego.md
+        - name: san Francisco
+          href: continents/americas/united-states/california/san-francisco.md
+      - name: new york
+        items:
+        - name: new York City
+          href: continents/americas/united-states/new-york/new-york-city.md
+      - name: washington
+        items:
+        - name: seattle
+          href: continents/americas/united-states/washington/seattle.md
+        - name: This is where the airport is - Tacoma Airport
+          href: continents/americas/united-states/washington/tacoma.md
+  - name: europe
+    items:
+    - name: europe
+      href: continents/europe/README.md
+    - name: germany
+      items:
+      - name: germany README
+        href: continents/europe/germany/README.md
+      - name: berlin
+        href: continents/europe/germany/berlin.md
+      - name: münchen
+        href: continents/europe/germany/munchen.md
+    - name: netherlands
+      items:
+      - name: noord holland
+        items:
+        - name: amsterdam
+          href: continents/europe/netherlands/noord-holland/amsterdam.md
+      - name: zuid holland
+        items:
+        - name: rotterdam
+          href: continents/europe/netherlands/zuid-holland/rotterdam.md
+        - name: the Hague
+          href: continents/europe/netherlands/zuid-holland/den-haag.md
+- name: deep tree
+  items:
+  - name: level1
+    items:
+    - name: level2
+      items:
+      - name: index of LEVEL 2
+        href: deep-tree/level1/level2/index.md
+      - name: level3
+        items:
+        - name: level4
+          items:
+          - name: level5
+            items:
+            - name: deep tree readme
+              href: deep-tree/level1/level2/level3/level4/level5/README.md
+- name: software
+  items:
+  - name: apis
+    items:
+    - name: test api
+      items:
+      - name: feature.proto 1.0.0.3145
+        href: software/apis/test-api/test-api.swagger.json
+    - name: test plain api
+      items:
+      - name: simpleApi.Test
+        href: software/apis/test-plain-api/swagger.json
+";
+        #endregion
+
+        // act
+        service.SerializeTocItem(writer, toc, maxDepth: 0);
+
+        // assert
+        string output = sw.ToString();
         output.Should().Be(expected);
     }
 
@@ -467,7 +586,7 @@ public class TableOfContentsServiceTests
     public async Task WriteTocFile_OneLevel()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         TableOfContentsService service = new(_fileService.Root, TocFolderReferenceStrategy.None, TocOrderStrategy.FilesFirst, _fileService, _logger);
 
         await action.RunAsync();
@@ -492,7 +611,7 @@ public class TableOfContentsServiceTests
         // assert
         string tocPath = Path.Combine(_fileService.Root, "toc.yml");
         _fileService.ExistsFileOrDirectory(tocPath).Should().BeTrue();
-        string output = _fileService.ReadAllText(tocPath).Replace("\r", "");
+        string output = _fileService.ReadAllText(tocPath);
         output.Should().Be(expected);
     }
 }

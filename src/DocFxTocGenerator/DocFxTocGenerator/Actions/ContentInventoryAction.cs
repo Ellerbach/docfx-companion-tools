@@ -19,6 +19,7 @@ public class ContentInventoryAction
     private readonly bool _useOrder;
     private readonly bool _useIgnore;
     private readonly bool _useOverride;
+    private readonly bool _camelCasing;
 
     private readonly IFileService? _fileService;
     private readonly ConfigFilesService _configService;
@@ -35,6 +36,7 @@ public class ContentInventoryAction
     /// <param name="useOrder">Use the .order configuration per directory.</param>
     /// <param name="useIgnore">Use the .ignore configuration per directory.</param>
     /// <param name="useOverride">Use the .override configuration per directory.</param>
+    /// <param name="camelCasing">Use camel casing for titles.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
     public ContentInventoryAction(
@@ -42,6 +44,7 @@ public class ContentInventoryAction
         bool useOrder,
         bool useIgnore,
         bool useOverride,
+        bool camelCasing,
         IFileService fileService,
         ILogger logger)
     {
@@ -50,11 +53,12 @@ public class ContentInventoryAction
         _useOrder = useOrder;
         _useIgnore = useIgnore;
         _useOverride = useOverride;
+        _camelCasing = camelCasing;
 
         _fileService = fileService;
         _logger = logger;
-        _configService = new(fileService, logger);
-        _fileDataService = new(fileService, logger);
+        _configService = new(camelCasing, fileService, logger);
+        _fileDataService = new(camelCasing, fileService, logger);
     }
 
     /// <summary>
@@ -112,7 +116,7 @@ public class ContentInventoryAction
         FolderData? folder = new()
         {
             Name = Path.GetFileName(dirpath),
-            DisplayName = _fileDataService.ToTitleCase(Path.GetFileNameWithoutExtension(dirpath)),
+            DisplayName = _fileDataService.ToTitleCase(Path.GetFileNameWithoutExtension(dirpath), _camelCasing),
             Path = dirpath.NormalizePath(),
             Parent = parent,
         };

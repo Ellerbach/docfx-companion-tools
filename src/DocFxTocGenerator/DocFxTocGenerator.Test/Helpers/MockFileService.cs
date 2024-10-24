@@ -736,7 +736,7 @@ rio-de-janeiro");
     {
         if (Files.TryGetValue(GetFullPath(path), out var content) && !string.IsNullOrEmpty(content))
         {
-            return content.Replace("'\r", string.Empty).Split('\n');
+            return content.Replace("\r", string.Empty).Split('\n');
         }
 
         return [];

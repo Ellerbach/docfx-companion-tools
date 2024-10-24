@@ -25,7 +25,7 @@ public class LiquidServiceTests
     {
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
-        _config = new(_fileService, _logger);
+        _config = new(camelCasing: false, _fileService, _logger);
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -51,7 +51,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -72,7 +72,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
@@ -91,7 +91,7 @@ public class LiquidServiceTests
     {
         // arrange
         LiquidService service = new(_logger);
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         await action.RunAsync();
