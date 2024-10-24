@@ -1,13 +1,10 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
+using Markdig.Renderers;
+using Markdig.Syntax.Inlines;
 
 namespace DocFXLanguageGenerator
 {
-    using System;
-    using System.IO;
-    using Markdig.Renderers;
-    using Markdig.Syntax.Inlines;
-
     /// <summary>
     /// Replacement Renderer will allow to replace one text by another.
     /// </summary>
