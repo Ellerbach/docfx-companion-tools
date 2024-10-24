@@ -57,6 +57,9 @@ var multiTocOption = new Option<int>(
     name: "--multitoc",
     description: "Indicates how deep in the tree toc files should be generated for those folders. A depth of 0 is the root only (default behavior).");
 multiTocOption.AddAlias("-m");
+var camelCaseOption = new Option<bool>(
+    name: "--camelCase",
+    description: "Use camel casing for titles.");
 
 // deprecated options
 var deprecatedIndexOption = new Option<bool>(
@@ -94,6 +97,7 @@ rootCommand.AddOption(indexingOption);
 rootCommand.AddOption(folderReferenceOption);
 rootCommand.AddOption(orderingOption);
 rootCommand.AddOption(multiTocOption);
+rootCommand.AddOption(camelCaseOption);
 
 // deprecated: replaced by indexing flag
 rootCommand.AddOption(deprecatedIndexOption);
@@ -115,6 +119,7 @@ rootCommand.SetHandler(async (context) =>
         context.ParseResult.GetValueForOption(folderReferenceOption),
         context.ParseResult.GetValueForOption(orderingOption),
         context.ParseResult.GetValueForOption(multiTocOption),
+        context.ParseResult.GetValueForOption(camelCaseOption),
         context.ParseResult.GetValueForOption(deprecatedIndexOption),
         context.ParseResult.GetValueForOption(deprecatedNoIndexWithOneFileOption));
 
@@ -138,7 +143,8 @@ rootCommand.SetHandler(async (context) =>
         indexing,
         context.ParseResult.GetValueForOption(folderReferenceOption),
         context.ParseResult.GetValueForOption(orderingOption),
-        context.ParseResult.GetValueForOption(multiTocOption));
+        context.ParseResult.GetValueForOption(multiTocOption),
+        context.ParseResult.GetValueForOption(camelCaseOption));
 });
 
 return await rootCommand.InvokeAsync(args);
@@ -153,7 +159,8 @@ async Task<ReturnCode> GenerateTocAsync(
     IndexGenerationStrategy indexStrategy,
     TocFolderReferenceStrategy folderReferenceStrategy,
     TocOrderStrategy orderStrategy,
-    int tocDepth)
+    int tocDepth,
+    bool camelCasing)
 {
     // setup services
     ILogger logger = GetLogger();
@@ -162,13 +169,13 @@ async Task<ReturnCode> GenerateTocAsync(
     try
     {
         // first, retrieve data for documentation from the files
-        ContentInventoryAction retrieval = new(docsFolder, useOrder, useIngore, useOverride, fileService, logger);
+        ContentInventoryAction retrieval = new(docsFolder, useOrder, useIngore, useOverride, camelCasing, fileService, logger);
         ReturnCode ret = await retrieval.RunAsync();
 
         if (ret == 0 && retrieval.RootFolder != null)
         {
             // Now validate folder/file structure. Might generate index, depending on setting.
-            EnsureIndexAction validation = new(retrieval.RootFolder, indexStrategy, fileService, logger);
+            EnsureIndexAction validation = new(retrieval.RootFolder, indexStrategy, camelCasing, fileService, logger);
             ret = await validation.RunAsync();
 
             if (ret == 0)
@@ -207,6 +214,7 @@ void LogParameters(
     TocFolderReferenceStrategy folderReferenceStrategy,
     TocOrderStrategy orderStrategy,
     int tocDepth,
+    bool camelCasing,
     bool generateIndex,
     bool noIndexWithOneFile)
 {
@@ -233,6 +241,7 @@ void LogParameters(
 
     logger!.LogInformation($"Order strategy  : {orderStrategy}");
     logger!.LogInformation($"TOC depth       : {tocDepth}{(tocDepth > 0 ? string.Empty : " (1 TOC hierarchy)")}");
+    logger!.LogInformation($"Camel casing    : {camelCasing}");
 }
 
 void SetLogLevel(InvocationContext context)

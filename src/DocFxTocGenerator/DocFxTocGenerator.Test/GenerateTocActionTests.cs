@@ -28,10 +28,10 @@ public class GenerateTocActionTests
     public async void Run_SimpleToc()
     {
         // arrange
-        ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, _fileService, _logger);
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
         await index.RunAsync();
 
         GenerateTocAction action = new(
@@ -90,10 +90,10 @@ public class GenerateTocActionTests
         _fileService.AddFile(folder, "bmw.md", string.Empty.AddHeading("BMW", 1).AddParagraphs(1));
         _fileService.AddFile(folder, "README.md", string.Empty.AddHeading("Cars", 1).AddParagraphs(1));
 
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, _fileService, _logger);
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
         await index.RunAsync();
 
         GenerateTocAction action = new(
@@ -182,13 +182,13 @@ public class GenerateTocActionTests
         // assert
         ret.Should().Be(ReturnCode.Normal);
 
-        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", string.Empty);
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(rootExpected);
 
-        toc = _fileService.ReadAllText(_fileService.GetFullPath("continents/toc.yml")).Replace("\r", string.Empty);
+        toc = _fileService.ReadAllText(_fileService.GetFullPath("continents/toc.yml"));
         toc.Should().Be(continentsExpected);
 
-        toc = _fileService.ReadAllText(_fileService.GetFullPath("vehicles/toc.yml")).Replace("\r", string.Empty);
+        toc = _fileService.ReadAllText(_fileService.GetFullPath("vehicles/toc.yml"));
         toc.Should().Be(vehiclesExpected);
     }
 
@@ -201,10 +201,10 @@ public class GenerateTocActionTests
         _fileService.AddFile(string.Empty, "file1.md", string.Empty.AddHeading("File 1", 1).AddParagraphs(1));
         _fileService.AddFile(string.Empty, "file2.md", string.Empty.AddHeading("File 2", 1).AddParagraphs(1));
 
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, _fileService, _logger);
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
         await index.RunAsync();
 
         GenerateTocAction action = new(
@@ -234,7 +234,7 @@ public class GenerateTocActionTests
         // assert
         ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
-        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(expected);
     }
 
@@ -247,10 +247,10 @@ public class GenerateTocActionTests
         var folder = _fileService.AddFolder("A");
         _fileService.AddFile(folder, "B.md", string.Empty.AddHeading("B doc", 1).AddParagraphs(1));
 
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, _fileService, _logger);
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, camelCasing: false, _fileService, _logger);
         await index.RunAsync();
 
         GenerateTocAction action = new(
@@ -281,7 +281,7 @@ public class GenerateTocActionTests
         // assert
         ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
-        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(expected);
     }
 
@@ -296,10 +296,10 @@ public class GenerateTocActionTests
         _fileService.AddFile(folder, "index.md", string.Empty.AddHeading("Index of A", 1).AddParagraphs(1));
         _fileService.AddFile(folder, "B.md", string.Empty.AddHeading("B doc", 1).AddParagraphs(1));
 
-        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
         await content.RunAsync();
 
-        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, _fileService, _logger);
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.NotExists, camelCasing: false, _fileService, _logger);
         await index.RunAsync();
 
         GenerateTocAction action = new(
@@ -330,7 +330,7 @@ public class GenerateTocActionTests
         // assert
         ret.Should().Be(ReturnCode.Normal);
         _fileService.Files.Should().HaveCount(originalCount + 1);
-        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml")).Replace("\r", "");
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(expected);
     }
 }

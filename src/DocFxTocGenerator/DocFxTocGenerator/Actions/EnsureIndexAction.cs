@@ -16,6 +16,7 @@ public class EnsureIndexAction
 {
     private readonly FolderData _rootFolder = new();
     private readonly IndexGenerationStrategy _indexGeneration;
+    private readonly bool _camelCasing;
 
     private readonly IFileService? _fileService;
     private readonly ILogger _logger;
@@ -27,21 +28,24 @@ public class EnsureIndexAction
     /// </summary>
     /// <param name="rootFolder">Root folder with the content.</param>
     /// <param name="indexGeneration">How to handle index generation.</param>
+    /// <param name="camelCasing">Use camel casing for titles.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
     public EnsureIndexAction(
         FolderData rootFolder,
         IndexGenerationStrategy indexGeneration,
+        bool camelCasing,
         IFileService fileService,
         ILogger logger)
     {
         _rootFolder = rootFolder;
         _indexGeneration = indexGeneration;
+        _camelCasing = camelCasing;
 
         _fileService = fileService;
         _logger = logger;
         _indexService = new(fileService, logger);
-        _fileDataService = new(fileService, logger);
+        _fileDataService = new(_camelCasing, fileService, logger);
     }
 
     /// <summary>

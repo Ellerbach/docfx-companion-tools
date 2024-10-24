@@ -27,7 +27,7 @@ public class ContentInventoryActionTests
     public async void Run_WithoutSettings()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -97,7 +97,7 @@ public class ContentInventoryActionTests
     public async void Run_WithOrderOnly()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -167,7 +167,7 @@ public class ContentInventoryActionTests
     public async void Run_WithIgnoreOnly()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: true, useOverride: false, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: true, useOverride: false, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -236,7 +236,7 @@ public class ContentInventoryActionTests
     public async void Run_WithOverrideOnly()
     {
         // arrange
-        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -305,7 +305,7 @@ public class ContentInventoryActionTests
     public async void Run_WithNonExistingFolder_ReturnsError()
     {
         // arrange
-        ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -322,7 +322,7 @@ public class ContentInventoryActionTests
         // arrange
         _fileService.Files.Clear();
         _fileService.AddFolder("x:\\Non-existing\\docs");
-        ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, _fileService, _logger);
+        ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
 
         // act
         ReturnCode ret = await action.RunAsync();
