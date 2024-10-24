@@ -1,11 +1,8 @@
-﻿namespace DocLinkChecker.Models
-{
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using DocLinkChecker.Enums;
+﻿using System.Text;
+using DocLinkChecker.Enums;
 
+namespace DocLinkChecker.Models
+{
     /// <summary>
     /// Model class for hyperlink.
     /// </summary>

@@ -1,13 +1,9 @@
-﻿namespace DocLinkChecker.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using DocLinkChecker.Enums;
-    using DocLinkChecker.Interfaces;
-    using DocLinkChecker.Models;
+﻿using DocLinkChecker.Enums;
+using DocLinkChecker.Interfaces;
+using DocLinkChecker.Models;
 
+namespace DocLinkChecker.Services
+{
     /// <summary>
     /// Resource validation service.
     /// </summary>
@@ -40,10 +36,10 @@
         /// </summary>
         /// <param name="links">Used links.</param>
         /// <returns>List of unused resources and a list of errors.</returns>
-        public (List<string> orphanedResources, List<MarkdownError> errors) CheckForOrphanedResources(List<Hyperlink> links)
+        public (List<string> OrphanedResources, List<MarkdownError> Errors) CheckForOrphanedResources(List<Hyperlink> links)
         {
-            List<string> orphanedResources = new ();
-            List<MarkdownError> errors = new ();
+            List<string> orphanedResources = new();
+            List<MarkdownError> errors = new();
 
             List<Hyperlink> usedResources = links
                 .Where(x => x.LinkType == HyperlinkType.Resource)
@@ -51,13 +47,13 @@
 
             // get all resources in the configure resource folder names
             string root = _fileService.GetFullPath(_config.DocumentationFiles.SourceFolder);
-            List<string> includes = new ();
+            List<string> includes = new();
             foreach (string folderName in _config.ResourceFolderNames)
             {
                 includes.Add($"**/{folderName}/**.*");
             }
 
-            IEnumerable<string> resources = _fileService.GetFiles(root, includes, new () { "*.md" });
+            IEnumerable<string> resources = _fileService.GetFiles(root, includes, new() { "*.md" });
 
             _console.Verbose($"Traversing {resources.Count()} resources in {root}");
             foreach (string resource in resources)

@@ -1,15 +1,10 @@
-﻿namespace DocLinkChecker.Services
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using DocLinkChecker.Helpers;
-    using DocLinkChecker.Interfaces;
-    using DocLinkChecker.Models;
-    using Microsoft.Extensions.Logging;
+﻿using DocLinkChecker.Helpers;
+using DocLinkChecker.Interfaces;
+using DocLinkChecker.Models;
+using Microsoft.Extensions.Logging;
 
+namespace DocLinkChecker.Services
+{
     /// <summary>
     /// Crawler service implementation.
     /// </summary>
@@ -41,10 +36,10 @@
         /// Get all markdownfiles in the documents root and it's subfolders and parse them.
         /// </summary>
         /// <returns>List of hyperlinks and list of errors (which can be empty).</returns>
-        public async Task<(List<MarkdownObjectBase> objects, List<MarkdownError> errors)> ParseMarkdownFiles()
+        public async Task<(List<MarkdownObjectBase> Objects, List<MarkdownError> Errors)> ParseMarkdownFiles()
         {
-            List<MarkdownObjectBase> objects = new ();
-            List<MarkdownError> errors = new ();
+            List<MarkdownObjectBase> objects = new();
+            List<MarkdownError> errors = new();
 
             // get all resources in the configure resource folder names
             string root = _fileService.GetFullPath(_config.DocumentationFiles.SourceFolder);
@@ -71,8 +66,8 @@
                     {
                         _console.Verbose($"Parsing markdown in '{_fileService.GetRelativePath(_config.DocumentationFiles.SourceFolder, file)}'.");
                         var result = await MarkdownHelper.ParseMarkdownFileAsync(file, _config.DocLinkChecker.ValidatePipeTableFormatting);
-                        objects.AddRange(result.objects);
-                        errors.AddRange(result.errors);
+                        objects.AddRange(result.Objects);
+                        errors.AddRange(result.Errors);
                     }
                 }
                 catch (Exception ex)

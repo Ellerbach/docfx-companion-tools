@@ -1,18 +1,13 @@
-﻿namespace DocLinkChecker
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using DocLinkChecker.Enums;
-    using DocLinkChecker.Interfaces;
-    using DocLinkChecker.Models;
-    using DocLinkChecker.Services;
-    using Microsoft.Extensions.Hosting;
+﻿using System.Diagnostics;
+using System.Reflection;
+using DocLinkChecker.Enums;
+using DocLinkChecker.Interfaces;
+using DocLinkChecker.Models;
+using DocLinkChecker.Services;
+using Microsoft.Extensions.Hosting;
 
+namespace DocLinkChecker
+{
     /// <summary>
     /// The main logic of the app.
     /// </summary>
@@ -62,23 +57,23 @@
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _console.Output($"DocLinkChecker version {Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion} started at {DateTime.Now}");
-            Stopwatch sw = new ();
+            Stopwatch sw = new();
             sw.Start();
 
             try
             {
-                List<MarkdownError> errors = new ();
+                List<MarkdownError> errors = new();
 
                 // get all information from markdown files
                 var parsed = await _crawler.ParseMarkdownFiles();
-                errors.AddRange(parsed.errors);
+                errors.AddRange(parsed.Errors);
 
                 // add the headings to the _checker to validate heading references
-                var headings = parsed.objects.OfType<Heading>().ToList();
+                var headings = parsed.Objects.OfType<Heading>().ToList();
                 _linkValidator.Headings.AddRange(headings);
 
                 // validate the links
-                List<Hyperlink> links = parsed.objects.OfType<Hyperlink>().ToList();
+                List<Hyperlink> links = parsed.Objects.OfType<Hyperlink>().ToList();
                 foreach (Hyperlink link in links)
                 {
                     if (!link.IsWeb || _config.DocLinkChecker.ValidateExternalLinks)
@@ -98,7 +93,7 @@
                 if (_config.DocLinkChecker.CheckForOrphanedResources)
                 {
                     var resourceValidationResult = _resourceValidator.CheckForOrphanedResources(links);
-                    if (resourceValidationResult.orphanedResources.Any() &&
+                    if (resourceValidationResult.OrphanedResources.Any() &&
                         _config.DocLinkChecker.CleanupOrphanedResources &&
                         !errors.Any())
                     {
@@ -106,10 +101,10 @@
                         // AND we didn't have any other errors ... cleanup
                         // This is done, as errors can indicate mistake(s) in the links. That has to be
                         // corrected first, before we can cleanup the orphaned resources.
-                        _resourceValidator.CleanupOrphanedResources(resourceValidationResult.orphanedResources);
+                        _resourceValidator.CleanupOrphanedResources(resourceValidationResult.OrphanedResources);
                     }
 
-                    errors.AddRange(resourceValidationResult.errors);
+                    errors.AddRange(resourceValidationResult.Errors);
                 }
 
                 // sort the errors on file and file position and show them

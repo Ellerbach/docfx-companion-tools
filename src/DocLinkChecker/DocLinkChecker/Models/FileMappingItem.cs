@@ -1,8 +1,7 @@
-﻿namespace DocLinkChecker.Models
-{
-    using System.Collections.Generic;
-    using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
+namespace DocLinkChecker.Models
+{
     /// <summary>
     /// Model class for file mapping.
     /// </summary>
@@ -18,12 +17,12 @@
         /// Gets or sets the folders and files to include.
         /// This list supports the file glob pattern.
         /// </summary>
-        public List<string> Files { get; set; } = new ();
+        public List<string> Files { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the folders and files to exclude.
         /// This list supports the file glob pattern.
         /// </summary>
-        public List<string> Exclude { get; set; } = new ();
+        public List<string> Exclude { get; set; } = new();
     }
 }
