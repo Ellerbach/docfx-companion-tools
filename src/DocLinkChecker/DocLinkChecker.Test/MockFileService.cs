@@ -1,15 +1,14 @@
 ﻿namespace DocLinkChecker.Test
 {
-    using Bogus;
+    using System.Collections.Generic;
     using DocLinkChecker.Interfaces;
     using DocLinkChecker.Test.Helpers;
-    using System.Collections.Generic;
 
     public class MockFileService : IFileService
     {
         public string Root = "d:\\Git\\Project\\docs";
 
-        public Dictionary<string, string> Files { get; set; } = new ();
+        public Dictionary<string, string> Files { get; set; } = new();
 
         public void FillDemoSet()
         {

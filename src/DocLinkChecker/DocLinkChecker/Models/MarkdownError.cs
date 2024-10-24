@@ -1,7 +1,7 @@
-﻿namespace DocLinkChecker.Models
-{
-    using DocLinkChecker.Enums;
+﻿using DocLinkChecker.Enums;
 
+namespace DocLinkChecker.Models
+{
     /// <summary>
     /// Model class for validation error.
     /// </summary>

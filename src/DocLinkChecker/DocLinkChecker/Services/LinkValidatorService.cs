@@ -1,20 +1,14 @@
-﻿namespace DocLinkChecker.Services
-{
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using DocLinkChecker.Enums;
-    using DocLinkChecker.Helpers;
-    using DocLinkChecker.Interfaces;
-    using DocLinkChecker.Models;
-    using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Net;
+using DocLinkChecker.Enums;
+using DocLinkChecker.Helpers;
+using DocLinkChecker.Interfaces;
+using DocLinkChecker.Models;
+using Microsoft.Extensions.DependencyInjection;
 
+namespace DocLinkChecker.Services
+{
     /// <summary>
     /// Service for validating the links in the markdown files.
     /// </summary>
@@ -29,10 +23,10 @@
         private int _timeoutMilliseconds = 500;
         private bool _noMoreInput;
 
-        private ConcurrentQueue<Hyperlink> _inputLinks = new ();
-        private ConcurrentQueue<MarkdownError> _errors = new ();
-        private List<Thread> _threads = new ();
-        private object _resultsLock = new ();
+        private ConcurrentQueue<Hyperlink> _inputLinks = new();
+        private ConcurrentQueue<MarkdownError> _errors = new();
+        private List<Thread> _threads = new();
+        private object _resultsLock = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LinkValidatorService"/> class.
@@ -57,7 +51,7 @@
         /// <summary>
         /// Gets the list of headings.
         /// </summary>
-        public List<Heading> Headings { get; } = new ();
+        public List<Heading> Headings { get; } = new();
 
         /// <summary>
         /// Gets the list of running tasks.
@@ -110,8 +104,8 @@
         /// <returns>Workers.</returns>
         private Task[] StartWorkers(int concurrencyLevel)
         {
-            List<Task> tasks = new ();
-            _threads = new ();
+            List<Task> tasks = new();
+            _threads = new();
             ParameterizedThreadStart worker = WorkerPerLink;
 
             for (int i = 0; i < concurrencyLevel; i++)
@@ -198,7 +192,7 @@
             using var scope = _serviceProvider.CreateScope();
             var client = scope.ServiceProvider.GetRequiredService<CheckerHttpClient>();
 
-            Stopwatch sw = new ();
+            Stopwatch sw = new();
             sw.Start();
             var result = await client.VerifyResourceSimple(hyperlink.Url);
             sw.Stop();
@@ -207,17 +201,17 @@
                 _console.Warning($"*** WARNING: Checking {hyperlink.OriginalUrl} took {sw.ElapsedMilliseconds}ms.");
             }
 
-            if (!result.success)
+            if (!result.Success)
             {
-                if (result.statusCode != null)
+                if (result.StatusCode != null)
                 {
-                    if ((int)result.statusCode < 300 || (int)result.statusCode > 399)
+                    if ((int)result.StatusCode < 300 || (int)result.StatusCode > 399)
                     {
                         // we ignore redirects. Response was given, so must exist.
                         MarkdownErrorSeverity severity = MarkdownErrorSeverity.Warning;
-                        if (result.statusCode == HttpStatusCode.NotFound ||
-                            result.statusCode == HttpStatusCode.Gone ||
-                            result.statusCode == HttpStatusCode.RequestUriTooLong)
+                        if (result.StatusCode == HttpStatusCode.NotFound ||
+                            result.StatusCode == HttpStatusCode.Gone ||
+                            result.StatusCode == HttpStatusCode.RequestUriTooLong)
                         {
                             // only report as error when resource isn't found or URL is too long.
                             severity = MarkdownErrorSeverity.Error;
@@ -229,7 +223,7 @@
                                 hyperlink.Line,
                                 hyperlink.Column,
                                 severity,
-                                $"{hyperlink.OriginalUrl} => {result.statusCode}"));
+                                $"{hyperlink.OriginalUrl} => {result.StatusCode}"));
                     }
                 }
                 else
@@ -241,7 +235,7 @@
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"{hyperlink.OriginalUrl} => {result.error}"));
+                            $"{hyperlink.OriginalUrl} => {result.Error}"));
                 }
             }
         }

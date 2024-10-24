@@ -1,7 +1,5 @@
 ﻿namespace DocLinkChecker.Interfaces
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Interface for file service.
     /// </summary>
