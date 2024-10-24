@@ -43,6 +43,7 @@ Options:
   -m, --multitoc <multitoc>                                   Indicates how deep in the tree toc files should be
                                                               generated for those folders. A depth of 0 is the root
                                                               only (default behavior).
+  --camelCase                                                 Use camel casing for titles.
   --version                                                   Show version information
   -?, -h, --help                                              Show help and usage information
 ```
@@ -345,3 +346,10 @@ The `toc.yml` files in the sub-folders `continents` and `vehicles` will contain 
     href: cars/bmw.md
 ```
 
+## Camel case titles
+
+By default titles are changed to pascal casing, meaning that the first character is capitalized. With the option `--camelCase` all titles will be changed to camel casing, meaning that the first character is lower cased. Only exception are overrides from `.override` files.
+
+> [!NOTE]
+>
+> As this rule is applied to everything, it is also applied to titles coming from Swagger-files. If this is an issue, this can be corrected for that file using an `.override` file in that folder.
