@@ -2,11 +2,14 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Text;
+using System.Text.RegularExpressions;
 using Bogus;
 using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
 namespace DocFxTocGenerator.Test;
 
@@ -16,9 +19,11 @@ public class ConfigFilesServiceTests
     private MockFileService _fileService = new();
     private MockLogger _mockLogger = new();
     private ILogger _logger;
+    private readonly ITestOutputHelper _outputHelper;
 
-    public ConfigFilesServiceTests()
+    public ConfigFilesServiceTests(ITestOutputHelper outputHelper)
     {
+        _outputHelper = outputHelper;
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
     }
@@ -38,7 +43,7 @@ public class ConfigFilesServiceTests
         // assert
         list.Should().NotBeEmpty();
         // expect list + 2 defaults
-        var lines = mockfile.Content.Replace("\r", string.Empty).Split('\n');
+        var lines = mockfile.Content.Split("\n");
         list.Should().HaveCount(lines.Length + 2);
         list[0].Should().Be("index");
         list[1].Should().Be("readme");
@@ -109,7 +114,7 @@ number-one");
         var list = service.GetIgnoreList(folderPath);
 
         // assert
-        var lines = mockfile.Content.Replace("\r", string.Empty).Split('\n');
+        var lines = mockfile.Content.Split("\n");
         list.Should().NotBeEmpty();
         list.Should().HaveCount(lines.Length);
         int index = 0;
@@ -149,7 +154,7 @@ number-one");
         var list = service.GetOverrideList(folderPath);
 
         // assert
-        var lines = mockfile.Content.Replace("\r", string.Empty).Split('\n');
+        var lines = mockfile.Content.Split("\n");
         list.Should().NotBeEmpty();
         list.Should().HaveCount(lines.Length);
         int index = 0;

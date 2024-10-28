@@ -4,6 +4,7 @@
 // </copyright>
 using Bogus;
 using DocFxTocGenerator.Actions;
+using DocFxTocGenerator.FileService;
 using DocFxTocGenerator.TableOfContents;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
@@ -25,7 +26,7 @@ public class GenerateTocActionTests
     }
 
     [Fact]
-    public async void Run_SimpleToc()
+    public async Task Run_SimpleToc()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
@@ -54,7 +55,7 @@ public class GenerateTocActionTests
     }
 
     [Fact]
-    public async void Run_WithDepth1()
+    public async Task Run_WithDepth1()
     {
         // arrange
         _fileService.Files.Clear();
@@ -114,7 +115,7 @@ public class GenerateTocActionTests
   href: continents/toc.yml
 - name: Vehicles
   href: vehicles/toc.yml
-";
+".NormalizeContent();
 
         string continentsExpected =
 @"# This is an automatically generated file
@@ -158,7 +159,7 @@ public class GenerateTocActionTests
       href: europe/netherlands/amsterdam.md
     - name: Rotterdam
       href: europe/netherlands/rotterdam.md
-";
+".NormalizeContent();
 
         string vehiclesExpected =
 @"# This is an automatically generated file
@@ -172,7 +173,7 @@ public class GenerateTocActionTests
     href: cars/audi.md
   - name: BMW
     href: cars/bmw.md
-";
+".NormalizeContent();
 
         int originalCount = _fileService.Files.Count();
 
@@ -193,7 +194,7 @@ public class GenerateTocActionTests
     }
 
     [Fact]
-    public async void Run_Issue_1()
+    public async Task Run_Issue_1()
     {
         // arrange
         _fileService.Files.Clear();
@@ -226,7 +227,7 @@ public class GenerateTocActionTests
   href: file1.md
 - name: File 2
   href: file2.md
-";
+".NormalizeContent();
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -239,7 +240,7 @@ public class GenerateTocActionTests
     }
 
     [Fact]
-    public async void Run_Issue_27_Run1()
+    public async Task Run_Issue_27_Run1()
     {
         // arrange
         _fileService.Files.Clear();
@@ -273,7 +274,7 @@ public class GenerateTocActionTests
   items:
   - name: B doc
     href: A/B.md
-";
+".NormalizeContent();
 
         // act
         ReturnCode ret = await action.RunAsync();
@@ -286,7 +287,7 @@ public class GenerateTocActionTests
     }
 
     [Fact]
-    public async void Run_Issue_27_Run2()
+    public async Task Run_Issue_27_Run2()
     {
         // arrange
         _fileService.Files.Clear();
@@ -322,7 +323,7 @@ public class GenerateTocActionTests
   items:
   - name: B doc
     href: A/B.md
-";
+".NormalizeContent();
 
         // act
         ReturnCode ret = await action.RunAsync();

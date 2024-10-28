@@ -22,14 +22,14 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => true),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }
 
     public Mock<ILogger> VerifyWarningWasCalled(string expectedMessage)
     {
-        Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo(expectedMessage) == 0;
+        Func<object, Type, bool> state = (v, t) => v.ToString()!.CompareTo(expectedMessage) == 0;
 
         Mock.Verify(
             x => x.Log(
@@ -37,7 +37,7 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => state(v, t)),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }
@@ -50,14 +50,14 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => true),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }
 
     public Mock<ILogger> VerifyErrorWasCalled(string expectedMessage)
     {
-        Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo(expectedMessage) == 0;
+        Func<object, Type, bool> state = (v, t) => v.ToString()!.CompareTo(expectedMessage) == 0;
 
         Mock.Verify(
             x => x.Log(
@@ -65,7 +65,7 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => state(v, t)),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }
@@ -78,14 +78,14 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => true),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }
 
     public Mock<ILogger> VerifyCriticalWasCalled(string expectedMessage)
     {
-        Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo(expectedMessage) == 0;
+        Func<object, Type, bool> state = (v, t) => v.ToString()!.CompareTo(expectedMessage) == 0;
 
         Mock.Verify(
             x => x.Log(
@@ -93,7 +93,7 @@ internal class MockLogger
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => state(v, t)),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+                It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)));
 
         return Mock;
     }

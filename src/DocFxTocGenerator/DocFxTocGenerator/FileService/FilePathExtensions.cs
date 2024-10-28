@@ -18,4 +18,15 @@ public static class FilePathExtensions
     {
         return path.Replace("\\", "/");
     }
+
+    /// <summary>
+    /// Normalize the content. This is used to make sure we always
+    /// have "\n" only for new lines. Mostly used by the test mocks.
+    /// </summary>
+    /// <param name="content">Content to normalize.</param>
+    /// <returns>Normalized content.</returns>
+    public static string NormalizeContent(this string content)
+    {
+        return content.Replace("\r", string.Empty);
+    }
 }

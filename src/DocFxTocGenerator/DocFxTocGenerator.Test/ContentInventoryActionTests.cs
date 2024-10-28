@@ -24,7 +24,7 @@ public class ContentInventoryActionTests
     }
 
     [Fact]
-    public async void Run_WithoutSettings()
+    public async Task Run_WithoutSettings()
     {
         // arrange
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -37,7 +37,7 @@ public class ContentInventoryActionTests
         action.RootFolder.Should().NotBeNull();
 
         // root validation
-        action.RootFolder.FolderCount.Should().Be(3);
+        action.RootFolder!.FolderCount.Should().Be(3);
         action.RootFolder.Folders[0].Name.Should().Be("continents");
         action.RootFolder.Folders[0].DisplayName.Should().Be("Continents");
         action.RootFolder.Folders[1].Name.Should().Be("deep-tree");
@@ -51,7 +51,7 @@ public class ContentInventoryActionTests
         // one subfolder validation
         var current = action.RootFolder.Find("continents/europe");
         current.Should().NotBeNull();
-        current.FolderCount.Should().Be(2);
+        current!.FolderCount.Should().Be(2);
         current.Folders[0].Name.Should().Be("germany");
         current.Folders[0].DisplayName.Should().Be("Germany");
         current.Folders[1].Name.Should().Be("netherlands");
@@ -62,10 +62,10 @@ public class ContentInventoryActionTests
 
         // no order list
         var folderPath = Path.GetDirectoryName(_fileService.GetOrderFile().Path);
-        current = action.RootFolder.Find(folderPath);
-        current.OrderList.Should().HaveCount(2);    // only standard added items
+        current = action.RootFolder.Find(folderPath!);
+        current!.OrderList.Should().HaveCount(2);    // only standard added items
         current = action.RootFolder.Find("continents/americas/brasil");
-        current.Files.Should().HaveCount(3);
+        current!.Files.Should().HaveCount(3);
         // default sorting
         current.Files[0].Name.Should().Be("nova-friburgo.md");
         current.Files[0].DisplayName.Should().Be("Nova Friburgo");
@@ -76,10 +76,10 @@ public class ContentInventoryActionTests
 
         // no ignore list
         folderPath = Path.GetDirectoryName(_fileService.GetIgnoreFile().Path);
-        current = action.RootFolder.Find(folderPath);
-        current.IgnoreList.Should().BeEmpty();
+        current = action.RootFolder.Find(folderPath!);
+        current!.IgnoreList.Should().BeEmpty();
         current = action.RootFolder.Find("continents/americas/united-states");
-        current.Folders.Should().HaveCount(4);
+        current!.Folders.Should().HaveCount(4);
         var texas = current.Folders.SingleOrDefault(x => x.Name.Equals("texas", StringComparison.OrdinalIgnoreCase));
         // should not have been ignored
         texas.Should().NotBeNull();
@@ -87,14 +87,14 @@ public class ContentInventoryActionTests
         // no override list
         folderPath = Path.GetDirectoryName(_fileService.GetOverrideFile().Path);
         current = action.RootFolder.Find(folderPath);
-        current.OverrideList.Should().BeEmpty();
+        current!.OverrideList.Should().BeEmpty();
         current = action.RootFolder.Find("continents/americas/united-states/washington");
         // no override used
-        current.Files[1].DisplayName.Should().Be("Tacoma");
+        current!.Files[1].DisplayName.Should().Be("Tacoma");
     }
 
     [Fact]
-    public async void Run_WithOrderOnly()
+    public async Task Run_WithOrderOnly()
     {
         // arrange
         ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -107,7 +107,7 @@ public class ContentInventoryActionTests
         action.RootFolder.Should().NotBeNull();
 
         // root validation
-        action.RootFolder.FolderCount.Should().Be(3);
+        action.RootFolder!.FolderCount.Should().Be(3);
         action.RootFolder.Folders[0].Name.Should().Be("continents");
         action.RootFolder.Folders[0].DisplayName.Should().Be("Continents");
         action.RootFolder.Folders[1].Name.Should().Be("deep-tree");
@@ -121,7 +121,7 @@ public class ContentInventoryActionTests
         // one subfolder validation
         var current = action.RootFolder.Find("continents/europe");
         current.Should().NotBeNull();
-        current.FolderCount.Should().Be(2);
+        current!.FolderCount.Should().Be(2);
         current.Folders[0].Name.Should().Be("germany");
         current.Folders[0].DisplayName.Should().Be("Germany");
         current.Folders[1].Name.Should().Be("netherlands");
@@ -133,7 +133,7 @@ public class ContentInventoryActionTests
         // validate order list
         var folderPath = Path.GetDirectoryName(_fileService.GetOrderFile().Path);
         current = action.RootFolder.Find(folderPath);
-        current.OrderList.Should().HaveCount(6);
+        current!.OrderList.Should().HaveCount(6);
         current = action.RootFolder.Find("continents/americas/brasil");
         current.Files.Should().HaveCount(3);
         // sorting from setings
@@ -164,7 +164,7 @@ public class ContentInventoryActionTests
     }
 
     [Fact]
-    public async void Run_WithIgnoreOnly()
+    public async Task Run_WithIgnoreOnly()
     {
         // arrange
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: true, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -233,7 +233,7 @@ public class ContentInventoryActionTests
     }
 
     [Fact]
-    public async void Run_WithOverrideOnly()
+    public async Task Run_WithOverrideOnly()
     {
         // arrange
         ContentInventoryAction action = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
@@ -302,7 +302,7 @@ public class ContentInventoryActionTests
     }
 
     [Fact]
-    public async void Run_WithNonExistingFolder_ReturnsError()
+    public async Task Run_WithNonExistingFolder_ReturnsError()
     {
         // arrange
         ContentInventoryAction action = new("x:\\Non-existing\\docs", useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
@@ -317,7 +317,7 @@ public class ContentInventoryActionTests
 
 
     [Fact]
-    public async void Run_WithEmptyFolder_ReturnsWarning()
+    public async Task Run_WithEmptyFolder_ReturnsWarning()
     {
         // arrange
         _fileService.Files.Clear();

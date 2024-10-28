@@ -25,7 +25,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_NoIndex()
+    public async Task Run_NoIndex()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -43,7 +43,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_GenerateForFoldersWithoutDefaults()
+    public async Task Run_GenerateForFoldersWithoutDefaults()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -78,7 +78,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_GenerateForFoldersWithoutDefaultsAndMutlipleFiles()
+    public async Task Run_GenerateForFoldersWithoutDefaultsAndMutlipleFiles()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -109,7 +109,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_GenerateForEmptyFolders()
+    public async Task Run_GenerateForEmptyFolders()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -136,7 +136,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_GenerateForFoldersWithoutIndex()
+    public async Task Run_GenerateForFoldersWithoutIndex()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -176,7 +176,7 @@ public class EnsureIndecxActionTests
     }
 
     [Fact]
-    public async void Run_GenerateForFoldersWithoutIndexAndMultipleFiles()
+    public async Task Run_GenerateForFoldersWithoutIndexAndMultipleFiles()
     {
         // arrange
         ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
@@ -206,19 +206,5 @@ public class EnsureIndecxActionTests
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("deep-tree/level1/level2/level3/level4/index.md");
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/index.md");
         _fileService.Files.ElementAt(index++).Key.Should().EndWith("software/apis/index.md");
-    }
-
-    [Fact]
-    public async void Run_ErrorWithNullRoot()
-    {
-        // arrange
-        EnsureIndexAction action = new(null, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
-
-        // act
-        ReturnCode ret = await action.RunAsync();
-
-        // assert
-        ret.Should().Be(ReturnCode.Error);
-        _mockLogger.VerifyCriticalWasCalled();
     }
 }

@@ -1,0 +1,18 @@
+# editorconfig.org
+
+# top-most EditorConfig file
+root = false
+
+[*.cs]
+
+# CS8604: Possible null reference argument.
+dotnet_diagnostic.CS8604.severity = none
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = none
+
+# CS8602: Dereference of a possibly null reference.
+dotnet_diagnostic.CS8602.severity = none

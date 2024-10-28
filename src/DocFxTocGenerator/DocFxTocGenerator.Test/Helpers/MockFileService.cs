@@ -9,9 +9,24 @@ namespace DocFxTocGenerator.Test.Helpers;
 
 public class MockFileService : IFileService
 {
-    public string Root = "d:\\Git\\Project\\docs";
+    public string Root;
 
     public Dictionary<string, string> Files { get; set; } = new();
+
+    public MockFileService()
+    {
+        // determine if we're testing on Windows. If not, use linux paths.
+        if (Path.IsPathRooted("c://"))
+        {
+            // windows
+            Root = "c:/Git/Project/docs";
+        }
+        else
+        {
+            // linux
+            Root = "/Git/Project/docs";
+        }
+    }
 
     public void FillDemoSet()
     {
@@ -614,15 +629,15 @@ rio-de-janeiro");
     
     public string AddFolder(string relativePath)
     {
-        var fullPath = InternalPath(Path.Combine(Root, relativePath));
+        var fullPath = Path.Combine(Root, relativePath).NormalizePath();
         Files.Add(fullPath, string.Empty);
         return relativePath;
     }
 
     public void AddFile(string folderPath, string filename, string content)
     {
-        var fullPath = InternalPath(Path.Combine(Root, folderPath, filename));
-        Files.Add(fullPath, content);
+        var fullPath = Path.Combine(Root, folderPath, filename).NormalizePath();
+        Files.Add(fullPath, content.NormalizeContent());
     }
 
     public (string Path, string Content) GetOrderFile()
@@ -671,7 +686,7 @@ rio-de-janeiro");
     public bool ExistsFileOrDirectory(string path)
     {
         string fullPath = GetFullPath(path);
-        return InternalPath(Root).Equals(fullPath, StringComparison.OrdinalIgnoreCase) || Files.ContainsKey(fullPath);
+        return Root.Equals(fullPath, StringComparison.OrdinalIgnoreCase) || Files.ContainsKey(fullPath);
     }
 
     public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
@@ -691,7 +706,7 @@ rio-de-janeiro");
             query = query.Where(x => !x.Key.Substring(Math.Min(fullRoot.Length + 1, x.Key.Length)).Contains("/"));
         }
 
-        var list = query.Select(x => InternalPath(x.Key)).ToList();
+        var list = query.Select(x => x.Key.NormalizePath()).ToList();
         return list;
     }
 
@@ -699,17 +714,17 @@ rio-de-janeiro");
     {
         if (Path.IsPathRooted(path))
         {
-            return InternalPath(path);
+            return path.NormalizePath();
         }
         else
         {
-            return InternalPath(Path.Combine(Root, path));
+            return Path.Combine(Root, path).NormalizePath();
         }
     }
 
     public string GetRelativePath(string relativeTo, string path)
     {
-        return InternalPath(Path.GetRelativePath(relativeTo, path));
+        return Path.GetRelativePath(relativeTo, path).NormalizePath();
     }
 
     public IEnumerable<string> GetDirectories(string folder)
@@ -726,7 +741,7 @@ rio-de-janeiro");
         string ipath = GetFullPath(path);
         if (Files.TryGetValue(ipath, out var content) && !string.IsNullOrEmpty(content))
         {
-            return content;
+            return content.NormalizeContent();
         }
 
         return string.Empty;
@@ -736,7 +751,7 @@ rio-de-janeiro");
     {
         if (Files.TryGetValue(GetFullPath(path), out var content) && !string.IsNullOrEmpty(content))
         {
-            return content.Replace("\r", string.Empty).Split('\n');
+            return content.NormalizeContent().Split("\n");
         }
 
         return [];
@@ -749,17 +764,12 @@ rio-de-janeiro");
         {
             Files.Remove(ipath);
         }
-        Files.Add(ipath, content!);
+        Files.Add(ipath, content!.NormalizeContent());
     }
 
     public Stream OpenRead(string path)
     {
         return new MemoryStream(Encoding.UTF8.GetBytes(ReadAllText(path)));
-    }
-
-    private string InternalPath(string path)
-    {
-        return path.NormalizePath();
     }
 }
 
