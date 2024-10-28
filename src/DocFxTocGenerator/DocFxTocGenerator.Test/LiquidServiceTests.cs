@@ -10,6 +10,7 @@ using DocFxTocGenerator.Liquid;
 using DocFxTocGenerator.Test.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
 namespace DocFxTocGenerator.Test;
 
@@ -20,17 +21,34 @@ public class LiquidServiceTests
     private MockLogger _mockLogger = new();
     private ILogger _logger;
     private ConfigFilesService _config;
+    private readonly ITestOutputHelper _outputHelper;
 
-    public LiquidServiceTests()
+    public LiquidServiceTests(ITestOutputHelper outputHelper)
     {
+        _outputHelper = outputHelper;
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
         _config = new(camelCasing: false, _fileService, _logger);
     }
 
     [Fact]
-    public async void Render_EmptyTemplate_ReturnsEmpty()
+    public async Task Render_EmptyTemplate_ReturnsEmpty()
     {
+        _outputHelper.WriteLine($"XXTEST: HIERO");
+        _outputHelper.WriteLine($"XXTEST: IsRooted1 {System.IO.Path.IsPathRooted("C:\\")}");
+        _outputHelper.WriteLine($"XXTEST: IsRooted2 {System.IO.Path.IsPathRooted("/mnt/c")}");
+
+        string fullRoot = _fileService.GetFullPath(_fileService.Root);
+        _outputHelper.WriteLine($"XXTEST: FullRoot = {fullRoot}");
+        var query = _fileService.Files.AsQueryable();
+        // fixed query for includes. Fine for this testing.
+        query = query.Where(x => x.Value != string.Empty &&
+                                 x.Key.StartsWith(fullRoot) &&
+                                 (x.Key.EndsWith(".md") || x.Key.EndsWith("swagger.json")));
+        var list = query.Select(x => x.Key.NormalizePath()).ToList();
+        _outputHelper.WriteLine($"XXTEST: Found {list.Count} entries.");
+        _outputHelper.WriteLine($"XXTEST: First: {list.First()}");
+
         // arrange
         LiquidService service = new(_logger);
         ContentInventoryAction action = new(_fileService.Root, useOrder: true, useIgnore: true, useOverride: true, camelCasing: false, _fileService, _logger);
@@ -47,7 +65,7 @@ public class LiquidServiceTests
     }
 
     [Fact]
-    public async void Render_SimpleTemplate_ReturnsValid()
+    public async Task Render_SimpleTemplate_ReturnsValid()
     {
         // arrange
         LiquidService service = new(_logger);
@@ -68,7 +86,7 @@ public class LiquidServiceTests
     }
 
     [Fact]
-    public async void Render_ErrorTemplate_ThrowsException()
+    public async Task Render_ErrorTemplate_ThrowsException()
     {
         // arrange
         LiquidService service = new(_logger);
@@ -87,7 +105,7 @@ public class LiquidServiceTests
     }
 
     [Fact]
-    public async void Render_ErrorTemplateObjectReference_ThrowsException()
+    public async Task Render_ErrorTemplateObjectReference_ThrowsException()
     {
         // arrange
         LiquidService service = new(_logger);

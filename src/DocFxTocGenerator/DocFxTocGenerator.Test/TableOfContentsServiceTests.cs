@@ -300,13 +300,13 @@ public class TableOfContentsServiceTests
   href: deep-tree/toc.yml
 - name: Software
   href: software/toc.yml
-";
+".NormalizeContent();
 
         // act
         service.SerializeTocItem(writer, toc, maxDepth: 1);
 
         // assert
-        string output = sw.ToString();
+        string output = sw.ToString().NormalizeContent();
         output.Should().Be(expected);
     }
 
@@ -334,13 +334,13 @@ public class TableOfContentsServiceTests
   href: brasil/toc.yml
 - name: United states
   href: united-states/toc.yml
-";
+".NormalizeContent();
 
         // act
         service.SerializeTocItem(writer, toc, maxDepth: 1, startPath: rootPath);
 
         // assert
-        string output = sw.ToString();
+        string output = sw.ToString().NormalizeContent();
         output.Should().Be(expected);
     }
 
@@ -452,14 +452,14 @@ public class TableOfContentsServiceTests
       items:
       - name: SimpleApi.Test
         href: software/apis/test-plain-api/swagger.json
-";
+".NormalizeContent();
         #endregion
 
         // act
         service.SerializeTocItem(writer, toc, maxDepth: 0);
 
         // assert
-        string output = sw.ToString();
+        string output = sw.ToString().NormalizeContent();
         output.Should().Be(expected);
     }
 
@@ -571,14 +571,14 @@ public class TableOfContentsServiceTests
       items:
       - name: simpleApi.Test
         href: software/apis/test-plain-api/swagger.json
-";
+".NormalizeContent();
         #endregion
 
         // act
         service.SerializeTocItem(writer, toc, maxDepth: 0);
 
         // assert
-        string output = sw.ToString();
+        string output = sw.ToString().NormalizeContent();
         output.Should().Be(expected);
     }
 
@@ -603,7 +603,7 @@ public class TableOfContentsServiceTests
   href: deep-tree/toc.yml
 - name: Software
   href: software/toc.yml
-";
+".NormalizeContent();
 
         // act
         await service.WriteTocFileAsync(toc, maxDepth: 1);

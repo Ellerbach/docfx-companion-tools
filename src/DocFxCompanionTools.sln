@@ -3,13 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLanguageTranslator", "DocLanguageTranslator\DocLanguageTranslator.csproj", "{2E546333-D995-48B0-AB00-50841A291288}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocLinkChecker", "DocLinkChecker", "{B8688D6A-F828-4A54-A5A8-95137FED9902}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocFxTocGenerator", "DocFxTocGenerator\DocFxTocGenerator.csproj", "{AF24D716-5EFA-4DBB-99B1-3D50D8C1EA79}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLinkChecker", "DocLinkChecker\DocLinkChecker\DocLinkChecker.csproj", "{AEB14801-AC47-4A41-8F37-D026D587A9EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocFxOpenApi", "DocFxOpenApi\DocFxOpenApi.csproj", "{E14CC5CE-D478-44C4-9317-F8235BAA6336}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLinkChecker.Test", "DocLinkChecker\DocLinkChecker.Test\DocLinkChecker.Test.csproj", "{CA07843C-47DF-459C-93CE-32D26FF0A839}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLinkChecker", "DocLinkChecker\DocLinkChecker\DocLinkChecker.csproj", "{CF387302-315D-44F8-AE27-3B73894110AE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocFxTocGenerator", "DocFxTocGenerator", "{7D8D6D5C-86A8-49E7-A3B0-B55FA4FDA2E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocFxTocGenerator", "DocFxTocGenerator\DocFxTocGenerator\DocFxTocGenerator.csproj", "{665A85C1-3050-4B3D-9402-366C7C575090}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocFxTocGenerator.Test", "DocFxTocGenerator\DocFxTocGenerator.Test\DocFxTocGenerator.Test.csproj", "{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocFxOpenApi", "DocFxOpenApi", "{93989765-5AA6-48AB-8687-008A7577070F}"
+	ProjectSection(SolutionItems) = preProject
+		DocFxOpenApi\DocFxOpenApi.csproj = DocFxOpenApi\DocFxOpenApi.csproj
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocLanguageTranslator", "DocLanguageTranslator", "{D9BD64D8-35E7-4EAE-9A15-E127A48E179B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLanguageTranslator", "DocLanguageTranslator\DocLanguageTranslator.csproj", "{8F404B68-0C29-4AE7-BC23-203841FF2825}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,25 +30,36 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2E546333-D995-48B0-AB00-50841A291288}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E546333-D995-48B0-AB00-50841A291288}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E546333-D995-48B0-AB00-50841A291288}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E546333-D995-48B0-AB00-50841A291288}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AF24D716-5EFA-4DBB-99B1-3D50D8C1EA79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF24D716-5EFA-4DBB-99B1-3D50D8C1EA79}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF24D716-5EFA-4DBB-99B1-3D50D8C1EA79}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF24D716-5EFA-4DBB-99B1-3D50D8C1EA79}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E14CC5CE-D478-44C4-9317-F8235BAA6336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E14CC5CE-D478-44C4-9317-F8235BAA6336}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E14CC5CE-D478-44C4-9317-F8235BAA6336}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E14CC5CE-D478-44C4-9317-F8235BAA6336}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF387302-315D-44F8-AE27-3B73894110AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF387302-315D-44F8-AE27-3B73894110AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF387302-315D-44F8-AE27-3B73894110AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF387302-315D-44F8-AE27-3B73894110AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB14801-AC47-4A41-8F37-D026D587A9EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB14801-AC47-4A41-8F37-D026D587A9EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB14801-AC47-4A41-8F37-D026D587A9EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB14801-AC47-4A41-8F37-D026D587A9EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA07843C-47DF-459C-93CE-32D26FF0A839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA07843C-47DF-459C-93CE-32D26FF0A839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA07843C-47DF-459C-93CE-32D26FF0A839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA07843C-47DF-459C-93CE-32D26FF0A839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{665A85C1-3050-4B3D-9402-366C7C575090}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{665A85C1-3050-4B3D-9402-366C7C575090}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{665A85C1-3050-4B3D-9402-366C7C575090}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{665A85C1-3050-4B3D-9402-366C7C575090}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F404B68-0C29-4AE7-BC23-203841FF2825}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F404B68-0C29-4AE7-BC23-203841FF2825}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F404B68-0C29-4AE7-BC23-203841FF2825}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F404B68-0C29-4AE7-BC23-203841FF2825}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AEB14801-AC47-4A41-8F37-D026D587A9EC} = {B8688D6A-F828-4A54-A5A8-95137FED9902}
+		{CA07843C-47DF-459C-93CE-32D26FF0A839} = {B8688D6A-F828-4A54-A5A8-95137FED9902}
+		{665A85C1-3050-4B3D-9402-366C7C575090} = {7D8D6D5C-86A8-49E7-A3B0-B55FA4FDA2E3}
+		{A9EF2D5A-8F18-4EC4-87FB-1EFE2DAD1C30} = {7D8D6D5C-86A8-49E7-A3B0-B55FA4FDA2E3}
+		{8F404B68-0C29-4AE7-BC23-203841FF2825} = {D9BD64D8-35E7-4EAE-9A15-E127A48E179B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B3F20EBE-7901-4F0F-AC02-FFBE72F662AC}
