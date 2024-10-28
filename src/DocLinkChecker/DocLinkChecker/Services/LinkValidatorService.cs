@@ -318,7 +318,7 @@ namespace DocLinkChecker.Services
                     break;
 
                 case RelativeLinkType.AnyDocsHierarchy:
-                    if (!hyperlink.UrlFullPath.Replace("\\", "/").Contains("/docs"))
+                    if (!hyperlink.UrlFullPath.Contains("/docs"))
                     {
                         _errors.Enqueue(
                             new MarkdownError(

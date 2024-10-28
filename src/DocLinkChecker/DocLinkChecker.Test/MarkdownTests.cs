@@ -1,14 +1,18 @@
 ﻿namespace DocLinkChecker.Test
 {
     using System.Linq;
-    using Bogus;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
     using DocLinkChecker.Helpers;
     using DocLinkChecker.Models;
     using DocLinkChecker.Test.Helpers;
     using FluentAssertions;
+    using Xunit.Abstractions;
 
     public class MarkdownTests
     {
+        private readonly ITestOutputHelper _outputHelper;
+
         private string _correctDocument = string.Empty
                 .AddHeading("Sample General Document", 1)
                 .AddParagraphs(1).AddLink("https://loremipsum.io/generator/?n=5&t=p")
@@ -53,6 +57,11 @@
                 .AddTableRow("Github", "<https://github.com/> ", string.Empty.AddLink("https://github.blog/"))
                 .AddNewLine()
                 .AddParagraphs(2);
+
+        public MarkdownTests(ITestOutputHelper outputHelper)
+        {
+            _outputHelper = outputHelper;
+        }
 
         [Fact]
         public void FindAllLinks()
@@ -137,6 +146,7 @@
         public void FindAllTablesWithErrors()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _errorDocument, true);
+
             result.Errors.Count.Should().Be(5);
         }
     }

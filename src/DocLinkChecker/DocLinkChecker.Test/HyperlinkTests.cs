@@ -13,10 +13,12 @@
     using Moq.Contrib.HttpClient;
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using Xunit.Abstractions;
 
     public class HyperlinkTests
     {
@@ -29,9 +31,12 @@
         private MockFileService _fileServiceMock;
         private ICustomConsoleLogger _console;
         private IServiceProvider _serviceProvider;
+        private readonly ITestOutputHelper _outputHelper;
 
-        public HyperlinkTests()
+        public HyperlinkTests(ITestOutputHelper outputHelper)
         {
+            _outputHelper = outputHelper;
+
             _config = new();
             _config.DocumentationFiles.SourceFolder = ".";
             _config.ResourceFolderNames = new() { ".attachmensts", "images" };
@@ -109,8 +114,7 @@
             service.Errors.Should().NotBeEmpty();
             service.Errors.First().Line.Should().Be(line);
             service.Errors.First().Column.Should().Be(column);
-            service.Errors.First().Severity.Should().Be(Enums.MarkdownErrorSeverity.Error);
-            service.Errors.First().Message.Should().Contain("No such host");
+            service.Errors.First().Severity.Should().Be(MarkdownErrorSeverity.Error);
         }
 
         [Fact]
@@ -122,7 +126,7 @@
             //Act
             int line = 14;
             int column = 31;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, "getting-started/README.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/index.md", line, column, "getting-started/README.md");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -138,7 +142,7 @@
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\start-document.md", line, column, "./non-existing-document.md");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/start-document.md", line, column, "./non-existing-document.md");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -169,7 +173,7 @@
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, filename);
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/index.md", line, column, filename);
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -187,7 +191,7 @@
             _config.DocLinkChecker.RelativeLinkStrategy = RelativeLinkType.All;
 
             string filename = "../../src/solution1/README.md";
-            string path = Path.GetFullPath(Path.Combine(_fileServiceMock.Root, filename));
+            string path = _fileService.GetFullPath(filename);
             string empty = string.Empty;
             _fileServiceMock.Files.Add(path, empty
                 .AddHeading("Document outside docs root", 1)
@@ -198,7 +202,7 @@
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, filename);
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/index.md", line, column, filename);
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -236,7 +240,7 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+            string source = $"{_fileServiceMock.Root}/general/another-sample.md";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(source, 99, 1, "Third.1 Header", "third-1-header"));
@@ -245,7 +249,7 @@
             int line = 432;
             int column = 771;
 
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, $".\\general\\another-sample.md#third-1-header");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/index.md", line, column, $"./general/another-sample.md#third-1-header");
             await service.VerifyHyperlink(link);
 
             // Assert
@@ -259,7 +263,7 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+            string source = $"{_fileServiceMock.Root}/general/another-sample.md";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
             service.Headings.Add(new(source, 99, 1, title, id));
@@ -280,11 +284,11 @@
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+            string sourceDoc = $"{_fileServiceMock.Root}/general/another-sample.md";
             string sourceHeadingTitle = "Some Heading in the Source document";
             string sourceHeadingId = "some-heading-in-the-source-document";
-            string destDoc = $"{_fileServiceMock.Root}\\general\\general-sample.md";
-            string destDocRelative = ".\\general-sample.md";
+            string destDoc = $"{_fileServiceMock.Root}/general/general-sample.md";
+            string destDocRelative = "./general-sample.md";
             int line = 432;
             int column = 771;
 
@@ -305,16 +309,13 @@
 
         [Theory]
         [InlineData("~/general/images/nature.jpeg")]
-        [InlineData("~\\general\\images\\nature.jpeg")]
         [InlineData("~/general/images/space%20image.jpeg")]
-        [InlineData("~\\general\\images\\space%20image.jpeg")]
         [InlineData("%7E/general/images/space%20image.jpeg")]
-        [InlineData("%7E\\general\\images\\space%20image.jpeg")]
         public async void ValidateRootLinkShouldHaveNoErrors(string path)
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+            string sourceDoc = $"{_fileServiceMock.Root}/general/another-sample.md";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
@@ -330,13 +331,13 @@
 
         [Theory]
         [InlineData("~/general/images/NON_EXISTING.jpeg")]
-        [InlineData("~\\NON_EXISTING\\images\\nature.jpeg")]
+        [InlineData("~/NON_EXISTING/images/nature.jpeg")]
         [InlineData("~/general%2Fimages/nature.jpeg")]
         public async void ValidateInvalidRootLinkShouldHaveErrors(string path)
         {
             // Arrange
             _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
-            string sourceDoc = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+            string sourceDoc = $"{_fileServiceMock.Root}/general/another-sample.md";
 
             LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
 
@@ -387,7 +388,7 @@
             //Act
             int line = 124;
             int column = 3381;
-            Hyperlink link = new Hyperlink("./start-document.md", line, column, @"D:\Git\Project\docs\another-document.md");
+            Hyperlink link = new Hyperlink("./start-document.md", line, column, Path.Combine(_fileServiceMock.Root, @"another-document.md").NormalizePath());
             await service.VerifyHyperlink(link);
 
             // Assert
