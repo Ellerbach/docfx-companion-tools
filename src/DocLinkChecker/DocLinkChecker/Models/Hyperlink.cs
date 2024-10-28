@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DocLinkChecker.Enums;
+using DocLinkChecker.Helpers;
 
 namespace DocLinkChecker.Models
 {
@@ -183,7 +184,7 @@ namespace DocLinkChecker.Models
                     string destFullPath = pos != 0 ?
                         Path.Combine(Path.GetDirectoryName(FilePath), UrlWithoutTopic) :
                         FilePath;
-                    return Path.GetFullPath(destFullPath);
+                    return Path.GetFullPath(destFullPath).NormalizePath();
                 }
 
                 return Url;

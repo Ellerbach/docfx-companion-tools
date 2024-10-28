@@ -1,8 +1,11 @@
 {
   "profiles": {
     "DocLinkChecker": {
-      "commandName": "Project",
-      "commandLineArgs": "-d \"c:\\temp\\docs\""
+      "commandName": "Project"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
     }
   }
 }

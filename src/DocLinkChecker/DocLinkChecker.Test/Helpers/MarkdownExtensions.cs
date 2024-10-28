@@ -1,62 +1,63 @@
-﻿using Bogus;
-using System;
+﻿using System;
 
 namespace DocLinkChecker.Test.Helpers
 {
     internal static class MarkdownExtensions
     {
+        internal const string Newline = "\n";
+
         internal static string AddHeading(this string s, string title, int level)
         {
-            string content = $"{new string('#', level)} {title}" + Environment.NewLine + Environment.NewLine;
+            string content = $"{new string('#', level)} {title}" + Newline + Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddParagraphs(this string s, int count = 1)
         {
             Faker faker = new Faker();
-            string content = (count == 1 ? faker.Lorem.Paragraph() : faker.Lorem.Paragraphs(count)) + Environment.NewLine;
+            string content = (count == 1 ? faker.Lorem.Paragraph() : faker.Lorem.Paragraphs(count)) + Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddResourceLink(this string s, string url)
         {
             Faker faker = new Faker();
-            string content = $" ![some resource {faker.Random.Int(1)}]({url})" + Environment.NewLine;
+            string content = $" ![some resource {faker.Random.Int(1)}]({url})" + Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddLink(this string s, string url)
         {
             Faker faker = new Faker();
-            string content = $" [some link {faker.Random.Int(1)}]({url})" + Environment.NewLine;
+            string content = $" [some link {faker.Random.Int(1)}]({url})" + Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddCodeLink(this string s, string name, string url)
         {
             Faker faker = new Faker();
-            string content = $" [!code-csharp[{name}]({url})]" + Environment.NewLine;
+            string content = $" [!code-csharp[{name}]({url})]" + Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddTableStart(this string s, int columns = 3)
@@ -65,19 +66,19 @@ namespace DocLinkChecker.Test.Helpers
             string content = "|";
             for (int col = 0; col < columns; col++)
             {
-                content += $" {faker.Lorem.Words(2)} |";
+                content += $" {faker.Lorem.Sentence} |";
             }
-            content += Environment.NewLine;
+            content += Newline;
             for (int col = 0; col < columns; col++)
             {
                 content += $" --- |";
             }
-            content += Environment.NewLine;
+            content += Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddTableRow(this string s, params string[] columns)
@@ -88,21 +89,21 @@ namespace DocLinkChecker.Test.Helpers
             {
                 content += $" {col} |";
             }
-            content += Environment.NewLine;
+            content += Newline;
             if (string.IsNullOrEmpty(s))
             {
                 return content;
             }
-            return s + Environment.NewLine + content;
+            return s + Newline + content;
         }
 
         internal static string AddNewLine(this string s)
         {
             if (string.IsNullOrEmpty(s))
             {
-                return Environment.NewLine;
+                return Newline;
             }
-            return s + Environment.NewLine;
+            return s + Newline;
         }
 
         internal static string AddRawMarkdown(this string s, string markdown)

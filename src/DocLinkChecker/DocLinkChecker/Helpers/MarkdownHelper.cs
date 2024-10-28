@@ -251,13 +251,17 @@ namespace DocLinkChecker.Helpers
             int len = 0;
             string line = string.Empty;
             List<MarkdownError> errors = new();
+            bool hasCarriage = markdown.Contains("\r");
 
             try
             {
                 pipeTable = new(markdownFilePath, table.Line, table.Column);
 
                 start = Math.Max(table.Span.Start, 0);
-                while (start > 0 && markdown.Substring(start, 1) != "\n")
+
+                // we want to find the real start of the table. We're traversing
+                // back until we're at the start of the line (previous is \n or we're at 0)
+                while (start > 0 && markdown.Substring(start - 1, 1) != "\n")
                 {
                     start--;
                 }
@@ -355,14 +359,22 @@ namespace DocLinkChecker.Helpers
                     }
                 }
 
-                start += len + 2;   // add 2 for the \r\n
+                start += len + (hasCarriage ? 2 : 1);   // add for line-break being "\r\n" or "\n"
                 if (start >= markdown.Length)
                 {
                     // end of file
                     break;
                 }
 
-                len = markdown.IndexOf('\r', start) - start;
+                if (hasCarriage)
+                {
+                    len = markdown.IndexOf('\r', start) - start;
+                }
+                else
+                {
+                    len = markdown.IndexOf('\n', start) - start;
+                }
+
                 line = markdown.Substring(start, len);
                 row++;
             }
