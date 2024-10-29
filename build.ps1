@@ -14,8 +14,8 @@ if (Test-Path -Path $solution.assetZipPath) {
     Remove-Item $solution.assetZipPath
 }
 
-# Build all dotnet solution into $solution.targetFolder as single exe's
-foreach ($sln in (Get-ChildItem -Recurse src\*.sln)) {
+# Build all dotnet projects into $solution.targetFolder as single exe's. Skip Test projects.
+foreach ($sln in (Get-ChildItem -Recurse src\*\*.csproj -Exclude *.Test.*)) {
     Write-Host "Start building $($sln.FullName)"
     & dotnet publish $sln.FullName -c Release -r win-x64 /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false --self-contained false -o $solution.targetFolder
 }

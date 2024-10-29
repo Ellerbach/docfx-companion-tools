@@ -21,10 +21,11 @@ jobs:
         dotnet-version: 8.x
     
     # Loop through all the solutions in src and restore, build & test
+    # Skip DocFxCompanionTools.sln, as it is a combination of all solutions.
     - name: Restore, build & test
       shell: pwsh
       run: |
-        foreach ($sln in (Get-ChildItem -Recurse src\*.sln)) {
+        foreach ($sln in (Get-ChildItem -Recurse src\*.sln -Exclude DocFxCompanionTools.sln)) {
           Write-Host "Start building $($sln.FullName)"
 
           & dotnet restore $sln.FullName
