@@ -8,9 +8,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
 
-    # Checkout sources. Depth=0 is for using GitVersion
+    steps:
+      # Checkout sources. Depth=0 is for using GitVersion
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -21,7 +21,7 @@ jobs:
       with:
         dotnet-version: 8.x
         
-    # Install and Setup GitVersion
+      # Install and Setup GitVersion
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v3.0.0
       with:
