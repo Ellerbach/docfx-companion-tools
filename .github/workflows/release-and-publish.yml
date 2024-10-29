@@ -11,9 +11,11 @@ jobs:
     steps:
 
     # Checkout sources. Depth=0 is for using GitVersion
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -49,4 +51,3 @@ jobs:
         toTag: ${{ steps.gitversion.outputs.Sha }}
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
