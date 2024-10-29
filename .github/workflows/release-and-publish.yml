@@ -8,30 +8,32 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
 
-    # Checkout sources. Depth=0 is for using GitVersion
+    steps:
+      # Checkout sources. Depth=0 is for using GitVersion
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    # Install and Setup GitVersion
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.0.0
-      with:
-        versionSpec: '6.x'
-    - name: Use GitVersion
-      # Step id is used as reference for the output values
-      id: gitversion 
-      uses: gittools/actions/gitversion/execute@v3.0.0
-       
-    # Setup .NET 8
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.x
+        
+      # Install and Setup GitVersion
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v3.0.0
+      with:
+        versionSpec: '5.x'
 
+      # Step id is used as reference for the output values
+    - name: Use GitVersion to determine the version
+      id: gitversion 
+      uses: gittools/actions/gitversion/execute@v3.0.0
+      with:
+        useConfigFile: true
+       
     # Build the tools & create the zip-file and nuget packages
     # Chocolatey tools are in .\tools. NuGet packages in .\artifacts
     - name: Build & Package
@@ -75,3 +77,4 @@ jobs:
           foreach($file in (Get-ChildItem "./artifacts" -Recurse -Include *.nupkg)) {
               dotnet nuget push $file --api-key "${{ secrets.NUGET_TOOLS }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
+
