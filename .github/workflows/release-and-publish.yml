@@ -11,7 +11,6 @@ jobs:
     steps:
 
     # Checkout sources. Depth=0 is for using GitVersion
-    steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
