@@ -8,16 +8,16 @@ This tool can be used to check references in markdown files.
 DocLinkChecker -d <docs folder> [-vac] [-f <config file>]
 
 One of these options is required. The other can be added to overwrite settings.
--d, --docfolder       Folder containing the documents.
--f, --config             Configuration file.
+-d, --docfolder        Folder containing the documents.
+-f, --config           Configuration file.
 
 Other options:
 -v, --verbose          Show verbose messages.
--a, --attachments   Check the .attachments folder in the root of the docfolder for unreferenced files.
+-a, --attachments      Check the .attachments folder in the root of the docfolder for unreferenced files.
 -c, --cleanup          Remove all unreferenced files from the .attachments folder in the root of the docfolder. Must be used in combination with -a flag.
--t, --table               Check that tables are well formed.
---help                     Display this help screen.
---version                Display version information.
+-t, --table            Check that tables are well formed.
+--help                 Display this help screen.
+--version              Display version information.
 ```
 
 If normal return code of the tool is 0, but on error it returns 1.
@@ -35,10 +35,14 @@ The exit codes of the tool are defined in the table below. The exit code can be 
 | 0 | Execution has finished successfully |
 | 1 | Errors in the command line |
 | 3 | Errors in the configuration file |
-| 1000 | Execution has finished with warnings only |
-| 1001 | Execution has finished with errors |
+| 1000 (232 on Linux) | Execution has finished with warnings only |
+| 1001 (233 on Linux) | Execution has finished with errors |
 
 If you want to trace what the tool is doing in detail, use the `-v or verbose` flag to output all details of processing the files and folders.
+
+> [!NOTE]
+>
+> Return codes on Linux are (mostly) truncated as byte, which makes the return codes of 1000 and 1001 be reported as 232 and 233.
 
 ## Configuration file
 
