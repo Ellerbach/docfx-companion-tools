@@ -264,7 +264,8 @@ public class ContentInventoryActionTests
         current.Folders[0].Name.Should().Be("germany");
         current.Folders[0].DisplayName.Should().Be("Germany");
         current.Folders[1].Name.Should().Be("netherlands");
-        current.Folders[1].DisplayName.Should().Be("Netherlands");
+        // here is a folder title from .override 
+        current.Folders[1].DisplayName.Should().Be("The Netherlands");
         current.FileCount.Should().Be(1);
         current.Files[0].Name.Should().Be("README.md");
         current.Files[0].DisplayName.Should().Be($"Europe");

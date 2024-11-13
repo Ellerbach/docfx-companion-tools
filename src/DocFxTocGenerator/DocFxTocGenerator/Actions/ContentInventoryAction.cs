@@ -121,6 +121,15 @@ public class ContentInventoryAction
             Parent = parent,
         };
 
+        if (parent != null)
+        {
+            // see if we have an override for the folder name
+            if (parent.OverrideList.TryGetValue(folder.Name, out string? name))
+            {
+                folder.DisplayName = name;
+            }
+        }
+
         // read config files
         if (_useOrder)
         {
