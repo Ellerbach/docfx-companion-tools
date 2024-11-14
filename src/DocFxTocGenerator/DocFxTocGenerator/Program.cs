@@ -35,7 +35,7 @@ var sequenceOption = new Option<bool>(
 sequenceOption.AddAlias("-s");
 var overrideOption = new Option<bool>(
     name: "--override",
-    description: "Use .override files per folder to define title overrides for files. Format of the file is filename without extension followed by a semi-column followed by the custom title per line.");
+    description: "Use .override files per folder to define title overrides for files and folders. Format of the file is filename without extension or directory name followed by a semi-column followed by the custom title per line.");
 overrideOption.AddAlias("-r");
 var ignoreOption = new Option<bool>(
     name: "--ignore",

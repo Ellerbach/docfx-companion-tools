@@ -101,6 +101,8 @@ rio-de-janeiro");
         AddFile(folder, "README.md", string.Empty
             .AddHeading("Europe", 1)
             .AddParagraphs(1));
+        AddFile(folder, ".override",
+@"netherlands;The Netherlands");
 
         folder = AddFolder("continents/europe/germany");
         AddFile(folder, "README.md", string.Empty

@@ -16,9 +16,9 @@ Options:
                                                               files and directories. Format of the file is filename
                                                               without extension per line.
   -r, --override                                              Use .override files per folder to define title overrides
-                                                              for files. Format of the file is filename without
-                                                              extension followed by a semi-column followed by the
-                                                              custom title per line.
+                                                              for files and folders. Format of the file is filename
+                                                              without extension or directory name followed by a
+                                                              semi-column followed by the custom title per line.
   -g, --ignore                                                Use .ignore files per folder to ignore directories.
                                                               Format of the file is directory name per line.
   --indexing                                                  When to generated an index.md for a folder.
@@ -73,7 +73,7 @@ For directories the name of the directory is used by default, where the first ch
 
 For markdown files the first level-1 heading is taken as title. For swagger files the title and version are taken as title. On error the file name without extension is taken and processed the same way as the name of a directory.
 
-The `.override` setting file can be used to override this behavior. See [Defining title overrides with `.override`](#defining_title_overrides_with__override).
+The `.override` setting file can be used to override this behavior. See [Defining title overrides with `.override`](#defining-title-overrides-with-override).
 
 ## Folder settings
 
@@ -108,7 +108,7 @@ It only applies to the folder it's in, not for other subfolders under that folde
 
 ### Defining title overrides with `.override`
 
-If the `-r | --override` parameter is provided, the tool will inspect folders if a `.override` file exists and use that for overrides of file titles as they will show in the generated `toc.yml`. The `.override` file is a list of file- and/or directory-names, *case-sensitive* without file extensions, followed by a semi-column, followed by the title to use.
+If the `-r | --override` parameter is provided, the tool will inspect folders if a `.override` file exists and use that for overrides of file or directory titles as they will show in the generated `toc.yml`. The `.override` file is a list of file- and/or directory-names, *case-sensitive* without file extensions, followed by a semi-column, followed by the title to use.
 
 For example, if the folder name is `introduction`, the default behavior will be to create the name `Introduction`. If you want to call it `To start with`, you can use overrides, like in the following example:
 
@@ -117,7 +117,7 @@ introduction;To start with
 working-agreements;All working agreements of all teams
 ```
 
-If there are files or directories which are not in the .order file, they will be alphabetically ordered on the title and added after the ordered entries. The title for an MD-file is taken from the H1-header in the file. The title for a directory is the directory-name, but cleanup from special characters and the first character in capitals.
+The title for an MD-file is taken from the H1-header in the file. The title for a directory is the directory-name, but cleanup from special characters and the first character in capitals.
 
 ## Automatic generating `index.md` files
 

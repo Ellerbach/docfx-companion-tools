@@ -183,7 +183,8 @@ public class TableOfContentsServiceTests
         toc.IsFolder.Should().BeTrue();
         toc.Depth.Should().Be(5);
         toc.Base.Should().Be(current);
-        toc.Name.Should().Be("Netherlands");
+        // override name
+        toc.Name.Should().Be("The Netherlands");
         toc.Sequence.Should().Be(current!.Sequence);
         toc.Href.Should().BeNull();
 
@@ -412,7 +413,7 @@ public class TableOfContentsServiceTests
         href: continents/europe/germany/berlin.md
       - name: München
         href: continents/europe/germany/munchen.md
-    - name: Netherlands
+    - name: The Netherlands
       items:
       - name: Noord holland
         items:
@@ -531,7 +532,7 @@ public class TableOfContentsServiceTests
         href: continents/europe/germany/berlin.md
       - name: münchen
         href: continents/europe/germany/munchen.md
-    - name: netherlands
+    - name: The Netherlands
       items:
       - name: noord holland
         items:
