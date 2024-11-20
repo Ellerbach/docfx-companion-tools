@@ -2,7 +2,9 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using DocAssembler.Configuration;
 using DocAssembler.FileService;
+using DocAssembler.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace DocAssembler.Actions;
@@ -12,6 +14,8 @@ namespace DocAssembler.Actions;
 /// </summary>
 public class ConfigInitAction
 {
+    private const string CONFIGFILENAME = ".docassembler.json";
+
     private readonly string _outFolder;
 
     private readonly IFileService? _fileService;
@@ -38,22 +42,45 @@ public class ConfigInitAction
     /// Run the action.
     /// </summary>
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
-    public Task<ReturnCode> RunAsync()
+    public async Task<ReturnCode> RunAsync()
     {
         ReturnCode ret = ReturnCode.Normal;
-        _logger.LogInformation($"\n*** INVENTORY STAGE.");
 
         try
         {
-            ret = ReturnCode.Warning;
+            string path = Path.Combine(_outFolder, CONFIGFILENAME);
+            if (File.Exists(path))
+            {
+                _logger.LogError($"*** ERROR: '{path}' already exists. We don't overwrite.");
+
+                // indicate we're done with an error
+                return ReturnCode.Error;
+            }
+
+            var config = new AssembleConfiguration
+            {
+                OutputFolder = "out",
+                Content =
+                [
+                    new Content
+                    {
+                        SourceFolder = "docs",
+                        Files = { "**" },
+                        Naming = FolderNamingStrategy.ParentFolder,
+                        ExternalFilePrefix = "https://github.com/example/blob/main/",
+                    },
+                ],
+            };
+
+            await File.WriteAllTextAsync(path, SerializationUtil.Serialize(config));
+            _logger.LogInformation($"Initial configuration saved in '{path}'");
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Inventory error: {ex.Message}.");
+            _logger.LogCritical($"Saving initial configuration error: {ex.Message}.");
             ret = ReturnCode.Error;
         }
 
-        _logger.LogInformation($"END OF INVENTORY STAGE. Result: {ret}");
-        return Task.FromResult(ret);
+        return ret;
     }
 }

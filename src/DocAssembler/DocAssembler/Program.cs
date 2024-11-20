@@ -14,18 +14,20 @@ using Microsoft.Extensions.Logging;
 var logLevel = LogLevel.Warning;
 
 // parameters/options
-var configFile = new Option<FileInfo>(
+var configFileOption = new Option<FileInfo>(
     name: "--config",
     description: "The configuration file for the assembled documentation.")
 {
     IsRequired = true,
 };
-configFile.AddAlias("-c");
 
-var outputFolder = new Option<DirectoryInfo>(
+var workingFolderOption = new Option<DirectoryInfo>(
+    name: "--workingfolder",
+    description: "The working folder. Default is the current folder.");
+
+var outputFolderOption = new Option<DirectoryInfo>(
     name: "--outfolder",
     description: "Override the output folder for the assembled documentation in the config file.");
-outputFolder.AddAlias("-o");
 
 var verboseOption = new Option<bool>(
     name: "--verbose",
@@ -44,8 +46,9 @@ var rootCommand = new RootCommand(
     2 - a fatal error occurred.
     """);
 
-rootCommand.AddOption(configFile);
-rootCommand.AddOption(outputFolder);
+rootCommand.AddOption(workingFolderOption);
+rootCommand.AddOption(configFileOption);
+rootCommand.AddOption(outputFolderOption);
 rootCommand.AddOption(verboseOption);
 
 var initCommand = new Command("init", "Intialize a configuration file in the current directory if it doesn't exist yet.");
@@ -58,13 +61,15 @@ rootCommand.SetHandler(async (context) =>
     SetLogLevel(context);
 
     LogParameters(
-        context.ParseResult.GetValueForOption(configFile)!,
-        context.ParseResult.GetValueForOption(outputFolder));
+        context.ParseResult.GetValueForOption(configFileOption)!,
+        context.ParseResult.GetValueForOption(outputFolderOption),
+        context.ParseResult.GetValueForOption(workingFolderOption));
 
     // execute the generator
     context.ExitCode = (int)await AssembleDocumentationAsync(
-        context.ParseResult.GetValueForOption(configFile)!,
-        context.ParseResult.GetValueForOption(outputFolder));
+        context.ParseResult.GetValueForOption(configFileOption)!,
+        context.ParseResult.GetValueForOption(outputFolderOption),
+        context.ParseResult.GetValueForOption(workingFolderOption));
 });
 
 // handle the execution of the root command
@@ -89,7 +94,7 @@ async Task<ReturnCode> GenerateConfigurationFile()
     try
     {
         // the actual generation of the configuration file
-        ConfigInitAction action = new(string.Empty, fileService, logger);
+        ConfigInitAction action = new(Environment.CurrentDirectory, fileService, logger);
         ReturnCode ret = await action.RunAsync();
 
         logger.LogInformation($"Command completed. Return value: {ret}.");
@@ -105,7 +110,8 @@ async Task<ReturnCode> GenerateConfigurationFile()
 // main process for assembling documentation.
 async Task<ReturnCode> AssembleDocumentationAsync(
     FileInfo configFile,
-    DirectoryInfo? outputFolder)
+    DirectoryInfo? outputFolder,
+    DirectoryInfo? workingFolder)
 {
     // setup services
     ILogger logger = GetLogger();
@@ -113,9 +119,14 @@ async Task<ReturnCode> AssembleDocumentationAsync(
 
     try
     {
-        // WIP: should be inventory followed by assemble.
+        ReturnCode ret = ReturnCode.Normal;
+
+        string folder = workingFolder?.FullName ?? Directory.GetCurrentDirectory();
+        InventoryAction inventory = new(folder, configFile.FullName, outputFolder?.FullName, fileService, logger);
+        ret &= await inventory.RunAsync();
+
         AssembleAction assemble = new(configFile.FullName, outputFolder?.FullName, fileService, logger);
-        ReturnCode ret = await assemble.RunAsync();
+        ret &= await assemble.RunAsync();
 
         logger.LogInformation($"Command completed. Return value: {ret}.");
 
@@ -131,14 +142,21 @@ async Task<ReturnCode> AssembleDocumentationAsync(
 // output logging of parameters
 void LogParameters(
     FileInfo configFile,
-    DirectoryInfo? outputFolder)
+    DirectoryInfo? outputFolder,
+    DirectoryInfo? workingFolder)
 {
     ILogger logger = GetLogger();
 
-    logger!.LogInformation($"Configuration: {configFile.FullName}");
+    logger!.LogInformation($"Configuration : {configFile.FullName}");
     if (outputFolder != null)
     {
-        logger!.LogInformation($"Output folder: {outputFolder.FullName}");
+        logger!.LogInformation($"Output  folder: {outputFolder.FullName}");
+        return;
+    }
+
+    if (workingFolder != null)
+    {
+        logger!.LogInformation($"Working folder: {workingFolder.FullName}");
         return;
     }
 }
