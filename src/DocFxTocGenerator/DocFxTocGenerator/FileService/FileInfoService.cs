@@ -73,6 +73,7 @@ public class FileInfoService
         {
             // override the display name
             filedata.DisplayName = name;
+            filedata.IsDisplayNameOverride = true;
         }
         else
         {

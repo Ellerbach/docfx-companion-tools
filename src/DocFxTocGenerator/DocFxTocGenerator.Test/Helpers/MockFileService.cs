@@ -131,6 +131,8 @@ rio-de-janeiro");
 
         folder = AddFolder("deep-tree");
         folder = AddFolder("deep-tree/level1");
+        AddFile(folder, ".override",
+@"level2;The Second Level");
         folder = AddFolder("deep-tree/level1/level2");
         AddFile(folder, "index.md", string.Empty
             .AddHeading("Index of LEVEL 2", 1)
