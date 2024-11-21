@@ -18,12 +18,11 @@ if (Test-Path -Path $solution.assetZipPath) {
 foreach ($sln in (Get-ChildItem -Recurse src\*\*.csproj -Exclude *.Test.*)) {
     Write-Host "Building $($sln.FullName)"
     & dotnet publish $sln.FullName -c Release -r win-x64 /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false --self-contained false -o $solution.targetFolder
+    Write-Host "Packing $($sln.FullName)"
+    & dotnet pack $sln.FullName -c Release -p:PackAsTool=true -o ./artifacts
 }
 
-# Package NuGet packages
-Write-Host "Package .\src\DocFxCompanionTools.sln"
-dotnet pack .\src\DocFxCompanionTools.sln -c Release -p:PackAsTool=true -o ./artifacts
-Get-ChildItem ./artifacts
+Get-ChildItem 
 
 # remove possible generated XML documentation files
 Remove-Item "$($solution.targetFolder)\*.xml"
