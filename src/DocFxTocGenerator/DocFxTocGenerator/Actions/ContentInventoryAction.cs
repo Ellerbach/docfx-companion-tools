@@ -127,6 +127,7 @@ public class ContentInventoryAction
             if (parent.OverrideList.TryGetValue(folder.Name, out string? name))
             {
                 folder.DisplayName = name;
+                folder.IsDisplayNameOverride = true;
             }
         }
 
