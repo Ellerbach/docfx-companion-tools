@@ -57,7 +57,7 @@ public class ContentInventoryAction
 
         _fileService = fileService;
         _logger = logger;
-        _configService = new(camelCasing, fileService, logger);
+        _configService = new(fileService, logger);
         _fileDataService = new(camelCasing, fileService, logger);
     }
 

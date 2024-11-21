@@ -26,7 +26,7 @@ public class TableOfContentsServiceTests
     {
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
-        _config = new(camelCasing: false, _fileService, _logger);
+        _config = new(_fileService, _logger);
     }
 
     [Fact]
