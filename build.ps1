@@ -22,7 +22,7 @@ foreach ($sln in (Get-ChildItem -Recurse src\*\*.csproj -Exclude *.Test.*)) {
     & dotnet pack $sln.FullName -c Release -p:PackAsTool=true -o ./artifacts
 }
 
-Get-ChildItem 
+Get-ChildItem ./artifacts
 
 # remove possible generated XML documentation files
 Remove-Item "$($solution.targetFolder)\*.xml"
