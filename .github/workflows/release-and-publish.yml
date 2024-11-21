@@ -42,33 +42,33 @@ jobs:
     # Create the CHANGELOG for this release
     # We'll compile it from last the version
     # to the current commit
-    - name: Build Changelog
-      id: github_release
-      uses: mikepenz/release-changelog-builder-action@v1
-      with:
-        configuration: "./changelog-config.json"
-        fromTag: ${{ steps.gitversion.outputs.VersionSourceSha }}
-        toTag: ${{ steps.gitversion.outputs.Sha }}
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #- name: Build Changelog
+    #  id: github_release
+    #  uses: mikepenz/release-changelog-builder-action@v1
+    #  with:
+    #    configuration: "./changelog-config.json"
+    #    fromTag: ${{ steps.gitversion.outputs.VersionSourceSha }}
+    #    toTag: ${{ steps.gitversion.outputs.Sha }}
+    #  env:
+    #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Create GitHub release with created zip-file and CHANGELOG for Chocolatey and releases
     # NOTE: this is where we prepend "v" before the version in the tag/release
-    - name: Create release
-      uses: ncipollo/release-action@v1
-      with:
-        skipIfReleaseExists: true
-        artifacts: "./tools.zip"
-        body: ${{steps.github_release.outputs.changelog}}
-        tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
-        token: ${{ secrets.GITHUB_TOKEN }}
+    #- name: Create release
+    #  uses: ncipollo/release-action@v1
+    #  with:
+    #    skipIfReleaseExists: true
+    #    artifacts: "./tools.zip"
+    #    body: ${{steps.github_release.outputs.changelog}}
+    #    tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
+    #    token: ${{ secrets.GITHUB_TOKEN }}
 
     # package and publish Chocolatey package for this version
     # We publish the nuspec file which references the tools.zip in releases.
-    - name: Publish to Chocolatey
-      env:
-        CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
-      run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
+    #- name: Publish to Chocolatey
+    #  env:
+    #    CHOCO_TOKEN: ${{ secrets.CHOCO_TOKEN }}
+    #  run: pwsh .\pack.ps1 -publish -version ${{ steps.gitversion.outputs.MajorMinorPatch }}
 
     # Publish all NuGet packages to NuGet.org
     # Use --skip-duplicate to prevent errors if a package with the same version already exists.
@@ -76,7 +76,7 @@ jobs:
     - name: Publish separate tools to NuGet
       run: |
           Get-ChildItem
-          foreach($file in (Get-ChildItem "./artifacts" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_TOOLS }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
-          }
+    #      foreach($file in (Get-ChildItem "./artifacts" -Recurse -Include *.nupkg)) {
+    #          dotnet nuget push $file --api-key "${{ secrets.NUGET_TOOLS }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+    #      }
 
