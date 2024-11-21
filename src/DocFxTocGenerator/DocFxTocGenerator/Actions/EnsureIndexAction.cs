@@ -54,7 +54,7 @@ public class EnsureIndexAction
     /// <returns>0 on success, 1 on warning, 2 on error.</returns>
     public Task<ReturnCode> RunAsync()
     {
-        ReturnCode ret = ReturnCode.Normal;
+        ReturnCode ret;
         _logger.LogInformation($"\n*** ENSURE INDEX STAGE.");
 
         try

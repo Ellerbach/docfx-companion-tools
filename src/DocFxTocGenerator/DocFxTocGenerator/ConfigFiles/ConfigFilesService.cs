@@ -12,24 +12,18 @@ namespace DocFxTocGenerator.ConfigFiles;
 /// </summary>
 public class ConfigFilesService
 {
-    private readonly bool _camelCasing;
     private readonly IFileService _fileService;
     private readonly ILogger _logger;
-    private readonly FileInfoService _fileData;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigFilesService"/> class.
     /// </summary>
-    /// <param name="camelCasing">Use camel casing for titles.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
-    public ConfigFilesService(bool camelCasing, IFileService fileService, ILogger logger)
+    public ConfigFilesService(IFileService fileService, ILogger logger)
     {
-        _camelCasing = camelCasing;
         _fileService = fileService;
         _logger = logger;
-
-        _fileData = new(_camelCasing, _fileService, _logger);
     }
 
     /// <summary>

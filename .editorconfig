@@ -187,6 +187,20 @@ dotnet_diagnostic.CA2007.severity = none
 # CA2227: Collection properties should be read only
 dotnet_diagnostic.CA2227.severity = none
 
+# IDE ruleset
+# IDE0160: Namespace declaration preferences.
+dotnet_diagnostic.IDE0160.severity = none
+# IDE0161: Namespace declaration preferences.
+dotnet_diagnostic.IDE0161.severity = none
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = none
+# IDE0305: Use collection expression for fluent
+dotnet_diagnostic.IDE0305.severity = none
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = none
+# IDE0078: Use pattern matching
+dotnet_diagnostic.IDE0078.severity = none
+
 # C# Test file
 [**/{tests,test,Tests,Test}/**.cs]
 

@@ -32,7 +32,7 @@ public class ConfigFilesServiceTests
     public void OrderList_GetExistingFile_ShouldBeValid()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
 
         // act
         var mockfile = _fileService.GetOrderFile();
@@ -58,7 +58,7 @@ public class ConfigFilesServiceTests
     public void OrderList_GetNonExisting_ShouldBeInitialized()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
         string folder = _fileService.AddFolder("temp");
 
         // act
@@ -79,7 +79,7 @@ public class ConfigFilesServiceTests
     public void OrderList_GetExistingWithIndex_ShouldBeOrderedCorrectly()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
         string folder = _fileService.AddFolder("temp");
         _fileService.AddFile(folder, ".order",
 @"readme
@@ -105,7 +105,7 @@ number-one");
     public void IgnoreList_GetExistingFile_ShouldBeValid()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
 
         // act
         var mockfile = _fileService.GetIgnoreFile();
@@ -128,7 +128,7 @@ number-one");
     public void IgnoreList_GetNonExisting_ShouldBeInitialized()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
         string folder = _fileService.AddFolder("temp");
 
         // act
@@ -145,7 +145,7 @@ number-one");
     public void OverrideList_GetExistingFile_ShouldBeValid()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
 
         // act
         var mockfile = _fileService.GetOverrideFile();
@@ -170,7 +170,7 @@ number-one");
     public void OverrideList_GetNonExisting_ShouldBeInitialized()
     {
         // arrange
-        ConfigFilesService service = new(camelCasing: false, _fileService, _logger);
+        ConfigFilesService service = new(_fileService, _logger);
         string folder = _fileService.AddFolder("temp");
 
         // act
