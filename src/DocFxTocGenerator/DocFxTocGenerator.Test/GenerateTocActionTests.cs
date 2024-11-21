@@ -334,4 +334,54 @@ public class GenerateTocActionTests
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(expected);
     }
+
+    [Fact]
+    public async Task Run_Issue_77()
+    {
+        // arrange
+        _fileService.Files.Clear();
+        _fileService.AddFile(string.Empty, "README.md", string.Empty.AddHeading("Issue 77 override problem", 1).AddParagraphs(1));
+        _fileService.AddFile(string.Empty, ".override",
+@"override-folder;The Folder Override");
+        var folder = _fileService.AddFolder("override-folder");
+        _fileService.AddFile(folder, "README.md", string.Empty.AddHeading("Title of the README", 1).AddParagraphs(1));
+        _fileService.AddFile(folder, "content.md", string.Empty.AddHeading("Some content", 1).AddParagraphs(1));
+
+        ContentInventoryAction content = new(_fileService.Root, useOrder: false, useIgnore: false, useOverride: true, camelCasing: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
+        await index.RunAsync();
+
+        GenerateTocAction action = new(
+            _fileService.Root,
+            content.RootFolder!,
+            folderReferenceStrategy: TocFolderReferenceStrategy.IndexReadme,
+            orderStrategy: TocOrderStrategy.All,
+            maxDepth: 0,
+            _fileService,
+            _logger);
+
+        int originalCount = _fileService.Files.Count();
+
+        string expected =
+@"# This is an automatically generated file
+- name: Issue 77 override problem
+  href: README.md
+- name: The Folder Override
+  href: override-folder/README.md
+  items:
+  - name: Some content
+    href: override-folder/content.md
+".NormalizeContent();
+
+        // act
+        ReturnCode ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Normal);
+        _fileService.Files.Should().HaveCount(originalCount + 1);
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
+        toc.Should().Be(expected);
+    }
 }

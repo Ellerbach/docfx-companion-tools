@@ -62,6 +62,13 @@ public class TableOfContentsService
             Base = folder,
         };
 
+        // we took one of the defaults, but if the parent has an override for this folder
+        // the override must take preference. (fixing issue #77)
+        if (folder.IsDisplayNameOverride)
+        {
+            tocItem.Name = folder.DisplayName;
+        }
+
         // first add all sub folders
         foreach (var subfolder in folder.Folders)
         {

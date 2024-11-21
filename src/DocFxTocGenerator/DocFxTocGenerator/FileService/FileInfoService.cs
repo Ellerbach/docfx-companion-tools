@@ -4,7 +4,6 @@
 // </copyright>
 using System.Text.RegularExpressions;
 using Markdig;
-using Markdig.Helpers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.Extensions.Logging;
@@ -73,6 +72,7 @@ public class FileInfoService
         {
             // override the display name
             filedata.DisplayName = name;
+            filedata.IsDisplayNameOverride = true;
         }
         else
         {

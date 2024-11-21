@@ -28,6 +28,12 @@ public record FolderFileBase
     public string DisplayName { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets a value indicating whether the display name is coming from the .override.
+    /// This should always be the preference then.
+    /// </summary>
+    public bool IsDisplayNameOverride { get; set; }
+
+    /// <summary>
     /// Gets or sets the sequence value of this item.
     /// </summary>
     public int Sequence { get; set; } = int.MaxValue;

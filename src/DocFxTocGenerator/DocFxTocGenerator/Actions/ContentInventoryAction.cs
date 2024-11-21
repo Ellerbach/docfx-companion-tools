@@ -57,7 +57,7 @@ public class ContentInventoryAction
 
         _fileService = fileService;
         _logger = logger;
-        _configService = new(camelCasing, fileService, logger);
+        _configService = new(fileService, logger);
         _fileDataService = new(camelCasing, fileService, logger);
     }
 
@@ -127,6 +127,7 @@ public class ContentInventoryAction
             if (parent.OverrideList.TryGetValue(folder.Name, out string? name))
             {
                 folder.DisplayName = name;
+                folder.IsDisplayNameOverride = true;
             }
         }
 
@@ -161,7 +162,7 @@ public class ContentInventoryAction
 
     private void AddFiles(FolderData folder, string dirPath)
     {
-        string[] patterns = { "*.md", "*.swagger.json" };
+        string[] patterns = ["*.md", "*.swagger.json"];
         string patternsJoined = string.Join(", ", patterns);
         EnumerationOptions caseSetting = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
 

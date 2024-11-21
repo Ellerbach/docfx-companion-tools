@@ -26,7 +26,7 @@ public class TableOfContentsServiceTests
     {
         _fileService.FillDemoSet();
         _logger = _mockLogger.Logger;
-        _config = new(camelCasing: false, _fileService, _logger);
+        _config = new(_fileService, _logger);
     }
 
     [Fact]
@@ -136,7 +136,7 @@ public class TableOfContentsServiceTests
         toc.Href.Should().BeNull();
 
         toc.Items.Count.Should().Be(1);
-        toc.Items[0].Name.Should().Be("Index of LEVEL 2");
+        toc.Items[0].Name.Should().Be("The Second Level");
         toc.Items[0].Href.Should().Be("deep-tree/level1/level2/index.md");
     }
 
@@ -429,7 +429,7 @@ public class TableOfContentsServiceTests
   items:
   - name: Level1
     items:
-    - name: Level2
+    - name: The Second Level
       items:
       - name: Index of LEVEL 2
         href: deep-tree/level1/level2/index.md
@@ -548,7 +548,7 @@ public class TableOfContentsServiceTests
   items:
   - name: level1
     items:
-    - name: level2
+    - name: The Second Level
       items:
       - name: index of LEVEL 2
         href: deep-tree/level1/level2/index.md

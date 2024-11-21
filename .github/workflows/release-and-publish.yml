@@ -57,6 +57,7 @@ jobs:
     - name: Create release
       uses: ncipollo/release-action@v1
       with:
+        skipIfReleaseExists: true
         artifacts: "./tools.zip"
         body: ${{steps.github_release.outputs.changelog}}
         tag: "v${{ steps.gitversion.outputs.MajorMinorPatch }}"
