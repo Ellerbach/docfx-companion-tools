@@ -15,7 +15,6 @@ public class ConfigFilesService
     private readonly bool _camelCasing;
     private readonly IFileService _fileService;
     private readonly ILogger _logger;
-    private readonly FileInfoService _fileData;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigFilesService"/> class.
@@ -28,8 +27,6 @@ public class ConfigFilesService
         _camelCasing = camelCasing;
         _fileService = fileService;
         _logger = logger;
-
-        _fileData = new(_camelCasing, _fileService, _logger);
     }
 
     /// <summary>

@@ -162,7 +162,7 @@ public class ContentInventoryAction
 
     private void AddFiles(FolderData folder, string dirPath)
     {
-        string[] patterns = { "*.md", "*.swagger.json" };
+        string[] patterns = ["*.md", "*.swagger.json"];
         string patternsJoined = string.Join(", ", patterns);
         EnumerationOptions caseSetting = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
 

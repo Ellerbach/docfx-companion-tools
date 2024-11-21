@@ -3,7 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 using System.CodeDom.Compiler;
-using System.Xml.Linq;
 using DocFxTocGenerator.FileService;
 using Microsoft.Extensions.Logging;
 
