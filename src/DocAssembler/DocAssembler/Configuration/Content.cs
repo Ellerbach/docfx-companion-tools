@@ -20,7 +20,7 @@ public sealed record Content
     /// <summary>
     /// Gets or sets the optional destination folder.
     /// </summary>
-    [JsonPropertyName("path")]
+    [JsonPropertyName("dest")]
     public string? DestinationFolder { get; set; }
 
     /// <summary>
@@ -33,22 +33,30 @@ public sealed record Content
     /// Gets or sets the folders and files to exclude.
     /// This list supports the file glob pattern.
     /// </summary>
-    public List<string> Exclude { get; set; } = new();
+    public List<string>? Exclude { get; set; }
 
     /// <summary>
-    /// Gets or sets naming strategy of the target folder.
+    /// Gets or sets the pattern to find in references to be replaced. This is a regex expression.
+    /// Works with the the <see cref="ReplaceValue"/> to replace what was found.
+    /// Example: "\/docs\/".
     /// </summary>
-    public FolderNamingStrategy Naming { get; set; }
+    public string? ReplacePattern { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether we need to fix markdown links.
+    /// Gets or sets the value to replace what was found with <see cref="ReplacePattern"/>.
     /// </summary>
-    public bool FixMarkdownLinks { get; set; } = true;
+    public string? ReplaceValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether we need to do just a raw copy.
+    /// </summary>
+    public bool? RawCopy { get; set; }
 
     /// <summary>
     /// Gets or sets the prefix for external files like source files.
     /// This is for all references to files that are not part of the
-    /// documentation hierarchy. Use this to prefix Gitlab URL's.
+    /// selected files (mostly markdown and assets).
+    /// An example use is to prefix the URL with the url of the github repo.
     /// </summary>
-    public string ExternalFilePrefix { get; set; } = string.Empty;
+    public string? ExternalFilePrefix { get; set; }
 }

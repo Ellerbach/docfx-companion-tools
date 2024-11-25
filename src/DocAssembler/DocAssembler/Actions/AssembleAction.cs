@@ -2,6 +2,8 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics;
+using System.Text;
 using DocAssembler.FileService;
 using Microsoft.Extensions.Logging;
 
@@ -12,28 +14,22 @@ namespace DocAssembler.Actions;
 /// </summary>
 public class AssembleAction
 {
-    private readonly string _configFile;
-    private readonly string? _outFolder;
-
-    private readonly IFileService? _fileService;
+    private readonly List<FileData> _files;
+    private readonly IFileService _fileService;
     private readonly ILogger _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AssembleAction"/> class.
     /// </summary>
-    /// <param name="configFile">Configuration file.</param>
-    /// <param name="outFolder">Output folder.</param>
+    /// <param name="files">List of files to process.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
     public AssembleAction(
-        string configFile,
-        string? outFolder,
+        List<FileData> files,
         IFileService fileService,
         ILogger logger)
     {
-        _configFile = configFile;
-        _outFolder = outFolder;
-
+        _files = files;
         _fileService = fileService;
         _logger = logger;
     }
@@ -45,19 +41,55 @@ public class AssembleAction
     public Task<ReturnCode> RunAsync()
     {
         ReturnCode ret = ReturnCode.Normal;
-        _logger.LogInformation($"\n*** INVENTORY STAGE.");
+        _logger.LogInformation($"\n*** ASSEMBLE STAGE.");
 
         try
         {
-            ret = ReturnCode.Warning;
+            foreach (var file in _files)
+            {
+                // get all links that need to be changed
+                var updates = file.Links
+                    .Where(x => !x.OriginalUrl.Equals(x.DestinationRelativeUrl ?? x.DestinationFullUrl, StringComparison.Ordinal))
+                    .OrderBy(x => x.UrlSpanStart);
+                if (updates.Any())
+                {
+                    var markdown = _fileService.ReadAllText(file.SourcePath);
+                    StringBuilder sb = new StringBuilder();
+                    int pos = 0;
+                    foreach (var update in updates)
+                    {
+                        // first append text so far from markdown
+                        Console.WriteLine($"pos={pos} len={update.UrlSpanStart - pos} md={markdown.Length}");
+                        sb.Append(markdown.AsSpan(pos, update.UrlSpanStart - pos));
+
+                        // append new link
+                        sb.Append(update.DestinationRelativeUrl ?? update.DestinationFullUrl);
+
+                        // set new starting position
+                        pos = update.UrlSpanEnd + 1;
+                    }
+
+                    // add final part of markdown
+                    sb.Append(markdown.AsSpan(pos));
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(file.DestinationPath)!);
+                    _fileService.WriteAllText(file.DestinationPath, sb.ToString());
+                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}'. Replace {updates.Count()} links.");
+                }
+                else
+                {
+                    _fileService.Copy(file.SourcePath, file.DestinationPath);
+                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}'.");
+                }
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Inventory error: {ex.Message}.");
+            _logger.LogCritical($"Assembly error: {ex.Message}.");
             ret = ReturnCode.Error;
         }
 
-        _logger.LogInformation($"END OF INVENTORY STAGE. Result: {ret}");
+        _logger.LogInformation($"END OF ASSEMBLE STAGE. Result: {ret}");
         return Task.FromResult(ret);
     }
 }

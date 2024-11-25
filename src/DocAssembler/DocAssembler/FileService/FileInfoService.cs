@@ -32,12 +32,12 @@ public class FileInfoService
     }
 
     /// <summary>
-    /// Get the H1 title from a markdown file.
+    /// Get the local links in the markdown file.
     /// </summary>
     /// <param name="root">Root path of the documentation.</param>
     /// <param name="filePath">File path of the markdown file.</param>
-    /// <returns>First H1, or the filename as title if that fails.</returns>
-    public string GetExternalHyperlinks(string root, string filePath)
+    /// <returns>List of local links in the document. If none found, the list is empty.</returns>
+    public List<Hyperlink> GetLocalHyperlinks(string root, string filePath)
     {
         string markdownFilePath = _fileService.GetFullPath(filePath);
         string markdown = _fileService.ReadAllText(markdownFilePath);
@@ -58,15 +58,14 @@ public class FileInfoService
                         !x.Url.StartsWith("ftp://", StringComparison.InvariantCulture) &&
                         !x.Url.StartsWith("mailto:", StringComparison.InvariantCulture) &&
                         !x.Url.StartsWith("xref:", StringComparison.InvariantCulture))
+            .Select(d => new Hyperlink(markdownFilePath, d.Line + 1, d.Column + 1, d.Url ?? string.Empty)
+            {
+                UrlSpanStart = d.UrlSpan.Start,
+                UrlSpanEnd = d.UrlSpan.End,
+                UrlSpanLength = d.UrlSpan.Length,
+            })
             .ToList();
 
-        foreach (var link in links)
-        {
-            string url = _fileService.GetFullPath(Path.Combine(_workingFolder, link.Url!));
-            Console.WriteLine($"{markdown.Substring(link.Span.Start, link.Span.Length)} => {url}");
-        }
-
-        // in case we couldn't get an H1 from markdown, return the filepath sanitized.
-        return $"Hello markdown!";
+        return links;
     }
 }

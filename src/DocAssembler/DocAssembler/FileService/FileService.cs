@@ -16,7 +16,7 @@ public class FileService : IFileService
     /// <inheritdoc />
     public string GetFullPath(string path)
     {
-        return Path.GetFullPath(path);
+        return Path.GetFullPath(path).NormalizePath();
     }
 
     /// <inheritdoc />
@@ -26,7 +26,7 @@ public class FileService : IFileService
     }
 
     /// <inheritdoc />
-    public IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes)
+    public IEnumerable<string> GetFiles(string root, List<string> includes, List<string>? excludes)
     {
         string fullRoot = Path.GetFullPath(root);
         Matcher matcher = new();
@@ -35,14 +35,17 @@ public class FileService : IFileService
             matcher.AddInclude(folderName);
         }
 
-        foreach (string folderName in excludes)
+        if (excludes != null)
         {
-            matcher.AddExclude(folderName);
+            foreach (string folderName in excludes)
+            {
+                matcher.AddExclude(folderName);
+            }
         }
 
         // make sure we normalize the directory separator
         return matcher.GetResultsInFullPath(fullRoot)
-            .Select(x => x.Replace("\\", "/"))
+            .Select(x => x.NormalizePath())
             .ToList();
     }
 
@@ -74,5 +77,12 @@ public class FileService : IFileService
     public Stream OpenRead(string path)
     {
         return File.OpenRead(path);
+    }
+
+    /// <inheritdoc/>
+    public void Copy(string source, string destination)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        File.Copy(source, destination);
     }
 }

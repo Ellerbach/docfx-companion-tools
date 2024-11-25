@@ -2,6 +2,8 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using DocAssembler.Configuration;
+
 namespace DocAssembler.FileService;
 
 /// <summary>
@@ -10,12 +12,22 @@ namespace DocAssembler.FileService;
 public sealed record FileData
 {
     /// <summary>
-    /// Gets or sets the original path of the file.
+    /// Gets or sets the source full path of the file.
     /// </summary>
-    public string OriginalPath { get; set; } = string.Empty;
+    public string SourcePath { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the output path of the file.
+    /// Gets or sets the destination full path of the file.
     /// </summary>
-    public string OutputPath { get; set; } = string.Empty;
+    public string DestinationPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the content set the file belongs to.
+    /// </summary>
+    public Content? ContentSet { get; set; }
+
+    /// <summary>
+    /// Gets or sets all links in the document we might need to work on.
+    /// </summary>
+    public List<Hyperlink> Links { get; set; } = [];
 }

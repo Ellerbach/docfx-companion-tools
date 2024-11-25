@@ -125,7 +125,7 @@ async Task<ReturnCode> AssembleDocumentationAsync(
         InventoryAction inventory = new(folder, configFile.FullName, outputFolder?.FullName, fileService, logger);
         ret &= await inventory.RunAsync();
 
-        AssembleAction assemble = new(configFile.FullName, outputFolder?.FullName, fileService, logger);
+        AssembleAction assemble = new(inventory.Files, fileService, logger);
         ret &= await assemble.RunAsync();
 
         logger.LogInformation($"Command completed. Return value: {ret}.");

@@ -12,10 +12,10 @@ namespace DocAssembler.Configuration;
 public sealed record AssembleConfiguration
 {
     /// <summary>
-    /// Gets or sets the output folder.
+    /// Gets or sets the destination folder.
     /// </summary>
-    [JsonPropertyName("path")]
-    public string OutputFolder { get; set; } = string.Empty;
+    [JsonPropertyName("dest")]
+    public string DestinationFolder { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the content to process.

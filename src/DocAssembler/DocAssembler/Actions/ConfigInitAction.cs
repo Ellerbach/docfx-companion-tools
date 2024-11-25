@@ -59,14 +59,28 @@ public class ConfigInitAction
 
             var config = new AssembleConfiguration
             {
-                OutputFolder = "out",
+                DestinationFolder = "out",
                 Content =
                 [
                     new Content
                     {
+                        SourceFolder = ".docfx",
+                        Files = { "**" },
+                        RawCopy = true,
+                    },
+                    new Content
+                    {
                         SourceFolder = "docs",
                         Files = { "**" },
-                        Naming = FolderNamingStrategy.ParentFolder,
+                        ExternalFilePrefix = "https://github.com/example/blob/main/",
+                    },
+                    new Content
+                    {
+                        SourceFolder = "backend",
+                        DestinationFolder = "services",
+                        Files = { "**/docs/**" },
+                        ReplacePattern = "/[Dd]ocs/",
+                        ReplaceValue = "/",
                         ExternalFilePrefix = "https://github.com/example/blob/main/",
                     },
                 ],

@@ -31,7 +31,7 @@ public interface IFileService
     /// <param name="includes">Include patterns.</param>
     /// <param name="excludes">Exclude patterns.</param>
     /// <returns>List of files.</returns>
-    IEnumerable<string> GetFiles(string root, List<string> includes, List<string> excludes);
+    IEnumerable<string> GetFiles(string root, List<string> includes, List<string>? excludes);
 
     /// <summary>
     /// Get directories in the given path.
@@ -67,4 +67,11 @@ public interface IFileService
     /// <param name="path">Path of the file.</param>
     /// <returns>A <see cref="Stream"/>.</returns>
     Stream OpenRead(string path);
+
+    /// <summary>
+    /// Copy the given file to the destination.
+    /// </summary>
+    /// <param name="source">Source file path.</param>
+    /// <param name="destination">Destination file path.</param>
+    void Copy(string source, string destination);
 }
