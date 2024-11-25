@@ -344,19 +344,9 @@ namespace DocLinkChecker.Services
             {
                 // validate if heading exists in file
                 if (Headings
-                    .FirstOrDefault(x => string.Compare(hyperlink.UrlFullPath, x.FilePath, true) == 0 &&
+                    .FirstOrDefault(x => string.Compare(hyperlink.UrlFullPath.NormalizePath(), x.FilePath.NormalizePath(), true) == 0 &&
                                     x.Id == hyperlink.UrlTopic) == null)
                 {
-                    var hs = Headings
-                        .Where(x => string.Compare(hyperlink.UrlFullPath, x.FilePath, true) == 0)
-                        .OrderBy(x => x.Id)
-                        .ToList();
-                    Debug.WriteLine($"====== FOR {hyperlink.UrlFullPath} [{hyperlink.UrlTopic}] in {hyperlink.FilePath} {hyperlink.Line}:{hyperlink.Column} WE HAVE THESE OPTIONS:");
-                    foreach (var h in hs)
-                    {
-                        Debug.WriteLine($"{h.Id}");
-                    }
-
                     // url references a path outside of the document root
                     _errors.Enqueue(
                         new MarkdownError(

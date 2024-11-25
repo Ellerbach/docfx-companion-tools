@@ -18,6 +18,7 @@
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Threading.Tasks;
     using Xunit.Abstractions;
 
     public class HyperlinkTests
@@ -51,6 +52,27 @@
             _console = GetMockedConsoleLogger();
 
             _serviceProvider = GetServiceProviderWithCheckerHttpClient(_client, _config);
+        }
+
+        [Fact]
+        public async Task Issue81_ValidateLinkWithTopicOnWindows()
+        {
+            // Arrange
+            _config.DocumentationFiles.SourceFolder = _fileServiceMock.Root;
+            string source = $"{_fileServiceMock.Root}\\general\\another-sample.md";
+
+            LinkValidatorService service = new LinkValidatorService(_serviceProvider, _config, _fileService, _console);
+            service.Headings.Add(new(source, 99, 1, "Third.1 Header", "third-1-header"));
+
+            //Act
+            int line = 432;
+            int column = 771;
+
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, $"./general/another-sample.md#third-1-header");
+            await service.VerifyHyperlink(link);
+
+            // Assert
+            service.Errors.Should().BeEmpty();
         }
 
         [Fact]
