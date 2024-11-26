@@ -295,7 +295,7 @@ namespace DocLinkChecker.Services
                             hyperlink.Line,
                             hyperlink.Column,
                             MarkdownErrorSeverity.Error,
-                            $"Not found: {hyperlink.OriginalUrl}"));
+                            $"Not found (exists): {hyperlink.OriginalUrl}"));
                     return Task.CompletedTask;
                 }
             }

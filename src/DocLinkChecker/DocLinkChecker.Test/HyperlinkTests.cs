@@ -68,7 +68,7 @@
             int line = 432;
             int column = 771;
 
-            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}\\index.md", line, column, $"./general/another-sample.md#third-1-header");
+            Hyperlink link = new Hyperlink($"{_fileServiceMock.Root}/index.md", line, column, $"./general/another-sample.md#third-1-header");
             await service.VerifyHyperlink(link);
 
             // Assert
