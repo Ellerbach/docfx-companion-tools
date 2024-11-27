@@ -3,6 +3,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 using System.Text;
+using System.Text.RegularExpressions;
 using DocAssembler.FileService;
 using Microsoft.Extensions.Logging;
 
@@ -50,7 +51,7 @@ public class AssembleAction
                 var updates = file.Links
                     .Where(x => !x.OriginalUrl.Equals(x.DestinationRelativeUrl ?? x.DestinationFullUrl, StringComparison.Ordinal))
                     .OrderBy(x => x.UrlSpanStart);
-                if (updates.Any())
+                if (file.IsMarkdown && (updates.Any() || file.ContentSet?.ContentReplacements is not null))
                 {
                     var markdown = _fileService.ReadAllText(file.SourcePath);
                     StringBuilder sb = new StringBuilder();
@@ -58,7 +59,6 @@ public class AssembleAction
                     foreach (var update in updates)
                     {
                         // first append text so far from markdown
-                        Console.WriteLine($"pos={pos} len={update.UrlSpanStart - pos} md={markdown.Length}");
                         sb.Append(markdown.AsSpan(pos, update.UrlSpanStart - pos));
 
                         // append new link
@@ -70,10 +70,32 @@ public class AssembleAction
 
                     // add final part of markdown
                     sb.Append(markdown.AsSpan(pos));
+                    string output = sb.ToString();
+
+                    // if replacement patterns are defined, apply them to the content
+                    int replacements = 0;
+                    if (file.ContentSet?.ContentReplacements is not null)
+                    {
+                        try
+                        {
+                            // apply all replacements
+                            foreach (var replacement in file.ContentSet.ContentReplacements)
+                            {
+                                string r = replacement.Value ?? string.Empty;
+                                output = Regex.Replace(output, replacement.Expression, r);
+                                replacements++;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Regex error for source `{file.SourcePath}`: {ex.Message}. No replacement done.");
+                            ret = ReturnCode.Warning;
+                        }
+                    }
 
                     Directory.CreateDirectory(Path.GetDirectoryName(file.DestinationPath)!);
-                    _fileService.WriteAllText(file.DestinationPath, sb.ToString());
-                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}'. Replace {updates.Count()} links.");
+                    _fileService.WriteAllText(file.DestinationPath, output);
+                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}' with {updates.Count()} URL replacements and {replacements} content replacements.");
                 }
                 else
                 {

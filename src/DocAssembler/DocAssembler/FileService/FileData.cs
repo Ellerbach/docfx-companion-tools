@@ -30,4 +30,9 @@ public sealed record FileData
     /// Gets or sets all links in the document we might need to work on.
     /// </summary>
     public List<Hyperlink> Links { get; set; } = [];
+
+    /// <summary>
+    /// Gets a value indicating whether the file is a markdown file.
+    /// </summary>
+    public bool IsMarkdown => Path.GetExtension(SourcePath).Equals(".md", StringComparison.OrdinalIgnoreCase);
 }

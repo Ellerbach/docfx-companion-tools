@@ -80,7 +80,7 @@ public class InventoryAction
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Reading configuration error: {ex.Message}");
+            _logger.LogCritical($"Inventory error: {ex.Message}");
             ret = ReturnCode.Error;
         }
 
@@ -94,34 +94,39 @@ public class InventoryAction
 
         foreach (var file in Files)
         {
-            foreach (var link in file.Links)
+            if (file.Links.Count > 0)
             {
-                var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath, StringComparison.Ordinal));
-                if (dest != null)
+                _logger.LogInformation($"Updating links for '{file.SourcePath}'");
+
+                foreach (var link in file.Links)
                 {
-                    // destination found. register and also (new) calculate relative path
-                    link.DestinationFullUrl = dest.DestinationPath;
-                    string dir = Path.GetDirectoryName(file.DestinationPath)!;
-                    link.DestinationRelativeUrl = Path.GetRelativePath(dir, dest.DestinationPath).NormalizePath();
-                    if (!string.IsNullOrEmpty(link.UrlTopic))
+                    var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath, StringComparison.Ordinal));
+                    if (dest != null)
                     {
-                        link.DestinationFullUrl += link.UrlTopic;
-                        link.DestinationRelativeUrl += link.UrlTopic;
-                    }
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(file.ContentSet!.ExternalFilePrefix))
-                    {
-                        // ERROR: no solution to fix this reference
-                        _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
-                        ret = ReturnCode.Error;
+                        // destination found. register and also (new) calculate relative path
+                        link.DestinationFullUrl = dest.DestinationPath;
+                        string dir = Path.GetDirectoryName(file.DestinationPath)!;
+                        link.DestinationRelativeUrl = Path.GetRelativePath(dir, dest.DestinationPath).NormalizePath();
+                        if (!string.IsNullOrEmpty(link.UrlTopic))
+                        {
+                            link.DestinationFullUrl += link.UrlTopic;
+                            link.DestinationRelativeUrl += link.UrlTopic;
+                        }
                     }
                     else
                     {
-                        // we're calculating the link with the external file prefix, usualy a repo web link prefix.
-                        string subpath = link.UrlFullPath.Substring(file.ContentSet!.SourceFolder.Length).TrimStart('/');
-                        link.DestinationFullUrl = file.ContentSet!.ExternalFilePrefix.TrimEnd('/') + "/" + subpath;
+                        if (string.IsNullOrEmpty(file.ContentSet!.ExternalFilePrefix))
+                        {
+                            // ERROR: no solution to fix this reference
+                            _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
+                            ret = ReturnCode.Error;
+                        }
+                        else
+                        {
+                            // we're calculating the link with the external file prefix, usualy a repo web link prefix.
+                            string subpath = link.UrlFullPath.Substring(file.ContentSet!.SourceFolder.Length).TrimStart('/');
+                            link.DestinationFullUrl = file.ContentSet!.ExternalFilePrefix.TrimEnd('/') + "/" + subpath;
+                        }
                     }
                 }
             }
@@ -168,10 +173,13 @@ public class InventoryAction
                 destFolder = _fileService.GetFullPath(Path.Combine(destFolder, content.DestinationFolder.Trim()));
             }
 
+            _logger.LogInformation($"Processing content for '{sourceFolder}' => '{destFolder}'");
+
             // get all files and loop through them to add to the this.Files collection
             var files = _fileService.GetFiles(sourceFolder, content.Files, content.Exclude);
             foreach (var file in files)
             {
+                _logger.LogInformation($"- '{file}'");
                 FileData fileData = new FileData
                 {
                     ContentSet = content,
@@ -188,17 +196,21 @@ public class InventoryAction
                 string subpath = fileData.SourcePath.Substring(sourceFolder.Length).TrimStart('/');
                 fileData.DestinationPath = _fileService.GetFullPath(Path.Combine(destFolder, subpath));
 
-                // if a replace pattern is defined, apply this to the destination path
-                if (content.ReplacePattern != null)
+                // if replace patterns are defined, apply them to the destination path
+                if (content.UrlReplacements != null)
                 {
                     try
                     {
-                        string replacement = content.ReplaceValue ?? string.Empty;
-                        fileData.DestinationPath = Regex.Replace(fileData.DestinationPath, content.ReplacePattern, replacement);
+                        // apply all replacements
+                        foreach (var replacement in content.UrlReplacements)
+                        {
+                            string r = replacement.Value ?? string.Empty;
+                            fileData.DestinationPath = Regex.Replace(fileData.DestinationPath, replacement.Expression, r);
+                        }
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Regex error for source `{content.SourceFolder}`: {ex.Message}. No replacement done.");
+                        _logger.LogError($"Regex error for file `{file}`: {ex.Message}. No replacement done.");
                         ret = ReturnCode.Warning;
                     }
                 }

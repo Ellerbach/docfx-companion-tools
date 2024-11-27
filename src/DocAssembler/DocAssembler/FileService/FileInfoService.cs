@@ -53,7 +53,7 @@ public class FileInfoService
         var links = document
             .Descendants<LinkInline>()
             .Where(x => !x.UrlHasPointyBrackets &&
-                        x.Url != null &&
+                        !string.IsNullOrEmpty(x.Url) &&
                         !x.Url.StartsWith("https://", StringComparison.InvariantCulture) &&
                         !x.Url.StartsWith("http://", StringComparison.InvariantCulture) &&
                         !x.Url.StartsWith("ftps://", StringComparison.InvariantCulture) &&
@@ -68,6 +68,7 @@ public class FileInfoService
             })
             .ToList();
 
+        // updating the links
         foreach (var link in links)
         {
             if (link.Url != null && !link.Url.Equals(markdown.Substring(link.UrlSpanStart, link.UrlSpanLength), StringComparison.Ordinal))
@@ -78,6 +79,12 @@ public class FileInfoService
                 // we fix that here. This will probably not be fixed in the markdig
                 // library, as you shouldn't use backslash, but Unix-style slash.
                 link.Url = markdown.Substring(link.UrlSpanStart, link.UrlSpanLength);
+            }
+
+            if (link.Url?.StartsWith('~') == true)
+            {
+                // special reference to root. We need to expand that to the root folder.
+                link.Url = _workingFolder + link.Url.AsSpan(1).ToString();
             }
 
             if (link.IsLocal)

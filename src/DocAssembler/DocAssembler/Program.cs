@@ -156,17 +156,20 @@ async Task<ReturnCode> AssembleDocumentationAsync(
 
         // INVENTORY
         InventoryAction inventory = new(currentFolder, config, fileService, logger);
-        ret &= await inventory.RunAsync();
+        ret = await inventory.RunAsync();
 
-        if (cleanup && Directory.Exists(outputFolderPath))
+        if (ret != ReturnCode.Error)
         {
-            // CLEANUP OUTPUT
-            Directory.Delete(outputFolderPath, true);
-        }
+            if (cleanup && Directory.Exists(outputFolderPath))
+            {
+                // CLEANUP OUTPUT
+                Directory.Delete(outputFolderPath, true);
+            }
 
-        // ASSEMBLE
-        AssembleAction assemble = new(inventory.Files, fileService, logger);
-        ret &= await assemble.RunAsync();
+            // ASSEMBLE
+            AssembleAction assemble = new(inventory.Files, fileService, logger);
+            ret = await assemble.RunAsync();
+        }
 
         logger.LogInformation($"Command completed. Return value: {ret}.");
 

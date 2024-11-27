@@ -36,16 +36,14 @@ public sealed record Content
     public List<string>? Exclude { get; set; }
 
     /// <summary>
-    /// Gets or sets the pattern to find in references to be replaced. This is a regex expression.
-    /// Works with the the <see cref="ReplaceValue"/> to replace what was found.
-    /// Example: "\/docs\/".
+    /// Gets or sets the URL replacements.
     /// </summary>
-    public string? ReplacePattern { get; set; }
+    public List<Replacement>? UrlReplacements { get; set; }
 
     /// <summary>
-    /// Gets or sets the value to replace what was found with <see cref="ReplacePattern"/>.
+    /// Gets or sets the content replacements.
     /// </summary>
-    public string? ReplaceValue { get; set; }
+    public List<Replacement>? ContentReplacements { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether we need to do just a raw copy.
