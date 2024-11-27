@@ -2,6 +2,8 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System;
+using System.Diagnostics;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
@@ -65,6 +67,39 @@ public class FileInfoService
                 UrlSpanLength = d.UrlSpan.Length,
             })
             .ToList();
+
+        foreach (var link in links)
+        {
+            if (link.Url != null && !link.Url.Equals(markdown.Substring(link.UrlSpanStart, link.UrlSpanLength), StringComparison.Ordinal))
+            {
+                // MARKDIG FIX
+                // In some cases the Url in MarkDig LinkInline is not equal to the original
+                // e.g. a link "..\..\somefile.md" resolves in "....\somefile.md"
+                // we fix that here. This will probably not be fixed in the markdig
+                // library, as you shouldn't use backslash, but Unix-style slash.
+                link.Url = markdown.Substring(link.UrlSpanStart, link.UrlSpanLength);
+            }
+
+            if (link.IsLocal)
+            {
+                int pos = link.Url!.IndexOf('#', StringComparison.InvariantCulture);
+                if (pos == -1)
+                {
+                    // if we don't have a header delimiter, we might have a url delimiter
+                    pos = link.Url.IndexOf('?', StringComparison.InvariantCulture);
+                }
+
+                // we want to know that the link is not starting with a # for local reference.
+                // if local reference, return the filename otherwise the calculated path.
+                string destFullPath = pos != 0 ?
+                    Path.Combine(Path.GetDirectoryName(link.FilePath)!, link.UrlWithoutTopic) : link.FilePath;
+                link.UrlFullPath = _fileService.GetFullPath(destFullPath);
+            }
+            else
+            {
+                link.UrlFullPath = link.Url!;
+            }
+        }
 
         return links;
     }

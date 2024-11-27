@@ -2,6 +2,7 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using DocAssembler.Configuration;
 using DocAssembler.FileService;
@@ -16,8 +17,7 @@ namespace DocAssembler.Actions;
 public class InventoryAction
 {
     private readonly string _workingFolder;
-    private readonly string _configFile;
-    private readonly string? _outputFolder;
+    private readonly string _outputFolder;
     private readonly FileInfoService _fileInfoService;
     private readonly IFileService _fileService;
     private readonly ILogger _logger;
@@ -28,25 +28,17 @@ public class InventoryAction
     /// Initializes a new instance of the <see cref="InventoryAction"/> class.
     /// </summary>
     /// <param name="workingFolder">Working folder.</param>
-    /// <param name="configFile">Configuration file path.</param>
-    /// <param name="outputFolderOverride">Output folder override.</param>
+    /// <param name="config">Configuration.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
-    public InventoryAction(string workingFolder, string configFile, string? outputFolderOverride, IFileService fileService, ILogger logger)
+    public InventoryAction(string workingFolder, AssembleConfiguration config, IFileService fileService, ILogger logger)
     {
         _workingFolder = workingFolder;
-        _configFile = configFile;
+        _config = config;
         _fileService = fileService;
         _logger = logger;
 
         _fileInfoService = new(workingFolder, _fileService, _logger);
-
-        _config = ReadConfigurationAsync(_configFile);
-        if (!string.IsNullOrWhiteSpace(outputFolderOverride))
-        {
-            // overwrite output folder with given override value
-            _config.DestinationFolder = outputFolderOverride;
-        }
 
         // set full path of output folder
         _outputFolder = _fileService.GetFullPath(Path.Combine(_workingFolder, _config.DestinationFolder));
@@ -104,7 +96,7 @@ public class InventoryAction
         {
             foreach (var link in file.Links)
             {
-                var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath.NormalizePath(), StringComparison.Ordinal));
+                var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath, StringComparison.Ordinal));
                 if (dest != null)
                 {
                     // destination found. register and also (new) calculate relative path
@@ -216,16 +208,5 @@ public class InventoryAction
         }
 
         return ret;
-    }
-
-    private AssembleConfiguration ReadConfigurationAsync(string configFile)
-    {
-        if (!_fileService.ExistsFileOrDirectory(configFile))
-        {
-            throw new ActionException($"Configuration file '{configFile}' doesn't exist.");
-        }
-
-        string json = _fileService.ReadAllText(configFile);
-        return SerializationUtil.Deserialize<AssembleConfiguration>(json);
     }
 }

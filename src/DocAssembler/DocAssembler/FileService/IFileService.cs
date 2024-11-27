@@ -74,4 +74,10 @@ public interface IFileService
     /// <param name="source">Source file path.</param>
     /// <param name="destination">Destination file path.</param>
     void Copy(string source, string destination);
+
+    /// <summary>
+    /// Delete given folder path.
+    /// </summary>
+    /// <param name="path">Path of the folder.</param>
+    void DeleteFolder(string path);
 }

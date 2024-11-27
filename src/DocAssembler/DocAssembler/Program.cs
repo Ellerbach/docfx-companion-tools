@@ -7,6 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using DocAssembler;
 using DocAssembler.Actions;
+using DocAssembler.Configuration;
 using DocAssembler.FileService;
 using DocAssembler.Utils;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,10 @@ var outputFolderOption = new Option<DirectoryInfo>(
     name: "--outfolder",
     description: "Override the output folder for the assembled documentation in the config file.");
 
+var cleanupOption = new Option<bool>(
+    name: "--cleanup-output",
+    description: "Cleanup the output folder before generating. NOTE: This will delete all folders and files!");
+
 var verboseOption = new Option<bool>(
     name: "--verbose",
     description: "Show verbose messages of the process.");
@@ -49,6 +54,7 @@ var rootCommand = new RootCommand(
 rootCommand.AddOption(workingFolderOption);
 rootCommand.AddOption(configFileOption);
 rootCommand.AddOption(outputFolderOption);
+rootCommand.AddOption(cleanupOption);
 rootCommand.AddOption(verboseOption);
 
 var initCommand = new Command("init", "Intialize a configuration file in the current directory if it doesn't exist yet.");
@@ -63,13 +69,15 @@ rootCommand.SetHandler(async (context) =>
     LogParameters(
         context.ParseResult.GetValueForOption(configFileOption)!,
         context.ParseResult.GetValueForOption(outputFolderOption),
-        context.ParseResult.GetValueForOption(workingFolderOption));
+        context.ParseResult.GetValueForOption(workingFolderOption),
+        context.ParseResult.GetValueForOption(cleanupOption));
 
     // execute the generator
     context.ExitCode = (int)await AssembleDocumentationAsync(
         context.ParseResult.GetValueForOption(configFileOption)!,
         context.ParseResult.GetValueForOption(outputFolderOption),
-        context.ParseResult.GetValueForOption(workingFolderOption));
+        context.ParseResult.GetValueForOption(workingFolderOption),
+        context.ParseResult.GetValueForOption(cleanupOption));
 });
 
 // handle the execution of the root command
@@ -111,7 +119,8 @@ async Task<ReturnCode> GenerateConfigurationFile()
 async Task<ReturnCode> AssembleDocumentationAsync(
     FileInfo configFile,
     DirectoryInfo? outputFolder,
-    DirectoryInfo? workingFolder)
+    DirectoryInfo? workingFolder,
+    bool cleanup)
 {
     // setup services
     ILogger logger = GetLogger();
@@ -121,10 +130,41 @@ async Task<ReturnCode> AssembleDocumentationAsync(
     {
         ReturnCode ret = ReturnCode.Normal;
 
-        string folder = workingFolder?.FullName ?? Directory.GetCurrentDirectory();
-        InventoryAction inventory = new(folder, configFile.FullName, outputFolder?.FullName, fileService, logger);
+        string currentFolder = workingFolder?.FullName ?? Directory.GetCurrentDirectory();
+
+        // CONFIGURATION
+        if (!Path.Exists(configFile.FullName))
+        {
+            // error: not found
+            logger.LogCritical($"Configuration file '{configFile}' doesn't exist.");
+            return ReturnCode.Error;
+        }
+
+        string json = File.ReadAllText(configFile.FullName);
+        var config = SerializationUtil.Deserialize<AssembleConfiguration>(json);
+        string outputFolderPath = string.Empty;
+        if (outputFolder != null)
+        {
+            // overwrite output folder with given override value
+            config.DestinationFolder = outputFolder.FullName;
+            outputFolderPath = outputFolder.FullName;
+        }
+        else
+        {
+            outputFolderPath = Path.GetFullPath(Path.Combine(currentFolder, config.DestinationFolder));
+        }
+
+        // INVENTORY
+        InventoryAction inventory = new(currentFolder, config, fileService, logger);
         ret &= await inventory.RunAsync();
 
+        if (cleanup && Directory.Exists(outputFolderPath))
+        {
+            // CLEANUP OUTPUT
+            Directory.Delete(outputFolderPath, true);
+        }
+
+        // ASSEMBLE
         AssembleAction assemble = new(inventory.Files, fileService, logger);
         ret &= await assemble.RunAsync();
 
@@ -143,22 +183,23 @@ async Task<ReturnCode> AssembleDocumentationAsync(
 void LogParameters(
     FileInfo configFile,
     DirectoryInfo? outputFolder,
-    DirectoryInfo? workingFolder)
+    DirectoryInfo? workingFolder,
+    bool cleanup)
 {
     ILogger logger = GetLogger();
 
-    logger!.LogInformation($"Configuration : {configFile.FullName}");
+    logger.LogInformation($"Configuration : {configFile.FullName}");
     if (outputFolder != null)
     {
-        logger!.LogInformation($"Output  folder: {outputFolder.FullName}");
-        return;
+        logger.LogInformation($"Output  folder: {outputFolder.FullName}");
     }
 
     if (workingFolder != null)
     {
-        logger!.LogInformation($"Working folder: {workingFolder.FullName}");
-        return;
+        logger.LogInformation($"Working folder: {workingFolder.FullName}");
     }
+
+    logger.LogInformation($"Cleanup       : {cleanup}");
 }
 
 void SetLogLevel(InvocationContext context)

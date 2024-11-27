@@ -85,4 +85,13 @@ public class FileService : IFileService
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         File.Copy(source, destination);
     }
+
+    /// <inheritdoc/>
+    public void DeleteFolder(string path)
+    {
+        if (Directory.Exists(path))
+        {
+            Directory.Delete(path);
+        }
+    }
 }

@@ -59,7 +59,7 @@ public class Hyperlink
             }
             else
             {
-                Url = UrlDecode(Url);
+                Url = UrlDecode(Url).NormalizePath();
 
                 if (Path.GetExtension(url).Equals(".md", StringComparison.OrdinalIgnoreCase) || Path.GetExtension(url) == string.Empty)
                 {
@@ -111,6 +111,11 @@ public class Hyperlink
     /// Gets or sets the URL.
     /// </summary>
     public string Url { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the URL full path.
+    /// </summary>
+    public string UrlFullPath { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the original URL as found in the Markdown document. Used for reporting to user so they can find the correct location. Url will be modified.
@@ -204,35 +209,6 @@ public class Hyperlink
                     default:
                         return Url.Substring(0, pos);
                 }
-            }
-
-            return Url;
-        }
-    }
-
-    /// <summary>
-    /// Gets the full path of the URL when it's a local reference, but without the topic.
-    /// It's calculated relative to the file path.
-    /// </summary>
-    public string UrlFullPath
-    {
-        get
-        {
-            if (IsLocal)
-            {
-                int pos = Url.IndexOf('#', StringComparison.InvariantCulture);
-                if (pos == -1)
-                {
-                    // if we don't have a header delimiter, we might have a url delimiter
-                    pos = Url.IndexOf('?', StringComparison.InvariantCulture);
-                }
-
-                // we want to know that the link is not starting with a # for local reference.
-                // if local reference, return the filename otherwise the calculated path.
-                string destFullPath = pos != 0 ?
-                    Path.Combine(Path.GetDirectoryName(FilePath)!, UrlWithoutTopic) :
-                    FilePath;
-                return Path.GetFullPath(destFullPath).NormalizePath();
             }
 
             return Url;
