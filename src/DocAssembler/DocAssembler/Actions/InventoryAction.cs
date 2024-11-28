@@ -124,7 +124,7 @@ public class InventoryAction
                         else
                         {
                             // we're calculating the link with the external file prefix, usualy a repo web link prefix.
-                            string subpath = link.UrlFullPath.Substring(file.ContentSet!.SourceFolder.Length).TrimStart('/');
+                            string subpath = link.UrlFullPath.Substring(_workingFolder.Length).TrimStart('/');
                             link.DestinationFullUrl = file.ContentSet!.ExternalFilePrefix.TrimEnd('/') + "/" + subpath;
                         }
                     }
