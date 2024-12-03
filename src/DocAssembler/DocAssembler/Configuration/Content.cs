@@ -36,6 +36,11 @@ public sealed record Content
     public List<string>? Exclude { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether we need to do just a raw copy.
+    /// </summary>
+    public bool? RawCopy { get; set; }
+
+    /// <summary>
     /// Gets or sets the URL replacements.
     /// </summary>
     public List<Replacement>? UrlReplacements { get; set; }
@@ -44,11 +49,6 @@ public sealed record Content
     /// Gets or sets the content replacements.
     /// </summary>
     public List<Replacement>? ContentReplacements { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether we need to do just a raw copy.
-    /// </summary>
-    public bool? RawCopy { get; set; }
 
     /// <summary>
     /// Gets or sets the prefix for external files like source files.

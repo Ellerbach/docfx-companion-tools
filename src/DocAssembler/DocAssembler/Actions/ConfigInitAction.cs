@@ -61,6 +61,7 @@ public class ConfigInitAction
             var config = new AssembleConfiguration
             {
                 DestinationFolder = "out",
+                ExternalFilePrefix = "https://github.com/example/blob/main/",
                 Content =
                 [
                     new Content
@@ -73,7 +74,6 @@ public class ConfigInitAction
                     {
                         SourceFolder = "docs",
                         Files = { "**" },
-                        ExternalFilePrefix = "https://github.com/example/blob/main/",
                     },
                     new Content
                     {
@@ -87,7 +87,6 @@ public class ConfigInitAction
                                     Value = "/",
                                 }
                             ],
-                        ExternalFilePrefix = "https://github.com/example/blob/main/",
                     },
                 ],
             };
