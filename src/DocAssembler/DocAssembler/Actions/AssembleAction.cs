@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using DocAssembler.Configuration;
 using DocAssembler.FileService;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,7 @@ namespace DocAssembler.Actions;
 /// </summary>
 public class AssembleAction
 {
+    private readonly AssembleConfiguration _config;
     private readonly List<FileData> _files;
     private readonly IFileService _fileService;
     private readonly ILogger _logger;
@@ -22,14 +24,17 @@ public class AssembleAction
     /// <summary>
     /// Initializes a new instance of the <see cref="AssembleAction"/> class.
     /// </summary>
+    /// <param name="config">Configuration.</param>
     /// <param name="files">List of files to process.</param>
     /// <param name="fileService">File service.</param>
     /// <param name="logger">Logger.</param>
     public AssembleAction(
+        AssembleConfiguration config,
         List<FileData> files,
         IFileService fileService,
         ILogger logger)
     {
+        _config = config;
         _files = files;
         _fileService = fileService;
         _logger = logger;
@@ -74,17 +79,19 @@ public class AssembleAction
                     string output = sb.ToString();
 
                     // if replacement patterns are defined, apply them to the content
-                    int replacements = 0;
-                    if (file.ContentSet?.ContentReplacements is not null)
+                    // If content replacements are defined, we use that one, otherwise the global replacements.
+                    int replacementCount = 0;
+                    var replacements = file.ContentSet?.ContentReplacements ?? _config.ContentReplacements;
+                    if (replacements is not null)
                     {
                         try
                         {
                             // apply all replacements
-                            foreach (var replacement in file.ContentSet.ContentReplacements)
+                            foreach (var replacement in replacements)
                             {
                                 string r = replacement.Value ?? string.Empty;
                                 output = Regex.Replace(output, replacement.Expression, r);
-                                replacements++;
+                                replacementCount++;
                             }
                         }
                         catch (Exception ex)
@@ -96,7 +103,7 @@ public class AssembleAction
 
                     Directory.CreateDirectory(Path.GetDirectoryName(file.DestinationPath)!);
                     _fileService.WriteAllText(file.DestinationPath, output);
-                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}' with {updates.Count()} URL replacements and {replacements} content replacements.");
+                    _logger.LogInformation($"Copied '{file.SourcePath}' to '{file.DestinationPath}' with {updates.Count()} URL replacements and {replacementCount} content replacements.");
                 }
                 else
                 {

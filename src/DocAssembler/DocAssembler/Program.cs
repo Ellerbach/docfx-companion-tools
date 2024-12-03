@@ -167,7 +167,7 @@ async Task<ReturnCode> AssembleDocumentationAsync(
             }
 
             // ASSEMBLE
-            AssembleAction assemble = new(inventory.Files, fileService, logger);
+            AssembleAction assemble = new(config, inventory.Files, fileService, logger);
             ret = await assemble.RunAsync();
         }
 

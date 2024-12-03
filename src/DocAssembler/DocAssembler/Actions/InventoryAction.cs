@@ -115,7 +115,8 @@ public class InventoryAction
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(file.ContentSet!.ExternalFilePrefix))
+                        var prefix = file.ContentSet!.ExternalFilePrefix ?? _config.ExternalFilePrefix;
+                        if (string.IsNullOrEmpty(prefix))
                         {
                             // ERROR: no solution to fix this reference
                             _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
@@ -125,7 +126,7 @@ public class InventoryAction
                         {
                             // we're calculating the link with the external file prefix, usualy a repo web link prefix.
                             string subpath = link.UrlFullPath.Substring(_workingFolder.Length).TrimStart('/');
-                            link.DestinationFullUrl = file.ContentSet!.ExternalFilePrefix.TrimEnd('/') + "/" + subpath;
+                            link.DestinationFullUrl = prefix.TrimEnd('/') + "/" + subpath;
                         }
                     }
                 }
@@ -197,12 +198,14 @@ public class InventoryAction
                 fileData.DestinationPath = _fileService.GetFullPath(Path.Combine(destFolder, subpath));
 
                 // if replace patterns are defined, apply them to the destination path
-                if (content.UrlReplacements != null)
+                // content replacements will be used if defined, otherwise the global replacements are used.
+                var replacements = content.UrlReplacements ?? _config.UrlReplacements;
+                if (replacements != null)
                 {
                     try
                     {
                         // apply all replacements
-                        foreach (var replacement in content.UrlReplacements)
+                        foreach (var replacement in replacements)
                         {
                             string r = replacement.Value ?? string.Empty;
                             fileData.DestinationPath = Regex.Replace(fileData.DestinationPath, replacement.Expression, r);
