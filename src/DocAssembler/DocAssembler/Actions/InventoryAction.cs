@@ -61,11 +61,14 @@ public class InventoryAction
         try
         {
             ret = GetAllFiles();
-            ret &= ValidateFiles();
+            if (ret != ReturnCode.Error)
+            {
+                ret = ValidateFiles();
+            }
 
             if (ret != ReturnCode.Error)
             {
-                ret &= UpdateLinks();
+                ret = UpdateLinks();
 
                 // log result of inventory (verbose)
                 foreach (var file in Files)

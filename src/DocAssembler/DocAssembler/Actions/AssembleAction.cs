@@ -2,6 +2,7 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using DocAssembler.Configuration;
@@ -56,7 +57,7 @@ public class AssembleAction
                 var updates = file.Links
                     .Where(x => !x.OriginalUrl.Equals(x.DestinationRelativeUrl ?? x.DestinationFullUrl, StringComparison.Ordinal))
                     .OrderBy(x => x.UrlSpanStart);
-                if (file.IsMarkdown && (updates.Any() || file.ContentSet?.ContentReplacements is not null))
+                if (file.IsMarkdown && (updates.Any() || _config.ContentReplacements is not null || file.ContentSet?.ContentReplacements is not null))
                 {
                     var markdown = _fileService.ReadAllText(file.SourcePath);
                     StringBuilder sb = new StringBuilder();

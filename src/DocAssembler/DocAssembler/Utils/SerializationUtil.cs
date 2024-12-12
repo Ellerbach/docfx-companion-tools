@@ -6,7 +6,7 @@ namespace DocAssembler.Utils;
 /// <summary>
 /// Serialization utilities.
 /// </summary>
-internal static class SerializationUtil
+public static class SerializationUtil
 {
     /// <summary>
     /// Gets the JSON serializer options.

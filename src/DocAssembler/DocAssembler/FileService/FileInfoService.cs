@@ -78,6 +78,7 @@ public class FileInfoService
                 // e.g. a link "..\..\somefile.md" resolves in "....\somefile.md"
                 // we fix that here. This will probably not be fixed in the markdig
                 // library, as you shouldn't use backslash, but Unix-style slash.
+                link.OriginalUrl = markdown.Substring(link.UrlSpanStart, link.UrlSpanLength);
                 link.Url = markdown.Substring(link.UrlSpanStart, link.UrlSpanLength);
             }
 
@@ -98,9 +99,10 @@ public class FileInfoService
 
                 // we want to know that the link is not starting with a # for local reference.
                 // if local reference, return the filename otherwise the calculated path.
-                string destFullPath = pos != 0 ?
-                    Path.Combine(Path.GetDirectoryName(link.FilePath)!, link.UrlWithoutTopic) : link.FilePath;
-                link.UrlFullPath = _fileService.GetFullPath(destFullPath);
+                if (pos != 0)
+                {
+                    link.UrlFullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(link.FilePath)!.NormalizePath(), link.UrlWithoutTopic)).NormalizePath();
+                }
             }
             else
             {
