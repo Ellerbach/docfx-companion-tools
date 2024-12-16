@@ -4,6 +4,7 @@ This repository contains a series of tools, templates, tips and tricks to make y
 
 ## Tools
 
+* [DocAssembler 🆕](./src/DocAssembler): assemble documentation and assets from various locations on disk and assemble them in one place. It is possible to restructure, where the links are changed to the right location.
 * [DocFxTocGenerator](./src/DocFxTocGenerator): generate a Table of Contents (TOC) in YAML format for DocFX. It has features like the ability to configure the order of files and the names of documents and folders.
 * [DocLinkChecker](./src/DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically. And it can validate table syntax.
 * [DocLanguageTranslator](./src/DocLanguageTranslator): allows to generate and translate automatically missing files or identify missing files in multi language pattern directories.
@@ -66,6 +67,7 @@ choco install docfx-companion-tools
 You can as well install the tools through `dotnet tool`.
 
 ```shell
+dotnet tool install DocAssembler -g
 dotnet tool install DocFxTocGenerator -g
 dotnet tool install DocLanguageTranslator -g
 dotnet tool install DocLinkChecker -g
