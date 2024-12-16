@@ -127,7 +127,7 @@ As we don't want to find a link like `[AB#1234](https://...)`, we look for all A
 
 > [!NOTE]
 >
-> As the expression is configured in a string in a JSON file, special characters like back-slashes need to be escaped by an (extra) back-slash.
+> As the expression is configured in a string in a JSON file, special characters like back-slashes need to be escaped by an (extra) back-slash like you see in the example above, where `\s` is escaped with an extra `\`.
 
 The second part is to get the numbers after the AB# text. This is configured here to be between 3 and 6 characters. We also want to reuse this ID in the value, so we capture it as a named subexpression called `id`.
 
@@ -137,7 +137,7 @@ In the value we can reuse these named subexpression like this:
 ${pre}[AB#${id}](https://dev.azure.com/[your organization]/_workitems/edit/${id})
 ```
 
-We start with the `pre` value, after which we build a markdown link with AB# combined with the `id` as the text and the `id` as parameter for the URL. We reference an Azure Board work item here. Of course you need to replace the `[your organization]` with the proper value for your ADO environment here.
+We start with the `pre` value, after which we build a markdown link with AB# combined with the `id` as the text and the `id` as parameter for the URL. We reference an Azure Board work item here. Of course you need to replace the `[your organization]` with the proper value for your ADO environment here. With the examples above the text *AB#1234* would be translated to *[AB#1234(https://dev.azure.com/[your organization]/_workitems/edit/1234)*.
 
 ### `Content`
 
@@ -153,5 +153,3 @@ The content is defined with these properties:
 | `urlReplacements`     | A collection of [`Replacement`](#replacement) objects to use for URL paths in this content set, overruling any global setting. These replacements are applied to calculated destination paths for files in the content sets. This can be used to modify the path. The generated template removes /docs/ from paths and replaces it by a /. More information can be found under [`Replacement`](#replacement). |
 | `contentReplacements` | A collection of [`Replacement`](#replacement) objects to use for content of files in this content set, overruling any global setting. These replacements are applied to all content of markdown files in the content sets. This can be used to modify for instance URLs or other content items. More information can be found under [`Replacement`](#replacement). |
 | `externalFilePrefix`  | The prefix to use for all referenced files in this content sets that are not part of the complete documentation set, like source files. It overrides any global prefix. This prefix is used in combination with the sub-path from the working folder. |
-
-

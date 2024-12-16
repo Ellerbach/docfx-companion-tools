@@ -24,16 +24,7 @@ internal static class LogUtil
     /// <exception cref="ArgumentOutOfRangeException">When an unknown log level is given.</exception>
     public static ILoggerFactory GetLoggerFactory(LogLevel logLevel1)
     {
-        var serilogLevel = logLevel1 switch
-        {
-            LogLevel.Critical => LogEventLevel.Fatal,
-            LogLevel.Error => LogEventLevel.Error,
-            LogLevel.Warning => LogEventLevel.Warning,
-            LogLevel.Information => LogEventLevel.Information,
-            LogLevel.Debug => LogEventLevel.Debug,
-            LogLevel.Trace => LogEventLevel.Verbose,
-            _ => throw new ArgumentOutOfRangeException(nameof(logLevel1)),
-        };
+        var serilogLevel = (LogEventLevel)logLevel1;
 
         var serilog = new LoggerConfiguration()
             .MinimumLevel.Is(serilogLevel)

@@ -14,7 +14,7 @@ namespace DocAssembler.Actions;
 /// </summary>
 public class ConfigInitAction
 {
-    private const string CONFIGFILENAME = ".docassembler.json";
+    private const string ConfigFileName = ".docassembler.json";
 
     private readonly string _outFolder;
 
@@ -48,7 +48,7 @@ public class ConfigInitAction
 
         try
         {
-            string path = Path.Combine(_outFolder, CONFIGFILENAME);
+            string path = Path.Combine(_outFolder, ConfigFileName);
             if (_fileService!.ExistsFileOrDirectory(path))
             {
                 _logger.LogError($"*** ERROR: '{path}' already exists. We don't overwrite.");

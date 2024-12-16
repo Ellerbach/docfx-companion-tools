@@ -11,9 +11,9 @@ namespace DocAssembler.FileService;
 /// </summary>
 public class Hyperlink
 {
-    private static readonly char[] UriFragmentOrQueryString = new char[] { '#', '?' };
-    private static readonly char[] AdditionalInvalidChars = @"\/?:*".ToArray();
-    private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars().Concat(AdditionalInvalidChars).ToArray();
+    private static readonly char[] _uriFragmentOrQueryString = new char[] { '#', '?' };
+    private static readonly char[] _additionalInvalidChars = @"\/?:*".ToArray();
+    private static readonly char[] _invalidPathChars = Path.GetInvalidPathChars().Concat(_additionalInvalidChars).ToArray();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Hyperlink"/> class.
@@ -230,7 +230,7 @@ public class Hyperlink
         }
 
         var anchor = string.Empty;
-        var index = url.IndexOfAny(UriFragmentOrQueryString);
+        var index = url.IndexOfAny(_uriFragmentOrQueryString);
         if (index != -1)
         {
             anchor = url.Substring(index);
@@ -249,7 +249,7 @@ public class Hyperlink
             var origin = parts[i];
             var value = Uri.UnescapeDataString(origin);
 
-            var splittedOnInvalidChars = value.Split(InvalidPathChars);
+            var splittedOnInvalidChars = value.Split(_invalidPathChars);
             var originIndex = 0;
             var valueIndex = 0;
             for (int j = 0; j < splittedOnInvalidChars.Length; j++)
