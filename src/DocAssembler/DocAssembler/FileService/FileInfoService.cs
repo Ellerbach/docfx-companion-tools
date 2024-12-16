@@ -54,12 +54,7 @@ public class FileInfoService
             .Descendants<LinkInline>()
             .Where(x => !x.UrlHasPointyBrackets &&
                         !string.IsNullOrEmpty(x.Url) &&
-                        !x.Url.StartsWith("https://", StringComparison.InvariantCulture) &&
-                        !x.Url.StartsWith("http://", StringComparison.InvariantCulture) &&
-                        !x.Url.StartsWith("ftps://", StringComparison.InvariantCulture) &&
-                        !x.Url.StartsWith("ftp://", StringComparison.InvariantCulture) &&
-                        !x.Url.StartsWith("mailto:", StringComparison.InvariantCulture) &&
-                        !x.Url.StartsWith("xref:", StringComparison.InvariantCulture))
+                        !Hyperlink.Protocols.Any(p => x.Url.StartsWith(p.Key, StringComparison.OrdinalIgnoreCase)))
             .Select(d => new Hyperlink(markdownFilePath, d.Line + 1, d.Column + 1, d.Url ?? string.Empty)
             {
                 UrlSpanStart = d.UrlSpan.Start,

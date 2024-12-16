@@ -2,7 +2,9 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System;
 using System.Text;
+using DocAssembler.FileService;
 
 namespace DocAssembler.FileService;
 
@@ -11,6 +13,19 @@ namespace DocAssembler.FileService;
 /// </summary>
 public class Hyperlink
 {
+    /// <summary>
+    /// Gets the protocol mappings to <see cref="HyperlinkType"/>s.
+    /// </summary>
+    public static readonly Dictionary<string, HyperlinkType> Protocols = new Dictionary<string, HyperlinkType>()
+    {
+        { "https://", HyperlinkType.Webpage },
+        { "http://", HyperlinkType.Webpage },
+        { "ftps://", HyperlinkType.Ftp },
+        { "ftp://", HyperlinkType.Ftp },
+        { "mailto://", HyperlinkType.Mail },
+        { "xref://", HyperlinkType.CrossReference },
+    };
+
     private static readonly char[] _uriFragmentOrQueryString = new char[] { '#', '?' };
     private static readonly char[] _additionalInvalidChars = @"\/?:*".ToArray();
     private static readonly char[] _invalidPathChars = Path.GetInvalidPathChars().Concat(_additionalInvalidChars).ToArray();
@@ -41,23 +56,16 @@ public class Hyperlink
         LinkType = HyperlinkType.Empty;
         if (!string.IsNullOrWhiteSpace(url))
         {
-            if (url.StartsWith("https://", StringComparison.InvariantCulture) || url.StartsWith("http://", StringComparison.InvariantCulture))
+            foreach (var protocol in Protocols)
             {
-                LinkType = HyperlinkType.Webpage;
+                if (url.StartsWith(protocol.Key, StringComparison.OrdinalIgnoreCase))
+                {
+                    LinkType = protocol.Value;
+                    break;
+                }
             }
-            else if (url.StartsWith("ftps://", StringComparison.InvariantCulture) || url.StartsWith("ftp://", StringComparison.InvariantCulture))
-            {
-                LinkType = HyperlinkType.Ftp;
-            }
-            else if (url.StartsWith("mailto:", StringComparison.InvariantCulture))
-            {
-                LinkType = HyperlinkType.Mail;
-            }
-            else if (url.StartsWith("xref:", StringComparison.InvariantCulture))
-            {
-                LinkType = HyperlinkType.CrossReference;
-            }
-            else
+
+            if (LinkType == HyperlinkType.Empty)
             {
                 Url = UrlDecode(Url).NormalizePath();
 
