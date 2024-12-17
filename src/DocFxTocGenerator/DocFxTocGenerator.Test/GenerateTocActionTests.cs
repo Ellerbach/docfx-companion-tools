@@ -384,4 +384,312 @@ public class GenerateTocActionTests
         string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
         toc.Should().Be(expected);
     }
+
+    [Fact]
+    public async Task Run_Issue_86_OrderingAll()
+    {
+        // arrange
+        Issue_86_Setup();
+
+        ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
+        await index.RunAsync();
+
+        GenerateTocAction action = new(
+            _fileService.Root,
+            content.RootFolder!,
+            folderReferenceStrategy: TocFolderReferenceStrategy.None,
+            orderStrategy: TocOrderStrategy.All,     // this is distinctive for this test
+            maxDepth: 0,
+            _fileService,
+            _logger);
+
+        int originalCount = _fileService.Files.Count();
+
+        string expected =
+@"# This is an automatically generated file
+- name: Docs
+- name: FilesOnly
+  items:
+  - name: C Document
+    href: FilesOnly/C.md
+  - name: B Document
+    href: FilesOnly/B.md
+  - name: A document
+    href: FilesOnly/A.md
+- name: FoldersAndFiles
+  items:
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersAndFiles/BB/README.md
+  - name: B Document
+    href: FoldersAndFiles/B.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersAndFiles/AA/README.md
+  - name: A document
+    href: FoldersAndFiles/A.md
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersAndFiles/CC/README.md
+  - name: C Document
+    href: FoldersAndFiles/C.md
+- name: FoldersOnly
+  items:
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersOnly/CC/README.md
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersOnly/BB/README.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersOnly/AA/README.md
+".NormalizeContent();
+
+        // act
+        ReturnCode ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Normal);
+        _fileService.Files.Should().HaveCount(originalCount + 1);
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
+        toc.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task Run_Issue_86_OrderingFilesFirst()
+    {
+        // arrange
+        Issue_86_Setup();
+
+        ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
+        await index.RunAsync();
+
+        GenerateTocAction action = new(
+            _fileService.Root,
+            content.RootFolder!,
+            folderReferenceStrategy: TocFolderReferenceStrategy.None,
+            orderStrategy: TocOrderStrategy.FilesFirst,     // this is distinctive for this test
+            maxDepth: 0,
+            _fileService,
+            _logger);
+
+        int originalCount = _fileService.Files.Count();
+
+        string expected =
+@"# This is an automatically generated file
+- name: Docs
+- name: FilesOnly
+  items:
+  - name: C Document
+    href: FilesOnly/C.md
+  - name: B Document
+    href: FilesOnly/B.md
+  - name: A document
+    href: FilesOnly/A.md
+- name: FoldersAndFiles
+  items:
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersAndFiles/BB/README.md
+  - name: B Document
+    href: FoldersAndFiles/B.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersAndFiles/AA/README.md
+  - name: A document
+    href: FoldersAndFiles/A.md
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersAndFiles/CC/README.md
+  - name: C Document
+    href: FoldersAndFiles/C.md
+- name: FoldersOnly
+  items:
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersOnly/CC/README.md
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersOnly/BB/README.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersOnly/AA/README.md
+".NormalizeContent();
+
+        // act
+        ReturnCode ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Normal);
+        _fileService.Files.Should().HaveCount(originalCount + 1);
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
+        toc.Should().Be(expected);
+    }
+
+    [Fact]
+    public async Task Run_Issue_86_OrderingFoldersFirst()
+    {
+        // arrange
+        Issue_86_Setup();
+
+        ContentInventoryAction content = new(_fileService.Root, useOrder: true, useIgnore: false, useOverride: false, camelCasing: false, _fileService, _logger);
+        await content.RunAsync();
+
+        EnsureIndexAction index = new(content.RootFolder!, Index.IndexGenerationStrategy.Never, camelCasing: false, _fileService, _logger);
+        await index.RunAsync();
+
+        GenerateTocAction action = new(
+            _fileService.Root,
+            content.RootFolder!,
+            folderReferenceStrategy: TocFolderReferenceStrategy.None,
+            orderStrategy: TocOrderStrategy.FoldersFirst,     // this is distinctive for this test
+            maxDepth: 0,
+            _fileService,
+            _logger);
+
+        int originalCount = _fileService.Files.Count();
+
+        string expected =
+@"# This is an automatically generated file
+- name: Docs
+- name: FilesOnly
+  items:
+  - name: C Document
+    href: FilesOnly/C.md
+  - name: B Document
+    href: FilesOnly/B.md
+  - name: A document
+    href: FilesOnly/A.md
+- name: FoldersAndFiles
+  items:
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersAndFiles/BB/README.md
+  - name: B Document
+    href: FoldersAndFiles/B.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersAndFiles/AA/README.md
+  - name: A document
+    href: FoldersAndFiles/A.md
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersAndFiles/CC/README.md
+  - name: C Document
+    href: FoldersAndFiles/C.md
+- name: FoldersOnly
+  items:
+  - name: CC
+    items:
+    - name: CC Document
+      href: FoldersOnly/CC/README.md
+  - name: BB
+    items:
+    - name: BB Document
+      href: FoldersOnly/BB/README.md
+  - name: AA
+    items:
+    - name: AA Document
+      href: FoldersOnly/AA/README.md
+".NormalizeContent();
+
+        // act
+        ReturnCode ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Normal);
+        _fileService.Files.Should().HaveCount(originalCount + 1);
+        string toc = _fileService.ReadAllText(_fileService.GetFullPath("toc.yml"));
+        toc.Should().Be(expected);
+    }
+
+    private void Issue_86_Setup()
+    {
+        _fileService.Files.Clear();
+
+        var folder = _fileService.AddFolder("FilesOnly");
+        _fileService.AddFile(folder, ".order",
+@"C
+B
+A");
+        _fileService.AddFile(folder, "A", string.Empty
+            .AddHeading("A Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "B", string.Empty
+            .AddHeading("B Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "C", string.Empty
+            .AddHeading("C Document", 1)
+            .AddParagraphs(1));
+
+        folder = _fileService.AddFolder("FoldersOnly");
+        _fileService.AddFile(folder, ".order",
+@"CC
+BB
+AA");
+        folder = _fileService.AddFolder("FoldersOnly/AA");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("AA Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersOnly/BB");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("BB Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersOnly/CC");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("CC Document", 1)
+            .AddParagraphs(1));
+
+        folder = _fileService.AddFolder("FoldersAndFiles");
+        _fileService.AddFile(folder, ".order",
+@"BB
+B
+AA
+A
+C
+CC");
+        _fileService.AddFile(folder, "A", string.Empty
+            .AddHeading("A Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "B", string.Empty
+            .AddHeading("B Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "C", string.Empty
+            .AddHeading("C Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersOnly/AA");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("AA Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersOnly/BB");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("BB Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersOnly/CC");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddHeading("CC Document", 1)
+            .AddParagraphs(1));
+    }
 }

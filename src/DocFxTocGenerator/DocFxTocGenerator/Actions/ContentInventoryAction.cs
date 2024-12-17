@@ -2,6 +2,8 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics;
+using System.Linq;
 using DocFxTocGenerator.ConfigFiles;
 using DocFxTocGenerator.FileService;
 using Microsoft.Extensions.Logging;
@@ -128,6 +130,14 @@ public class ContentInventoryAction
             {
                 folder.DisplayName = name;
                 folder.IsDisplayNameOverride = true;
+            }
+
+            // see if we have a sequence for the folder name
+            if (parent.OrderList.FindIndex(x => x.Equals(folder.Name, StringComparison.Ordinal)) != -1)
+            {
+                // set the order
+                folder.Sequence = parent.OrderList.FindIndex(x => x.Equals(folder.Name, StringComparison.Ordinal));
+                Debug.WriteLine($"Folder '{parent.Path}' Subfolder '{folder.Name}' Sequence '{folder.Sequence}'");
             }
         }
 
