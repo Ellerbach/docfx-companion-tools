@@ -2,6 +2,7 @@
 // Copyright (c) DocFx Companion Tools. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Markdig;
 using Markdig.Syntax;
@@ -65,6 +66,7 @@ public class FileInfoService
         {
             // set the order
             filedata.Sequence = folder.OrderList.FindIndex(x => x.Equals(fname, comparison));
+            Debug.WriteLine($"Folder '{folder.Path}' File '{filedata.Name}' Sequence '{filedata.Sequence}'");
         }
 
         var title = GetFileDisplayName(file, _camelCasing);
