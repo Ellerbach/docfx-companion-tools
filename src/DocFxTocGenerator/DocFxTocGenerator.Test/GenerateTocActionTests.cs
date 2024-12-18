@@ -417,8 +417,12 @@ public class GenerateTocActionTests
     href: FilesOnly/C.md
   - name: B Document
     href: FilesOnly/B.md
-  - name: A document
+  - name: A Document
     href: FilesOnly/A.md
+  - name: A1 Document
+    href: FilesOnly/A1.md
+  - name: A2 Document
+    href: FilesOnly/A2.md
 - name: FoldersAndFiles
   items:
   - name: BB
@@ -431,14 +435,18 @@ public class GenerateTocActionTests
     items:
     - name: AA Document
       href: FoldersAndFiles/AA/README.md
-  - name: A document
+  - name: A Document
     href: FoldersAndFiles/A.md
+  - name: C Document
+    href: FoldersAndFiles/C.md
   - name: CC
     items:
     - name: CC Document
       href: FoldersAndFiles/CC/README.md
-  - name: C Document
-    href: FoldersAndFiles/C.md
+  - name: A1 Document
+    href: FoldersAndFiles/A1.md
+  - name: A2 Document
+    href: FoldersAndFiles/A2.md
 - name: FoldersOnly
   items:
   - name: CC
@@ -497,28 +505,36 @@ public class GenerateTocActionTests
     href: FilesOnly/C.md
   - name: B Document
     href: FilesOnly/B.md
-  - name: A document
+  - name: A Document
     href: FilesOnly/A.md
+  - name: A1 Document
+    href: FilesOnly/A1.md
+  - name: A2 Document
+    href: FilesOnly/A2.md
 - name: FoldersAndFiles
   items:
+  - name: B Document
+    href: FoldersAndFiles/B.md
+  - name: A Document
+    href: FoldersAndFiles/A.md
+  - name: C Document
+    href: FoldersAndFiles/C.md
+  - name: A1 Document
+    href: FoldersAndFiles/A1.md
+  - name: A2 Document
+    href: FoldersAndFiles/A2.md
   - name: BB
     items:
     - name: BB Document
       href: FoldersAndFiles/BB/README.md
-  - name: B Document
-    href: FoldersAndFiles/B.md
   - name: AA
     items:
     - name: AA Document
       href: FoldersAndFiles/AA/README.md
-  - name: A document
-    href: FoldersAndFiles/A.md
   - name: CC
     items:
     - name: CC Document
       href: FoldersAndFiles/CC/README.md
-  - name: C Document
-    href: FoldersAndFiles/C.md
 - name: FoldersOnly
   items:
   - name: CC
@@ -577,28 +593,36 @@ public class GenerateTocActionTests
     href: FilesOnly/C.md
   - name: B Document
     href: FilesOnly/B.md
-  - name: A document
+  - name: A Document
     href: FilesOnly/A.md
+  - name: A1 Document
+    href: FilesOnly/A1.md
+  - name: A2 Document
+    href: FilesOnly/A2.md
 - name: FoldersAndFiles
   items:
   - name: BB
     items:
     - name: BB Document
       href: FoldersAndFiles/BB/README.md
-  - name: B Document
-    href: FoldersAndFiles/B.md
   - name: AA
     items:
     - name: AA Document
       href: FoldersAndFiles/AA/README.md
-  - name: A document
-    href: FoldersAndFiles/A.md
   - name: CC
     items:
     - name: CC Document
       href: FoldersAndFiles/CC/README.md
+  - name: B Document
+    href: FoldersAndFiles/B.md
+  - name: A Document
+    href: FoldersAndFiles/A.md
   - name: C Document
     href: FoldersAndFiles/C.md
+  - name: A1 Document
+    href: FoldersAndFiles/A1.md
+  - name: A2 Document
+    href: FoldersAndFiles/A2.md
 - name: FoldersOnly
   items:
   - name: CC
@@ -634,14 +658,20 @@ public class GenerateTocActionTests
 @"C
 B
 A");
-        _fileService.AddFile(folder, "A", string.Empty
+        _fileService.AddFile(folder, "A.md", string.Empty
             .AddHeading("A Document", 1)
             .AddParagraphs(1));
-        _fileService.AddFile(folder, "B", string.Empty
+        _fileService.AddFile(folder, "B.md", string.Empty
             .AddHeading("B Document", 1)
             .AddParagraphs(1));
-        _fileService.AddFile(folder, "C", string.Empty
+        _fileService.AddFile(folder, "C.md", string.Empty
             .AddHeading("C Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "A1.md", string.Empty
+            .AddHeading("A1 Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "A2.md", string.Empty
+            .AddHeading("A2 Document", 1)
             .AddParagraphs(1));
 
         folder = _fileService.AddFolder("FoldersOnly");
@@ -670,24 +700,30 @@ AA
 A
 C
 CC");
-        _fileService.AddFile(folder, "A", string.Empty
+        _fileService.AddFile(folder, "A.md", string.Empty
             .AddHeading("A Document", 1)
             .AddParagraphs(1));
-        _fileService.AddFile(folder, "B", string.Empty
+        _fileService.AddFile(folder, "B.md", string.Empty
             .AddHeading("B Document", 1)
             .AddParagraphs(1));
-        _fileService.AddFile(folder, "C", string.Empty
+        _fileService.AddFile(folder, "C.md", string.Empty
             .AddHeading("C Document", 1)
             .AddParagraphs(1));
-        folder = _fileService.AddFolder("FoldersOnly/AA");
+        _fileService.AddFile(folder, "A1.md", string.Empty
+            .AddHeading("A1 Document", 1)
+            .AddParagraphs(1));
+        _fileService.AddFile(folder, "A2.md", string.Empty
+            .AddHeading("A2 Document", 1)
+            .AddParagraphs(1));
+        folder = _fileService.AddFolder("FoldersAndFiles/AA");
         _fileService.AddFile(folder, "README.md", string.Empty
             .AddHeading("AA Document", 1)
             .AddParagraphs(1));
-        folder = _fileService.AddFolder("FoldersOnly/BB");
+        folder = _fileService.AddFolder("FoldersAndFiles/BB");
         _fileService.AddFile(folder, "README.md", string.Empty
             .AddHeading("BB Document", 1)
             .AddParagraphs(1));
-        folder = _fileService.AddFolder("FoldersOnly/CC");
+        folder = _fileService.AddFolder("FoldersAndFiles/CC");
         _fileService.AddFile(folder, "README.md", string.Empty
             .AddHeading("CC Document", 1)
             .AddParagraphs(1));
