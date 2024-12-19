@@ -5,6 +5,7 @@
 using Bogus;
 using DocAssembler.Actions;
 using DocAssembler.Configuration;
+using DocAssembler.FileService;
 using DocAssembler.Test.Helpers;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,47 @@ public class IssueTests
         string expected =
 @"#Documentation Readme
 
-LINK [title](#documentation-readme)";
+LINK [title](#documentation-readme)".NormalizeContent();
+
+        var folder = _fileService.AddFolder($"docs");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddRaw(expected));
+
+        // arrange
+        AssembleConfiguration config = new AssembleConfiguration
+        {
+            DestinationFolder = "out",
+            Content =
+            [
+                new Content
+                {
+                    SourceFolder = "docs",
+                    DestinationFolder = "general",
+                    Files = { "**" },
+                }
+            ]
+        };
+
+        InventoryAction action = new(_workingFolder, config, _fileService, _logger);
+
+        // act
+        var ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Normal);
+        var content = _fileService.ReadAllText(_fileService.Files.Last().Key);
+        content.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void Issue_92_refMailTo()
+    {
+        _fileService.Files.Clear();
+
+        string expected =
+@"#Documentation Readme
+
+LINK [John Doe](mailto:john@doe.com)".NormalizeContent();
 
         var folder = _fileService.AddFolder($"docs");
         _fileService.AddFile(folder, "README.md", string.Empty

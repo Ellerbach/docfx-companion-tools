@@ -22,8 +22,8 @@ public class Hyperlink
         { "http://", HyperlinkType.Webpage },
         { "ftps://", HyperlinkType.Ftp },
         { "ftp://", HyperlinkType.Ftp },
-        { "mailto://", HyperlinkType.Mail },
-        { "xref://", HyperlinkType.CrossReference },
+        { "mailto:", HyperlinkType.Mail },
+        { "xref:", HyperlinkType.CrossReference },
     };
 
     private static readonly char[] _uriFragmentOrQueryString = new char[] { '#', '?' };
