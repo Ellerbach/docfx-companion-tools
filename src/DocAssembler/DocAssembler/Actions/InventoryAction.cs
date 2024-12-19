@@ -103,33 +103,43 @@ public class InventoryAction
 
                 foreach (var link in file.Links)
                 {
-                    var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath, StringComparison.Ordinal));
-                    if (dest != null)
+                    if (string.IsNullOrEmpty(link.UrlFullPath))
                     {
-                        // destination found. register and also (new) calculate relative path
-                        link.DestinationFullUrl = dest.DestinationPath;
-                        string dir = Path.GetDirectoryName(file.DestinationPath)!;
-                        link.DestinationRelativeUrl = Path.GetRelativePath(dir, dest.DestinationPath).NormalizePath();
-                        if (!string.IsNullOrEmpty(link.UrlTopic))
-                        {
-                            link.DestinationFullUrl += link.UrlTopic;
-                            link.DestinationRelativeUrl += link.UrlTopic;
-                        }
+                        // this is a link to a header in the same file. Just use the original link.
+                        link.DestinationFullUrl = link.OriginalUrl;
+                        link.DestinationRelativeUrl = link.OriginalUrl;
                     }
                     else
                     {
-                        var prefix = file.ContentSet!.ExternalFilePrefix ?? _config.ExternalFilePrefix;
-                        if (string.IsNullOrEmpty(prefix))
+                        // ignoring empty UrlFullPath, as it is a heading reference in the same file
+                        var dest = Files.SingleOrDefault(x => x.SourcePath.Equals(link.UrlFullPath, StringComparison.Ordinal));
+                        if (dest != null)
                         {
-                            // ERROR: no solution to fix this reference
-                            _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
-                            ret = ReturnCode.Error;
+                            // destination found. register and also (new) calculate relative path
+                            link.DestinationFullUrl = dest.DestinationPath;
+                            string dir = Path.GetDirectoryName(file.DestinationPath)!;
+                            link.DestinationRelativeUrl = Path.GetRelativePath(dir, dest.DestinationPath).NormalizePath();
+                            if (!string.IsNullOrEmpty(link.UrlTopic))
+                            {
+                                link.DestinationFullUrl += link.UrlTopic;
+                                link.DestinationRelativeUrl += link.UrlTopic;
+                            }
                         }
                         else
                         {
-                            // we're calculating the link with the external file prefix, usualy a repo web link prefix.
-                            string subpath = link.UrlFullPath.Substring(_workingFolder.Length).TrimStart('/');
-                            link.DestinationFullUrl = prefix.TrimEnd('/') + "/" + subpath;
+                            var prefix = file.ContentSet!.ExternalFilePrefix ?? _config.ExternalFilePrefix;
+                            if (string.IsNullOrEmpty(prefix))
+                            {
+                                // ERROR: no solution to fix this reference
+                                _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
+                                ret = ReturnCode.Error;
+                            }
+                            else
+                            {
+                                // we're calculating the link with the external file prefix, usualy a repo web link prefix.
+                                string subpath = link.UrlFullPath.Substring(_workingFolder.Length).TrimStart('/');
+                                link.DestinationFullUrl = prefix.TrimEnd('/') + "/" + subpath;
+                            }
                         }
                     }
                 }
