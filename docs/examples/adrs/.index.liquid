@@ -1,0 +1,27 @@
+# Decision Log (example)
+
+This is an example how you can have an automatically generated decision log from the ADRs in this folder.
+We use Liquid script to generate the tables below from the ADRs.
+{% comment -%}
+Looping through all the files and show the display name.
+The date is extracted from the filename and used in the title.
+We also sort on the date and group by year.
+{%- endcomment -%}
+{%- assign sortedList = current.Files | sort: "Name" | reverse -%}
+{%- assign counter = sortedList.size -%}
+{%- assign lastYear = 0 -%}
+{%- for file in sortedList -%}
+{%- assign year = file.Name | slice: 0,4 -%}
+{%- assign dt = file.Name | split: '-' | slice: 0,3 | join: "-"  -%}
+{%- if year != lastYear %}
+## {{ year }}
+
+| # | Date | File | Decision |
+| --- | --- | --- |
+{%- assign lastYear = year %}
+{% endif -%}
+{%- if file.IsMarkdown -%}
+| {{ counter }} | {{ dt }} | [{{ file.Name }}]({{ file.Name }}) | {{ file.DisplayName }} |
+{% endif %}
+{%- assign counter = counter | minus: 1 -%}
+{%- endfor -%}

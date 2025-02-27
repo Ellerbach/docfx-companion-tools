@@ -1,0 +1,29 @@
+{
+  "dest": "out",
+  "urlReplacements": [ { "expression": "/[Dd]ocs/", "value": "/" } ],
+  "contentReplacements": [
+    {   // replace e.g. "#25" with URL of issue in GitHub issues for the project.
+      "expression": "(?<pre>[$\\s])#(?<id>[0-9]{1,6})",
+      "value": "${pre}[Issue #${id}](https://github.com/Ellerbach/docfx-companion-tools/issues/${id})"
+    } 
+  ],
+  "externalFilePrefix": "https://github.com/Ellerbach/docfx-companion-tools/blob/main/",
+  "content": [
+    {   // raw copy content from .docfx
+      "src": ".docfx",
+      "files": [ "*", "images/**", "template/**" ],
+      "exclude": [ ".docassembler.json" ],
+      "rawCopy": true
+    },
+    {   // copy the general docs
+      "src": "docs",
+      "dest": "content",
+      "files": [ "**" ]
+    },
+    {   // copy readme's and assets from tools
+      "src": "src",
+      "dest": "content/tools",
+      "files": [ "**/README.md", "**/assets/**" ]
+    }
+  ]
+}

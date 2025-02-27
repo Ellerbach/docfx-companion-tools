@@ -1,0 +1,36 @@
+{
+  "build": {
+    "content": [
+      { 
+        "files": [ "**/*.{md,yml}" ]
+      }
+    ],
+    "resource": [
+      { "files": ["**/.attachments/**", "**/images/**", "**/assets/**"] }
+    ],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appTitle": "DocFx Companion Tools",
+      "_appName": "DocFx Companion Tools",
+      "_appLogoPath": "images/logo.png",
+      "_appFaviconPath": "images/favicon.ico",
+      "_enableSearch": true,
+      "_enableNewTab": true
+    },
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": ["default", "template"],
+    "postProcessors": [],
+    "noLangKeyword": false,
+    "keepFileLink": false,
+    "disableGitFeatures": false,
+    "xrefService": ["https://xref.docs.microsoft.com/query?uid={uid}"],
+    "markdownEngineName": "markdig",
+    "markdownEngineProperties": {
+      "markdigExtensions": [
+        "tasklists",
+        "diagrams"
+      ]
+    }
+  }
+}

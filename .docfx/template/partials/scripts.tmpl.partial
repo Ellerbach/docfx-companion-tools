@@ -1,0 +1,20 @@
+<!-- Standard scripts.tmpl.partial from 'default' template. v2.63.1
+ When you have rendering issues, check if this is the latest version
+ with 'docfx template export default -o <path-to-a-local-folder>' -->
+{{!Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See LICENSE file in the project root for full license information.}}
+
+<script type="text/javascript" src="{{_rel}}styles/docfx.vendor.min.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/docfx.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/main.js"></script>
+
+<!-- Added support for copy code button. Together with script in scripts.tmpl.partial -->
+<script type="text/javascript" src="{{_rel}}styles/copy-code-button.js"></script>
+
+<!-- Support for diagrams (Mermaid). See https://mermaid.js.org/intro/n00b-gettingStarted.html -->
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: false });
+    await mermaid.run({
+        querySelector: '.lang-mermaid',
+    });
+</script>

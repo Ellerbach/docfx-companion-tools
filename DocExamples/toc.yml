@@ -1,8 +1,0 @@
-items:
-  - name: Home
-    href: index.html
-  - name: .NET Reference
-  - name: Developers
-    href: docs/README.html
-  - name: User documentation
-    href: userdocs/index.html

@@ -10,6 +10,10 @@ This repository contains a series of tools, templates, tips and tricks to make y
 * [DocLanguageTranslator](./src/DocLanguageTranslator): allows to generate and translate automatically missing files or identify missing files in multi language pattern directories.
 * [DocFxOpenApi](./src/DocFxOpenApi): converts existing [OpenAPI](https://www.openapis.org/) specification files into the format compatible with DocFX (OpenAPI v2 JSON files). It allows DocFX to generate HTML pages from the OpenAPI specification. OpenAPI is also known as [Swagger](https://swagger.io/).
 
+## Documentation
+
+Documentation of the tools, use cases, instructions on using the tools in CI/CD and more can be found in https://docfx-companion-tools.github.io.
+
 ## Creating PR's
 
 The main branch is protected. Features and fixes can be done through PR's only. Make sure you use a proper title for the PR and keep them as small as possible. If you want the PR to pop up in the CHANGELOG, you have to provide one or more labels with the PR. The list of labels that are used:

@@ -1,0 +1,5 @@
+DocAssembler;DocAssembler
+DocLinkChecker;DocLinkChecker
+DocFxTocGenerator;DocFxTocGenerator
+DocFxOpenApi;DocFxOpenApi
+DocLanguageTranslator;DocLanguageTranslator

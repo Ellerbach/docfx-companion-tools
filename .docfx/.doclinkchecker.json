@@ -1,0 +1,20 @@
+{
+  "DocumentationFiles": {
+    "src": "docs",
+    "Files": [ "**/*.md" ],
+    "Exclude": []
+  },
+  "ResourceFolderNames": [ ".attachments", "assets" ],
+  "DocLinkChecker": {
+    "RelativeLinkStrategy": "All",
+    "CheckForOrphanedResources": false,
+    "CleanupOrphanedResources": false,
+    "ValidatePipeTableFormatting": false,
+    "ValidateExternalLinks": false,
+    "ConcurrencyLevel": 5,
+    "ExternalLinkDurationWarning": 3000,
+    "WhitelistUrls": [ 
+      "http://localhost"
+    ]
+  }
+}
