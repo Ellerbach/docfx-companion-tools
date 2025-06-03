@@ -1,8 +1,6 @@
 ﻿namespace DocLinkChecker.Test
 {
     using System.Linq;
-    using System.Reflection;
-    using System.Text.RegularExpressions;
     using DocLinkChecker.Helpers;
     using DocLinkChecker.Models;
     using DocLinkChecker.Test.Helpers;
@@ -89,6 +87,26 @@
                 .ToList();
 
             headings.Count.Should().Be(6);
+        }
+
+        /// <summary>
+        /// Test for issue #95 - fix underscore in heading. should be kept in link.
+        /// </summary>
+        [Fact]
+        public void FindAllHeadingsWithUnderscore()
+        {
+            string markdown = string.Empty
+                .AddHeading("A header with under_score", 1)
+                .AddParagraphs(1).AddLink("#a-header-with-under_score");
+
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
+
+            var headings = result.Objects
+                .OfType<Heading>()
+                .ToList();
+
+            headings.Count.Should().Be(1);
+            headings[0].Id.Should().Be("a-header-with-under_score");
         }
 
         [Fact]
