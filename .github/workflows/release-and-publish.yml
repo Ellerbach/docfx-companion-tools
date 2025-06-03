@@ -79,3 +79,7 @@ jobs:
               dotnet nuget push $file --api-key "${{ secrets.NUGET_TOOLS }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
+    - name: Create version badges for the tools
+      run: |
+        npm install badge-maker
+        
