@@ -28,7 +28,7 @@ namespace DocFXLanguageGenerator.Domain
         public string Key { get; set; }
 
         /// <summary>
-        /// Gets or sets the translator Azure Cognitive Services key.
+        /// Gets or sets the translator Azure Cognitive Services location.
         /// </summary>
         [Option('l', "location", Required = false, HelpText = "The translator Azure Cognitive Services location, default is westeurope.")]
         public string Location { get; set; }
@@ -36,7 +36,7 @@ namespace DocFXLanguageGenerator.Domain
         /// <summary>
         /// Gets or sets a value indicating whether to only check files are missing.
         /// </summary>
-        [Option('c', "check", Required = false, HelpText = "The translator Azure Cognitive Services key.")]
+        [Option('c', "check", Required = false, HelpText = "Check missing files in structure only.")]
         public bool CheckOnly { get; set; }
     }
 }
