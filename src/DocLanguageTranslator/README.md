@@ -20,11 +20,17 @@ This tool allows to generate and translate automatically missing files or identi
     /plant-production
       morefiles.md
       and-more.md
+  /zh-Hans
+    .override
+    index.md
+    /plant-production
+      morefiles.md
+      and-more.md
   index.md
   toc.yml
 ```
 
-As for the rest of the documentation, all attachments should be in the `.attachments` folder and all sub folder directories should be 2 characters length matching a language international code. In the previous example, `en`for English, `de` for German.
+As for the rest of the documentation, all attachments should be in the `.attachments` folder and all sub folder directories should match a language international code. In the previous example, `en` for English, `de` for German, and `zh-Hans` for Chinese (Simplified).
 
 All the Markdown's file names **must** be the same in all the sub directories. This tool can check the integrity as well as automatically creating the missing files and translate them at the same time.
 
