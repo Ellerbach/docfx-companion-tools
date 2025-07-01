@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocFxOpenApi", "DocFxOpenAp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DocLanguageTranslator", "DocLanguageTranslator", "{D9BD64D8-35E7-4EAE-9A15-E127A48E179B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLanguageTranslator", "DocLanguageTranslator\DocLanguageTranslator.csproj", "{8F404B68-0C29-4AE7-BC23-203841FF2825}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocLanguageTranslator", "DocLanguageTranslator\DocLanguageTranslator\DocLanguageTranslator.csproj", "{8F404B68-0C29-4AE7-BC23-203841FF2825}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
