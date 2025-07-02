@@ -37,7 +37,7 @@ namespace DocFXLanguageGenerator
 
             var locationOption = new Option<string>(
                 aliases: ["--location", "-l"],
-                description: "The translator Azure Cognitive Services location, default is westeurope.",
+                description: "The translator Azure Cognitive Services location.",
                 getDefaultValue: () => "westeurope");
 
             var checkOnlyOption = new Option<bool>(
