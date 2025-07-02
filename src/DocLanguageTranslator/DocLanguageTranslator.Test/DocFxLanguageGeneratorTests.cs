@@ -134,7 +134,7 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
-    public async Task Translate_WithValidKey_MissingFileIsCreatedAndTextTranslated()
+    public void Translate_WithValidKey_MissingFileIsCreatedAndTextTranslated()
     {
         // Arrange
         mockFileService.CreateDirectory("docs");
@@ -171,7 +171,7 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
-    public async Task Translate_WithInvalidKey_OutputFileIsNotCreated()
+    public void Translate_WithInvalidKey_OutputFileIsNotCreated()
     {
         // Arrange
         mockFileService.CreateDirectory("docs");
