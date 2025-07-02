@@ -16,7 +16,7 @@ namespace DocFXLanguageGenerator
     internal class DocFxLanguageGenerator
     {
         private readonly CommandlineOptions options;
-        private readonly MessageHelper message;
+        private readonly IMessageHelper messageHelper;
         private readonly MarkdownPipeline markdownPipeline;
         private readonly IFileService fileService;
         private readonly ITranslationService translationService;
@@ -30,15 +30,17 @@ namespace DocFXLanguageGenerator
         /// <param name="options">The command line options.</param>
         /// <param name="fileService">The file service.</param>
         /// <param name="translationService">The translation service.</param>
+        /// <param name="messageHelper">The message helper.</param>
         public DocFxLanguageGenerator(
             CommandlineOptions options,
             IFileService fileService,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            IMessageHelper messageHelper)
         {
             this.options = options;
             this.fileService = fileService;
             this.translationService = translationService;
-            this.message = new MessageHelper(options);
+            this.messageHelper = messageHelper;
             markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             subscriptionKey = options.Key;
         }
@@ -52,21 +54,21 @@ namespace DocFXLanguageGenerator
             returnValue = 0;
             int numberOfFiles = 0;
 
-            message.Verbose($"Documentation folder: {options.DocFolder}");
-            message.Verbose($"Verbose             : {options.Verbose}");
-            message.Verbose($"Check structure only: {options.CheckOnly}");
-            message.Verbose($"Key                 : {options.Key}");
-            message.Verbose($"Location            : {options.Location}");
+            messageHelper.Verbose($"Documentation folder: {options.DocFolder}");
+            messageHelper.Verbose($"Verbose             : {options.Verbose}");
+            messageHelper.Verbose($"Check structure only: {options.CheckOnly}");
+            messageHelper.Verbose($"Key                 : {options.Key}");
+            messageHelper.Verbose($"Location            : {options.Location}");
 
             if (string.IsNullOrEmpty(subscriptionKey) && !options.CheckOnly)
             {
-                message.Error("ERROR: you have to have an Azure Cognitive Service key if you are not only checking the structure.");
+                messageHelper.Error("ERROR: you have to have an Azure Cognitive Service key if you are not only checking the structure.");
                 return 1;
             }
 
             if (!fileService.DirectoryExists(options.DocFolder))
             {
-                message.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
+                messageHelper.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
                 return 1;
             }
 
@@ -97,7 +99,7 @@ namespace DocFXLanguageGenerator
                         {
                             if (options.CheckOnly)
                             {
-                                message.Error($"ERROR: file {targetFile} is missing.");
+                                messageHelper.Error($"ERROR: file {targetFile} is missing.");
                                 numberOfFiles++;
                                 returnValue = 1;
                             }
@@ -198,7 +200,7 @@ namespace DocFXLanguageGenerator
         {
             try
             {
-                message.Verbose($"Translating {inputFile} [{sourceLang} to {targetLang}]");
+                messageHelper.Verbose($"Translating {inputFile} [{sourceLang} to {targetLang}]");
                 string mdContent = fileService.ReadAllText(inputFile);
 
                 string translated = TransformMarkdown(mdContent, markdownPipeline, value =>
@@ -212,7 +214,7 @@ namespace DocFXLanguageGenerator
                 EnsureDirectoryExists(Path.GetDirectoryName(outputFile));
 
                 // Save the file
-                message.Verbose($"Saving {outputFile}");
+                messageHelper.Verbose($"Saving {outputFile}");
                 fileService.WriteAllText(outputFile, translated);
                 return true;
             }
@@ -220,7 +222,7 @@ namespace DocFXLanguageGenerator
             catch (Exception ex)
 #pragma warning restore CA1031 // So catching all of them rather than a long list of individual ones
             {
-                message.Error($"ERROR processing {inputFile}: {ex.Message}");
+                messageHelper.Error($"ERROR processing {inputFile}: {ex.Message}");
                 returnValue = 1;
                 return false;
             }
