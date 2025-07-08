@@ -37,15 +37,16 @@ All the Markdown's file names **must** be the same in all the sub directories. T
 ## Usage
 
 ```text
-DocLanguageTranslator -d <docs folder> [-k <key>] [-l <location>] [-cv]
+DocLanguageTranslator [options]
 
--d, --docfolder       Required. Folder containing the documents.
--v, --verbose         Show verbose messages.
--k, --key             The Azure Cognitive Services key to use.
--l, --location        The Azure Cognitive Services location to use. Default location is westeurope if nothing is provided.
--c, --check           Check the integrity of the file structure.
---help                Display this help screen.
---version             Display version information.
+Options:
+  -d, --docfolder <docfolder> (REQUIRED)  Folder containing the documents.
+  -v, --verbose                           Show verbose messages. [default: False]
+  -k, --key <key>                         The translator Azure Cognitive Services key.
+  -l, --location <location>               The translator Azure Cognitive Services location. [default: westeurope]
+  -c, --check                             Check missing files in structure only. [default: False]
+  --version                               Show version information
+  -?, -h, --help                          Show help and usage information
 ```
 
 If the `-c or --check` is not provided, having a key is mandatory.

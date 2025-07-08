@@ -7,7 +7,7 @@ namespace DocFXLanguageGenerator.Helpers
     /// <summary>
     /// Helper methods to write messages to the console.
     /// </summary>
-    public class MessageHelper
+    public class MessageHelper : IMessageHelper
     {
         private readonly CommandlineOptions _options;
 

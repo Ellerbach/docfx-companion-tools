@@ -1,17 +1,76 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
 
+using DocFXLanguageGenerator.Helpers;
+
 namespace DocLanguageTranslator.Test;
 
 public sealed class DocFxLanguageGeneratorTests
 {
     private readonly MockFileService mockFileService;
     private readonly Mock<ITranslationService> mockTranslationService;
+    private readonly MockMessageHelper mockMessageHelper;
 
     public DocFxLanguageGeneratorTests()
     {
         mockFileService = new MockFileService();
         mockTranslationService = new Mock<ITranslationService>();
+        mockMessageHelper = new MockMessageHelper();
+    }
+
+    [Fact]
+    public void Run_WithoutSubscriptionKey_ReturnsError()
+    {
+        CommandlineOptions options = new CommandlineOptions
+        {
+            CheckOnly = false,
+            Verbose = true,
+        };
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(1, returnValue);
+        Assert.Collection(
+            mockMessageHelper.Errors,
+            x =>
+            {
+                Assert.Equal("ERROR: you have to have an Azure Cognitive Service key if you are not only checking the structure.", x);
+            });
+    }
+
+    [Fact]
+    public void Run_WithoutExistingDocsFolder_ReturnsError()
+    {
+        CommandlineOptions options = new CommandlineOptions
+        {
+            CheckOnly = true,
+        };
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(1, returnValue);
+        Assert.Collection(
+            mockMessageHelper.Errors,
+            x =>
+            {
+                Assert.Equal("ERROR: Documentation folder '' doesn't exist.", x);
+            });
     }
 
     [Fact]
@@ -43,7 +102,8 @@ public sealed class DocFxLanguageGeneratorTests
         var generator = new DocFxLanguageGenerator(
             options,
             mockFileService,
-            mockTranslationService.Object);
+            mockTranslationService.Object,
+            mockMessageHelper);
 
         // Act
         int returnValue = generator.Run();
@@ -61,7 +121,8 @@ public sealed class DocFxLanguageGeneratorTests
         var generator = new DocFxLanguageGenerator(
             new CommandlineOptions(),
             mockFileService,
-            Mock.Of<ITranslationService>());
+            Mock.Of<ITranslationService>(),
+            mockMessageHelper);
 
         // Act & Assert
         Assert.Equal("en", generator.GetLanguageCodeFromPath("/path/to/en"));
@@ -73,7 +134,7 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
-    public async Task Translate_WithValidKey_MissingFileIsCreatedAndTextTranslated()
+    public void Translate_WithValidKey_MissingFileIsCreatedAndTextTranslated()
     {
         // Arrange
         mockFileService.CreateDirectory("docs");
@@ -91,7 +152,8 @@ public sealed class DocFxLanguageGeneratorTests
         DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
             options,
             mockFileService,
-            mockTranslationService.Object);
+            mockTranslationService.Object,
+            mockMessageHelper);
 
         // Mock successful translation
         mockTranslationService
@@ -109,7 +171,7 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
-    public async Task Translate_WithInvalidKey_OutputFileIsNotCreated()
+    public void Translate_WithInvalidKey_OutputFileIsNotCreated()
     {
         // Arrange
         mockFileService.CreateDirectory("docs");
@@ -127,7 +189,8 @@ public sealed class DocFxLanguageGeneratorTests
         DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
             options,
             mockFileService,
-            mockTranslationService.Object);
+            mockTranslationService.Object,
+            mockMessageHelper);
 
         // Mock failed translation
         mockTranslationService

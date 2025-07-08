@@ -32,7 +32,7 @@ internal class TranslationService : ITranslationService
     /// <exception cref="ArgumentNullException">Thrown when the subscription key is null.</exception>
     public TranslationService(string key, string region = null, int maxRetries = 3, int retryDelayMs = 20000)
     {
-        subscriptionKey = key ?? throw new ArgumentNullException(nameof(key));
+        subscriptionKey = key;
         location = string.IsNullOrEmpty(region) ? DefaultLocation : region;
         this.maxRetries = maxRetries;
         this.retryDelayMs = retryDelayMs;
