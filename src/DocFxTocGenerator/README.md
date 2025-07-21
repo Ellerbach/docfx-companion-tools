@@ -8,50 +8,48 @@ This tool allow to generate a yaml compatible `toc.yml` file for DocFX.
 DocFxTocGenerator [options]
 
 Options:
-  -d, --docfolder <docfolder> (REQUIRED)                      The root folder of the documentation.
-  -o, --outfolder <outfolder>                                 The output folder for the generated table of contents
-                                                              file. Default is the documentation folder.
-  -v, --verbose                                               Show verbose messages of the process.
-  -s, --sequence                                              Use .order files per folder to define the sequence of
-                                                              files and directories. Format of the file is filename
-                                                              without extension per line.
-  -r, --override                                              Use .override files per folder to define title overrides
-                                                              for files and folders. Format of the file is filename
-                                                              without extension or directory name followed by a
-                                                              semi-column followed by the custom title per line.
-  -g, --ignore                                                Use .ignore files per folder to ignore directories.
-                                                              Format of the file is directory name per line.
-  --indexing                                                  When to generated an index.md for a folder.
-  <EmptyFolders|Never|NoDefault|NoDefaultMulti|NotExistMulti  Never          - Do not genereate.
-  |NotExists>                                                 NoDefault      - When no index.md or readme.md found.
-                                                              NoDefaultMulti - When no index.md or readme.md found and
-                                                              multiple files.
-                                                              EmptyFolders   - For empty folders.
-                                                              NotExists      - When no index found.
-                                                              NotExistMulti  - When no index and multiple files.
-                                                              [default: Never]
-  --folderRef <First|Index|IndexReadme|None>                  Strategy for folder-entry references.
-                                                              None        - Never reference anything.
-                                                              Index       - Index.md only if exists.
-                                                              IndexReadme - Index.md or readme.md if exists.
-                                                              First       - First file in folder if any exists.
-                                                              [default: First]
-  --ordering <All|FilesFirst|FoldersFirst>                    How to order items in a folder.
-                                                              All          - Folders and files combined.
-                                                              FoldersFirst - Folders first, then files.
-                                                              FilesFirst   - Files first, then folders. [default: All]
-  -m, --multitoc <multitoc>                                   Indicates how deep in the tree toc files should be
-                                                              generated for those folders. A depth of 0 is the root
-                                                              only (default behavior).
-  --camelCase                                                 Use camel casing for titles.
-  --version                                                   Show version information
-  -?, -h, --help                                              Show help and usage information
+  -d, --docfolder <docfolder> (REQUIRED) The root folder of the documentation.
+  -o, --outfolder <outfolder> The output folder for the generated table of contents
+                              file. Default is the documentation folder.
+  -v, --verbose               Show verbose messages of the process.
+  -s, --sequence              Use .order files per folder to define the sequence of
+                              files and directories. Format of the file is filename
+                              without extension per line.
+  -r, --override              Use .override files per folder to define title overrides
+                              for files and folders. Format of the file is filename
+                              without extension or directory name followed by a
+                              semi-column followed by the custom title per line.
+  -g, --ignore                Use .ignore files per folder to ignore directories.
+                              Format of the file is directory name per line.
+  --indexing <EmptyFolders|Never|NoDefault|NoDefaultMulti|NotExistMulti|NotExists>
+                              When to generated an index.md for a folder.
+                              Never          - Do not genereate.
+                              NoDefault      - When no index.md or readme.md found.
+                              NoDefaultMulti - When no index.md or readme.md found and
+                                               multiple files.
+                              EmptyFolders   - For empty folders.
+                              NotExists      - When no index found.
+                              NotExistMulti  - When no index and multiple files.
+                              [default: Never]
+  --folderRef <First|Index|IndexReadme|None>
+                              Strategy for folder-entry references.
+                              None        - Never reference anything.
+                              Index       - Index.md only if exists.
+                              IndexReadme - Index.md or readme.md if exists.
+                              First       - First file in folder if any exists.
+                              [default: First]
+  --ordering <All|FilesFirst|FoldersFirst>
+                              How to order items in a folder.
+                              All          - Folders and files combined.
+                              FoldersFirst - Folders first, then files.
+                              FilesFirst   - Files first, then folders. [default: All]
+  -m, --multitoc <multitoc>   Indicates how deep in the tree toc files should be
+                              generated for those folders. A depth of 0 is the root
+                              only (default behavior).
+  --camelCase                 Use camel casing for titles.
+  --version                   Show version information
+  -?, -h, --help              Show help and usage information
 ```
-
-Return values:
-  0 - succesfull.
-  1 - some warnings, but process could be completed.
-  2 - a fatal error occurred.
 
 ## Warnings, errors and verbose
 
