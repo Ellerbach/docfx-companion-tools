@@ -14,7 +14,6 @@ namespace DocAssembler.Test;
 
 public class IssueTests
 {
-    private Faker _faker = new();
     private MockFileService _fileService = new();
     private MockLogger _mockLogger = new();
     private ILogger _logger;
@@ -29,6 +28,45 @@ public class IssueTests
 
         _workingFolder = _fileService.Root;
         _outputFolder = Path.Combine(_fileService.Root, "out");
+    }
+
+    [Fact]
+    public async void Issue_90_invalidLinkCausesStartIndexError()
+    {
+        _fileService.Files.Clear();
+
+        string expected =
+@"#Documentation Readme
+
+LINK [title](../../../non-existing-file.md)".NormalizeContent();
+
+        var folder = _fileService.AddFolder($"docs");
+        _fileService.AddFile(folder, "README.md", string.Empty
+            .AddRaw(expected));
+
+        // arrange
+        AssembleConfiguration config = new AssembleConfiguration
+        {
+            DestinationFolder = "out",
+            ExternalFilePrefix = "https://some-url.com",
+            Content =
+            [
+                new Content
+                {
+                    SourceFolder = "docs",
+                    DestinationFolder = "general",
+                    Files = { "**" },
+                }
+            ]
+        };
+
+        InventoryAction action = new(_workingFolder, config, _fileService, _logger);
+
+        // act
+        var ret = await action.RunAsync();
+
+        // assert
+        ret.Should().Be(ReturnCode.Error);
     }
 
     [Fact]

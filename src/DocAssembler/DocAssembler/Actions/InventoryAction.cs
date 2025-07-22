@@ -128,10 +128,11 @@ public class InventoryAction
                         else
                         {
                             var prefix = file.ContentSet!.ExternalFilePrefix ?? _config.ExternalFilePrefix;
-                            if (string.IsNullOrEmpty(prefix))
+                            if (string.IsNullOrEmpty(prefix) ||
+                                !link.UrlFullPath.StartsWith(_workingFolder.NormalizePath(), StringComparison.OrdinalIgnoreCase))
                             {
                                 // ERROR: no solution to fix this reference
-                                _logger.LogCritical($"Error in a file reference. Link '{link.OriginalUrl}' in '{file.SourcePath}' cannot be resolved and no external file prefix was given.");
+                                _logger.LogCritical($"Error in a file reference in '{file.SourcePath}'. Link '{link.OriginalUrl}' on {link.Line},{link.Column} cannot be resolved or no external file prefix was given.");
                                 ret = ReturnCode.Error;
                             }
                             else
