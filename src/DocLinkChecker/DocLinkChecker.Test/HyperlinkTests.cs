@@ -281,6 +281,7 @@
         [Theory]
         [InlineData("First header", "first-header", "#first-header")]
         [InlineData("`Second header`", "second-header", "#second-header")]
+        [InlineData("🔎 Icon header", "-icon-header", "#-icon-header")]
         public async void ValidateLocalLinkHeadingInSameDocumentShouldNotHaveErrors(string title, string id, string reference)
         {
             // Arrange

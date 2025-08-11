@@ -62,6 +62,23 @@
         }
 
         [Fact]
+        public void Issue111_heading_with_spaces_at_end_should_be_addressable()
+        {
+            string markdown = string.Empty
+                .AddHeading("🔎 Rationale & Supporting Evidence  ", 2)
+                .AddParagraphs(1).AddLink("#-rationale--supporting-evidence");
+
+            var result = MarkdownHelper.ParseMarkdownString(string.Empty, markdown, true);
+
+            var headings = result.Objects
+                .OfType<Heading>()
+                .ToList();
+
+            headings.Count.Should().Be(1);
+            headings[0].Id.Should().Be("-rationale--supporting-evidence");
+        }
+
+        [Fact]
         public void FindAllLinks()
         {
             var result = MarkdownHelper.ParseMarkdownString(string.Empty, _correctDocument, true);
