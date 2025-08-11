@@ -101,7 +101,7 @@ namespace DocLinkChecker.Helpers
                     }
 
                     // custom generation of the id
-                    string id = title.ToLower();
+                    string id = title.ToLower().Trim();
                     id = Regex.Replace(id, "[ ]", "-");
 
                     // replace all non-characters. \p[L] takes all unicode variants in account as well like ö and á
