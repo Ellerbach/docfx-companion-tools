@@ -99,7 +99,7 @@ You will have to run the tool with a command line like: `DocLanguageTranslator -
 *Notes*:
 
 * Your key has to be a valid key. This is an example key.
-* The directory can be absolute (e.g. `c:\path\userdocs`) or relative (e.g. `.\userdocs`) and has to be the root directory where the language folders are so `en`, `de`and `fr` in this case (e.g. the folders will then be `\usersdocs\en`, `userdocs\de`, and `userdocs\fr`, respectively).
+* The directory can be absolute (e.g. `c:\path\userdocs`) or relative (e.g. `.\userdocs`) and has to be the root directory where the language folders are so `en`, `de` and `fr` in this case (e.g. the folders will then be `\usersdocs\en`, `userdocs\de`, and `userdocs\fr`, respectively).
 
 Once you run the command, the program will look at the exiting file in each directory and will translate them and place them in the correct destination folder. So after the tool will run, you will find:
 
