@@ -69,7 +69,7 @@ If there are not the exact same Markdown files (extension must be `.md`) an erro
 
 ## Creating the missing files for all language directories
 
-If the `-k or --key` parameter is mandatory for the tool to create the missing pages. Let's take the following structure example:
+The `-k or --key` parameter is mandatory for the tool to create the missing pages. Let's take the following structure example:
 
 ```text
 /userdocs
@@ -99,9 +99,9 @@ You will have to run the tool with a command line like: `DocLanguageTranslator -
 *Notes*:
 
 * Your key has to be a valid key. This is an example key.
-* The directory can be absolute (e.g. `c:\path\userdocs`) or relative (e.g. `.\userdocs`) and has to be the root directory where the language folders are so `en`, `de`and `fr` in this case (e.g. the folder fill be then `\usersdocs\en`, `userdocs\de`, `userdocs\fr`).
+* The directory can be absolute (e.g. `c:\path\userdocs`) or relative (e.g. `.\userdocs`) and has to be the root directory where the language folders are so `en`, `de`and `fr` in this case (e.g. the folders will then be `\usersdocs\en`, `userdocs\de`, and `userdocs\fr`, respectively).
 
-Once you'll run the command, the program will look at the exiting file in each directory and will translate them and place them in the correct destination folder. So after the tool will run, you will find:
+Once you run the command, the program will look at the exiting file in each directory and will translate them and place them in the correct destination folder. So after the tool will run, you will find:
 
 ```text
 /userdocs
@@ -133,7 +133,7 @@ Once you'll run the command, the program will look at the exiting file in each d
   toc.yml
 ```
 
-The full file structure and all the Markdown files fill be created in the `fr` directory and translated to French from the different sources.
+The full file structure and all the Markdown files will be created in the `fr` directory and translated to French from the different sources.
 
 The `and-more.md` file existing only in the `de` language will be translated to English and French.
 
