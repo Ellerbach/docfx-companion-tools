@@ -40,6 +40,10 @@ namespace DocFXLanguageGenerator
                 description: "The translator Azure Cognitive Services location.",
                 getDefaultValue: () => "westeurope");
 
+            var sourceLanguageOption = new Option<string>(
+                aliases: ["--source", "-s"],
+                description: "The source language of files to use for missing translations.");
+
             var checkOnlyOption = new Option<bool>(
                 aliases: ["--check", "-c"],
                 description: "Check missing files in structure only.",
@@ -50,6 +54,7 @@ namespace DocFXLanguageGenerator
             rootCommand.AddOption(verboseOption);
             rootCommand.AddOption(keyOption);
             rootCommand.AddOption(locationOption);
+            rootCommand.AddOption(sourceLanguageOption);
             rootCommand.AddOption(checkOnlyOption);
 
             // Set command handler
@@ -61,6 +66,7 @@ namespace DocFXLanguageGenerator
                     Verbose = context.ParseResult.GetValueForOption(verboseOption),
                     Key = context.ParseResult.GetValueForOption(keyOption),
                     Location = context.ParseResult.GetValueForOption(locationOption),
+                    SourceLanguage = context.ParseResult.GetValueForOption(sourceLanguageOption),
                     CheckOnly = context.ParseResult.GetValueForOption(checkOnlyOption),
                 };
 

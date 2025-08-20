@@ -44,6 +44,7 @@ Options:
   -v, --verbose                           Show verbose messages. [default: False]
   -k, --key <key>                         The translator Azure Cognitive Services key.
   -l, --location <location>               The translator Azure Cognitive Services location. [default: westeurope]
+  -s, --source <language>                 The source language of files to use for missing translations.
   -c, --check                             Check missing files in structure only. [default: False]
   --version                               Show version information
   -?, -h, --help                          Show help and usage information
@@ -136,6 +137,14 @@ Once you'll run the command, the program will look at the exiting file in each d
 The full file structure and all the Markdown files fill be created in the `fr` directory and translated to French from the different sources.
 
 The `and-more.md` file existing only in the `de` language will be translated to English and French.
+
+### Source language
+
+In the previous example, "en" is automatically selected as the source language to translate most of the missing files, because it's the first folder, listed alphabetically, which contains the source files.
+
+To explicitly set the source language, pass the language code to the `-s or --source` command line option.
+
+In this case, only missing files which exist in the source language directory will be used for translations.
 
 ### Limitations
 

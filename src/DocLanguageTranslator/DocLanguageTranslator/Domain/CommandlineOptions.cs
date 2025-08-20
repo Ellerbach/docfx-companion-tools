@@ -29,6 +29,11 @@ namespace DocFXLanguageGenerator.Domain
         public string Location { get; set; }
 
         /// <summary>
+        /// Gets or sets the source language.
+        /// </summary>
+        public string SourceLanguage { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to only check files are missing.
         /// </summary>
         public bool CheckOnly { get; set; }
