@@ -204,4 +204,45 @@ public sealed class DocFxLanguageGeneratorTests
         Assert.Equal(1, returnValue);
         Assert.False(mockFileService.Files.ContainsKey("docs/fr/file1.md"));
     }
+
+    [Fact]
+    public void Translate_WithSourceLanguage_SourceLanguageIsUsed()
+    {
+        // Arrange
+        mockFileService.CreateDirectory("docs");
+        mockFileService.CreateDirectory("docs/de");
+        mockFileService.CreateDirectory("docs/en");
+        mockFileService.CreateDirectory("docs/fr");
+        mockFileService.WriteAllText("docs/de/file1.md", "# Hallo");
+        mockFileService.WriteAllText("docs/en/file1.md", "# Hello");
+
+        CommandlineOptions options = new CommandlineOptions
+        {
+            DocFolder = "docs",
+            SourceLanguage = "en",
+            Key = "key",
+            Verbose = true,
+        };
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Mock translation
+        mockTranslationService
+            .Setup(t => t.TranslateAsync(It.IsAny<string>(), "en", "fr"))
+            .ReturnsAsync((string text, string _, string _) =>
+                text.Replace("Hello", "Bonjour"));
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(0, returnValue);
+        mockTranslationService.VerifyAll();
+        Assert.True(mockFileService.Files.ContainsKey("docs/fr/file1.md"));
+        Assert.Contains("# Bonjour", mockFileService.Files["docs/fr/file1.md"]);
+    }
 }

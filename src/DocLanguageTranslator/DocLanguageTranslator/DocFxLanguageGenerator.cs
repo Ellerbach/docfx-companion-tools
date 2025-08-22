@@ -59,6 +59,7 @@ namespace DocFXLanguageGenerator
             messageHelper.Verbose($"Check structure only: {options.CheckOnly}");
             messageHelper.Verbose($"Key                 : {options.Key}");
             messageHelper.Verbose($"Location            : {options.Location}");
+            messageHelper.Verbose($"Source language     : {options.SourceLanguage}");
 
             if (string.IsNullOrEmpty(subscriptionKey) && !options.CheckOnly)
             {
@@ -77,7 +78,12 @@ namespace DocFXLanguageGenerator
             string rootDirectory = options.DocFolder;
             var allLanguagesDirectories = FindAllRootLanguages(rootDirectory);
 
-            foreach (var langDir in allLanguagesDirectories)
+            // use the source language if it is specified
+            var sourceLanguageDirectories = options.SourceLanguage != null
+                ? [$"{rootDirectory}/{options.SourceLanguage}"]
+                : allLanguagesDirectories;
+
+            foreach (var langDir in sourceLanguageDirectories)
             {
                 // Get all the Markdown files
                 var allMarkdowns = FindAllMarkdownFiles(langDir);
