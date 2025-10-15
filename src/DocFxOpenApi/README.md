@@ -5,10 +5,11 @@ This tool converts existing [OpenAPI](https://www.openapis.org/) specification f
 ## Usage
 
 ```text
-DocFxOpenApi -s <specs folder> [-o <output folder>] [-v]
+DocFxOpenApi -s <specs folder> [-o <output folder>] [-v] [-g]
   -s, --specsource      Required. Folder or file containing the OpenAPI specification.
   -o, --outputfolder	Folder to write the resulting specifications in.
   -v, --verbose         Show verbose messages.
+  -g, --genOpId         Generate missing OperationId fields, required by DocFx.
   --help                Display this help screen.
   --version             Display version information.
 ```
