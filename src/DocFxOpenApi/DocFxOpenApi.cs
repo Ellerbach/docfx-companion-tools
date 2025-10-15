@@ -1,6 +1,5 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
-using System.Xml.XPath;
 using CommandLine;
 using global::DocFxOpenApi.Domain;
 using global::DocFxOpenApi.Helpers;
