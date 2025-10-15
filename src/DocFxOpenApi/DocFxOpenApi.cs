@@ -67,7 +67,7 @@ namespace DocFxOpenApi
         {
             if (string.IsNullOrEmpty(_options.OutputFolder))
             {
-                _options.OutputFolder = _options.SpecFolder;
+                _options.OutputFolder = _options.SpecFolder ?? Path.GetDirectoryName(_options.SpecFile);
             }
 
             _message.Verbose($"Specification file/folder: {_options.SpecFolder ?? _options.SpecFile}");
@@ -198,15 +198,22 @@ namespace DocFxOpenApi
 
         private string GenerateOperationId(OperationType operationType, string pathName, IList<OpenApiParameter> parameters)
         {
-            var pathWithParameters = string.Join(string.Empty, SplitPathString(pathName, parameters));
-
-            return $"{operationType.ToString().ToLower()}{pathWithParameters}";
+            return string.Join(string.Empty, SplitPathString(operationType, pathName, parameters));
 
             static string ToPascalCase(string value)
-                => string.Concat(value[0].ToString().ToUpper(), value.AsSpan(1));
-
-            static IEnumerable<string> SplitPathString(string path, IList<OpenApiParameter> parameters)
             {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return value;
+                }
+
+                return string.Concat(value[0].ToString().ToUpperInvariant(), value.AsSpan(1));
+            }
+
+            static IEnumerable<string> SplitPathString(OperationType operationType, string path, IList<OpenApiParameter> parameters)
+            {
+                yield return operationType.ToString().ToLowerInvariant();
+
                 string start = path.StartsWith("/api/", StringComparison.InvariantCultureIgnoreCase)
                     ? path[5..]
                     : path;
@@ -228,7 +235,7 @@ namespace DocFxOpenApi
 
                 yield return "By";
 
-                foreach (var parameter in parameters)
+                foreach (var parameter in parameters.Where(it => it.In == ParameterLocation.Path))
                 {
                     yield return ToPascalCase(parameter.Name);
                 }
