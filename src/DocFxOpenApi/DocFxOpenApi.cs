@@ -1,5 +1,6 @@
 ﻿// Licensed to DocFX Companion Tools and contributors under one or more agreements.
 // DocFX Companion Tools and contributors licenses this file to you under the MIT license.
+using System.Xml.XPath;
 using CommandLine;
 using global::DocFxOpenApi.Domain;
 using global::DocFxOpenApi.Helpers;
@@ -73,6 +74,7 @@ namespace DocFxOpenApi
             _message.Verbose($"Specification file/folder: {_options.SpecFolder ?? _options.SpecFile}");
             _message.Verbose($"Output folder       : {_options.OutputFolder}");
             _message.Verbose($"Verbose             : {_options.Verbose}");
+            _message.Verbose($"Generate OperationId Members: {_options.GenerateOperationId}");
 
             if ((_options.SpecFolder ?? _options.SpecFile) == null)
             {
@@ -140,6 +142,11 @@ namespace DocFxOpenApi
             {
                 foreach (var (operationType, operation) in path.Operations)
                 {
+                    if (_options.GenerateOperationId && string.IsNullOrWhiteSpace(operation.OperationId))
+                    {
+                        operation.OperationId = GenerateOperationId(operationType, pathName, operation.Parameters);
+                    }
+
                     var description = $"{pathName} {operationType}";
 
                     foreach (var (responseType, response) in operation.Responses)
@@ -187,6 +194,45 @@ namespace DocFxOpenApi
             {
                 _message.Verbose($"[OpenAPIv2 compatibility] Setting example from first of multiple OpenAPIv3 examples for {description}");
                 content.Example = content.Examples.Values.First().Value;
+            }
+        }
+
+        private string GenerateOperationId(OperationType operationType, string pathName, IList<OpenApiParameter> parameters)
+        {
+            var pathWithParameters = string.Join(string.Empty, SplitPathString(pathName, parameters));
+
+            return $"{operationType.ToString().ToLower()}{pathWithParameters}";
+
+            static string ToPascalCase(string value)
+                => string.Concat(value[0].ToString().ToUpper(), value.AsSpan(1));
+
+            static IEnumerable<string> SplitPathString(string path, IList<OpenApiParameter> parameters)
+            {
+                string start = path.StartsWith("/api/", StringComparison.InvariantCultureIgnoreCase)
+                    ? path[5..]
+                    : path;
+
+                foreach (var split in start.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    if (split.StartsWith('{'))
+                    {
+                        break;
+                    }
+
+                    yield return ToPascalCase(split);
+                }
+
+                if (parameters.Count == 0)
+                {
+                    yield break;
+                }
+
+                yield return "By";
+
+                foreach (var parameter in parameters)
+                {
+                    yield return ToPascalCase(parameter.Name);
+                }
             }
         }
     }

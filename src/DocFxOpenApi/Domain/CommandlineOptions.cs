@@ -41,6 +41,12 @@ namespace DocFxOpenApi.Domain
         /// </summary>
         public string? SpecFile { get; private set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to generate missing OperationId members.
+        /// </summary>
+        [Option('g', "genOpId", Required = false, HelpText = "Generate missing OperationId members.")]
+        public bool GenerateOperationId { get; set; }
+
         private void SetSource(string? value)
         {
             if (value == null)
