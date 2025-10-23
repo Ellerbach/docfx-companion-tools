@@ -67,7 +67,7 @@ namespace DocFxOpenApi
         {
             if (string.IsNullOrEmpty(_options.OutputFolder))
             {
-                _options.OutputFolder = _options.SpecFolder;
+                _options.OutputFolder = _options.SpecFolder ?? Path.GetDirectoryName(_options.SpecFile);
             }
 
             _message.Verbose($"Specification file/folder: {_options.SpecFolder ?? _options.SpecFile}");
