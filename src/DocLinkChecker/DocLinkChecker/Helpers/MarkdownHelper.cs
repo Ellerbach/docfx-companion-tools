@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using DocLinkChecker.Enums;
 using DocLinkChecker.Models;
 using Markdig;
@@ -13,6 +13,21 @@ namespace DocLinkChecker.Helpers
     /// </summary>
     public static class MarkdownHelper
     {
+        /// <summary>
+        /// Regex pattern to match valid markdown table separator columns per GFM spec.
+        /// Matches the following formats:
+        /// - At least 3 dashes when no alignment is specified: ---, ----, etc.
+        /// - At least 1 dash when alignment colons are present:
+        ///   - :- (left alignment)
+        ///   - -: (right alignment)
+        ///   - :-: (center alignment)
+        ///   - :--- (left alignment with 3+ dashes)
+        ///   - ---: (right alignment with 3+ dashes)
+        ///   - :---: (center alignment with 3+ dashes)
+        /// Optional whitespace is allowed around the separator content.
+        /// </summary>
+        private const string TableSeparatorPattern = @"^\s*(:?-{3,}:?|-{3,}|:-+|:-+:|-+:)\s*$";
+
         /// <summary>
         /// Get the markdown objects from the given file path.
         /// </summary>
@@ -190,8 +205,8 @@ namespace DocLinkChecker.Helpers
                 }
             }
 
-            // now parse the raw table markdown to check the seperator-line (second)
-            // This should be something like "|---|---|---|"
+            // now parse the raw table markdown to check the delimiter row line (second one)
+            // Per GFM spec, separators should match: --- (three dashes when no alignment is specified), :-, -:, or :-: (with at least one dash when alignment is specified)
             string tableContent = markdown.Substring(table.Span.Start, table.Span.Length);
             string[] lines = tableContent.Split('\n');
             if (lines.Length > 1)
@@ -210,10 +225,11 @@ namespace DocLinkChecker.Helpers
                             $"All rows in this table must have {nrCols} columns."));
                 }
 
-                // check every column to have at least three '-' characters to make it work properly in Azure DevOps and such
+                // check every column to have a valid separator format per GFM spec
+                var separatorPattern = new Regex(TableSeparatorPattern);
                 foreach (string entry in columnEntries)
                 {
-                    if (!entry.Contains("---"))
+                    if (!separatorPattern.IsMatch(entry))
                     {
                         errors.Add(
                             new MarkdownError(
@@ -221,7 +237,7 @@ namespace DocLinkChecker.Helpers
                                 table.Line + 2,
                                 table.Column,
                                 MarkdownErrorSeverity.Error,
-                                $"Second line of a table should have at least 3 pipe characters ('---') per column."));
+                                $"Second line of a table should have valid separator format (e.g., '---', ':---', '---:', ':---:', ':-', '-:', ':-:') per GFM spec."));
                     }
                 }
             }
@@ -293,13 +309,13 @@ namespace DocLinkChecker.Helpers
                 string rowtext = Regex.Replace(line.Trim(), @"\\\|", string.Empty);
                 if (rowtext.StartsWith("|"))
                 {
-                    // we cannot use TrimStart, because it will remove all '|' characters in stead of just one.
+                    // we cannot use TrimStart, because it will remove all '|' characters in sted of just one.
                     rowtext = rowtext.Substring(1);
                 }
 
                 if (rowtext.EndsWith("|"))
                 {
-                    // we cannot use TrimEnd, because it will remove all '|' characters in stead of just one.
+                    // we cannot use TrimEnd, because it will remove all '|' characters in sted of just one.
                     rowtext = rowtext.Substring(0, rowtext.Length - 1);
                 }
 
@@ -327,13 +343,13 @@ namespace DocLinkChecker.Helpers
 
                 if (row == 1)
                 {
-                    // now parse the raw table markdown to check the seperator-line (second)
-                    // This should be something like "|---|---|---|"
+                    // now parse the raw table markdown to check the delimiter line (second one)
+                    var separatorPattern = new Regex(TableSeparatorPattern);
 
-                    // check every column to have at least three '-' characters to make it work properly in Azure DevOps and such
+                    // check every column to have a valid separator format per GFM spec
                     foreach (string entry in columnEntries)
                     {
-                        if (!entry.Contains("---"))
+                        if (!separatorPattern.IsMatch(entry))
                         {
                             errors.Add(
                                 new MarkdownError(
@@ -341,7 +357,7 @@ namespace DocLinkChecker.Helpers
                                     table.Line + 2,
                                     table.Column,
                                     MarkdownErrorSeverity.Error,
-                                    $"Second line of a table should have at least 3 dashes ('---') per column."));
+                                    $"Second line of a table should have valid separator format (e.g., '---', ':---', '---:', ':---:', ':-', '-:', ':-:') per GFM spec."));
                         }
                     }
                 }
