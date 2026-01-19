@@ -55,7 +55,7 @@ namespace DocFxOpenApi
         }
 
         /// <summary>
-        /// On parameter errors, we set the returnvalue to 1 to indicated an error.
+        /// On parameter errors, we set the returnvalue to 1 to indicate an error.
         /// </summary>
         /// <param name="errors">List or errors (ignored).</param>
         private static async Task HandleErrorsAsync(IEnumerable<Error> errors)
