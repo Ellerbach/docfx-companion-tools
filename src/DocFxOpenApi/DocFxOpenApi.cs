@@ -36,7 +36,7 @@ namespace DocFxOpenApi
             var parsedArguments = Parser.Default.ParseArguments<CommandlineOptions>(args);
 
             var intermediateResult = await parsedArguments.WithParsedAsync(RunLogicAsync).ConfigureAwait(false);
-            var result = await intermediateResult.WithNotParsedAsync(HandleErrorsAsync).ConfigureAwait(false);
+            await intermediateResult.WithNotParsedAsync(HandleErrorsAsync).ConfigureAwait(false);
 
             Console.WriteLine($"Exit with return code {_returnvalue}");
 
