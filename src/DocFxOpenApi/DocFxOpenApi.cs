@@ -121,7 +121,6 @@ namespace DocFxOpenApi
         private async Task ConvertOpenApiFileAsync(string inputSpecFile, CancellationToken cancellationToken)
         {
             _message.Verbose($"Reading OpenAPI file '{inputSpecFile}'");
-            using var stream = File.OpenRead(inputSpecFile);
             var settings = new OpenApiReaderSettings();
             settings.AddYamlReader();
             var (document, diagnostic) = await OpenApiDocument.LoadAsync(inputSpecFile, settings, cancellationToken).ConfigureAwait(false);
