@@ -142,7 +142,7 @@ namespace DocFxOpenApi
 
             if (diagnostic.Errors.Any())
             {
-                _message.Error($"ERROR: Not a valid OpenAPI v2 or v3+ specification");
+                _message.Error($"ERROR: '{inputSpecFile}' is not a valid OpenAPI v2 or v3+ specification");
                 foreach (var error in diagnostic.Errors)
                 {
                     _message.Error(error.ToString());
