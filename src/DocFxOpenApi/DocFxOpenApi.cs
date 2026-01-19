@@ -234,7 +234,7 @@ namespace DocFxOpenApi
             var outputFileName = Path.ChangeExtension(Path.GetFileName(inputSpecFile), ".swagger.json");
             var outputFile = Path.Combine(_options.OutputFolder!, outputFileName);
             _message.Verbose($"Writing output file '{outputFile}' as version '{OutputVersion}'");
-            using var fs = File.Create(outputFile);
+            await using var fs = File.Create(outputFile);
             await document.SerializeAsJsonAsync(fs, OutputVersion, cancellationToken).ConfigureAwait(false);
         }
 
