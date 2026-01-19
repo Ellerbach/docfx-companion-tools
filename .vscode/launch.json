@@ -12,7 +12,7 @@
       "program": "${workspaceFolder}/src/DocFxOpenApi/bin/Debug/net8.0/DocFxOpenApi.dll",
       "args": [
         "-s",
-        "https://raw.githubusercontent.com/swagger-api/swagger-petstore/refs/heads/master/src/main/resources/openapi.yaml"
+        "${workspaceFolder}/src/DocFxOpenApi/Descriptions/petstore.yaml"
       ],
       "cwd": "${workspaceFolder}/src/DocFxOpenApi",
       "stopAtEntry": false,
