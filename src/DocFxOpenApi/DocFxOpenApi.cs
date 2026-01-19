@@ -4,9 +4,7 @@ using CommandLine;
 using global::DocFxOpenApi.Domain;
 using global::DocFxOpenApi.Helpers;
 using Microsoft.OpenApi;
-using Microsoft.OpenApi.Extensions;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi.Reader;
 
 namespace DocFxOpenApi
 {
@@ -33,11 +31,12 @@ namespace DocFxOpenApi
         /// </summary>
         /// <param name="args">Commandline options described in <see cref="CommandlineOptions"/> class.</param>
         /// <returns>0 if successful, 1 on error.</returns>
-        private static int Main(string[] args)
+        private static async Task<int> Main(string[] args)
         {
-            Parser.Default.ParseArguments<CommandlineOptions>(args)
-                .WithParsed(RunLogic)
-                .WithNotParsed(HandleErrors);
+            var parsedArguments = Parser.Default.ParseArguments<CommandlineOptions>(args);
+
+            var intermediateResult = await parsedArguments.WithParsedAsync(RunLogicAsync).ConfigureAwait(false);
+            await intermediateResult.WithNotParsedAsync(HandleErrorsAsync).ConfigureAwait(false);
 
             Console.WriteLine($"Exit with return code {_returnvalue}");
 
@@ -49,21 +48,23 @@ namespace DocFxOpenApi
         /// Given folders are checked if they exist.
         /// </summary>
         /// <param name="o">Parsed commandline options.</param>
-        private static void RunLogic(CommandlineOptions o)
+        /// <returns>A task representing the asynchronous operation.</returns>
+        private static async Task RunLogicAsync(CommandlineOptions o)
         {
-            new DocFxOpenApi(o).RunLogic();
+            await new DocFxOpenApi(o).RunLogic(CancellationToken.None).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// On parameter errors, we set the returnvalue to 1 to indicated an error.
+        /// On parameter errors, we set the returnvalue to 1 to indicate an error.
         /// </summary>
         /// <param name="errors">List or errors (ignored).</param>
-        private static void HandleErrors(IEnumerable<Error> errors)
+        private static Task HandleErrorsAsync(IEnumerable<Error> errors)
         {
             _returnvalue = 1;
+            return Task.CompletedTask;
         }
 
-        private void RunLogic()
+        private async Task RunLogic(CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(_options.OutputFolder))
             {
@@ -84,25 +85,25 @@ namespace DocFxOpenApi
 
             Directory.CreateDirectory(_options.OutputFolder!);
 
-            this.ConvertOpenApiFiles();
+            await this.ConvertOpenApiFilesAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        private void ConvertOpenApiFiles()
+        private async Task ConvertOpenApiFilesAsync(CancellationToken cancellationToken)
         {
             if (_options.SpecFolder != null)
             {
                 foreach (var extension in _openApiFileExtensions)
                 {
-                    this.ConvertOpenApiFiles(extension);
+                    await this.ConvertOpenApiFilesAsync(extension, cancellationToken).ConfigureAwait(false);
                 }
             }
             else
             {
-                this.ConvertOpenApiFile(_options.SpecFile!);
+                await this.ConvertOpenApiFileAsync(_options.SpecFile!, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private void ConvertOpenApiFiles(string extension)
+        private async Task ConvertOpenApiFilesAsync(string extension, CancellationToken cancellationToken)
         {
             foreach (var file in Directory.GetFiles(
                 _options.SpecFolder!,
@@ -113,19 +114,34 @@ namespace DocFxOpenApi
                     RecurseSubdirectories = true,
                 }))
             {
-                this.ConvertOpenApiFile(file);
+                await this.ConvertOpenApiFileAsync(file, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        private void ConvertOpenApiFile(string inputSpecFile)
+        private async Task ConvertOpenApiFileAsync(string inputSpecFile, CancellationToken cancellationToken)
         {
             _message.Verbose($"Reading OpenAPI file '{inputSpecFile}'");
-            using var stream = File.OpenRead(inputSpecFile);
-            var document = new OpenApiStreamReader().Read(stream, out var diagnostic);
+            var settings = new OpenApiReaderSettings();
+            settings.AddYamlReader();
+            var (document, diagnostic) = await OpenApiDocument.LoadAsync(inputSpecFile, settings, cancellationToken).ConfigureAwait(false);
+
+            if (document is null)
+            {
+                _message.Error($"ERROR: Unable to read OpenAPI specification from file '{inputSpecFile}'");
+                _returnvalue = 1;
+                return;
+            }
+
+            if (diagnostic is null)
+            {
+                _message.Error($"ERROR: Unable to read diagnostics from OpenAPI specification file '{inputSpecFile}'");
+                _returnvalue = 1;
+                return;
+            }
 
             if (diagnostic.Errors.Any())
             {
-                _message.Error($"ERROR: Not a valid OpenAPI v2 or v3 specification");
+                _message.Error($"ERROR: '{inputSpecFile}' is not a valid OpenAPI v2 or v3+ specification");
                 foreach (var error in diagnostic.Errors)
                 {
                     _message.Error(error.ToString());
@@ -139,6 +155,11 @@ namespace DocFxOpenApi
 
             foreach (var (pathName, path) in document.Paths)
             {
+                if (path.Operations is null)
+                {
+                    continue;
+                }
+
                 foreach (var (operationType, operation) in path.Operations)
                 {
                     if (_options.GenerateOperationId && string.IsNullOrWhiteSpace(operation.OperationId))
@@ -148,32 +169,61 @@ namespace DocFxOpenApi
 
                     var description = $"{pathName} {operationType}";
 
-                    foreach (var (responseType, response) in operation.Responses)
+                    if (operation.Responses is not null)
                     {
-                        foreach (var (mediaType, content) in response.Content)
+                        foreach (var (responseType, response) in operation.Responses)
                         {
-                            this.CreateSingleExampleFromMultipleExamples(content, $"{description} response {responseType} {mediaType}");
+                            if (response.Content is null)
+                            {
+                                continue;
+                            }
+
+                            foreach (var (mediaType, content) in response.Content)
+                            {
+                                this.CreateSingleExampleFromMultipleExamples(content, $"{description} response {responseType} {mediaType}");
+                            }
                         }
                     }
 
-                    foreach (var parameter in operation.Parameters)
+                    if (operation.Parameters is not null)
                     {
-                        foreach (var (mediaType, content) in parameter.Content)
+                        foreach (var parameter in operation.Parameters)
                         {
-                            this.CreateSingleExampleFromMultipleExamples(content, $"{description} parameter {parameter.Name} {mediaType}");
+                            if (parameter.Content is null)
+                            {
+                                continue;
+                            }
+
+                            foreach (var (mediaType, content) in parameter.Content)
+                            {
+                                this.CreateSingleExampleFromMultipleExamples(content, $"{description} parameter {parameter.Name} {mediaType}");
+                            }
                         }
                     }
 
-                    if (operation.RequestBody is not null)
+                    if (operation.RequestBody is { Content.Count: > 0 })
                     {
                         foreach (var (mediaType, content) in operation.RequestBody.Content)
                         {
                             this.CreateSingleExampleFromMultipleExamples(content, $"{description} requestBody {mediaType}");
 
-                            if (content.Example is not null && content.Schema is not null && content.Schema.Example is null)
+                            if (content is { Example: not null, Schema: { Example: null } schema })
                             {
-                                _message.Verbose($"[OpenAPIv2 compatibility] Setting type example from sample requestBody example for {content.Schema.Reference?.ReferenceV2 ?? "item"} from {operation.OperationId}");
-                                content.Schema.Example = content.Example;
+                                var (effectiveSchema, id) = schema switch
+                                {
+                                    OpenApiSchema s => (s, "item"),
+                                    OpenApiSchemaReference rs => (rs.RecursiveTarget, rs.Reference.Id),
+                                    _ => (null, null),
+                                };
+
+                                if (effectiveSchema == null)
+                                {
+                                    _message.Verbose($"[OpenAPIv2 compatibility] Unable to set type example from sample requestBody example for {id} from {operation.OperationId}");
+                                    continue;
+                                }
+
+                                _message.Verbose($"[OpenAPIv2 compatibility] Setting type example from sample requestBody example for {id} from {operation.OperationId}");
+                                effectiveSchema.Example = content.Example;
                             }
                         }
                     }
@@ -183,20 +233,20 @@ namespace DocFxOpenApi
             var outputFileName = Path.ChangeExtension(Path.GetFileName(inputSpecFile), ".swagger.json");
             var outputFile = Path.Combine(_options.OutputFolder!, outputFileName);
             _message.Verbose($"Writing output file '{outputFile}' as version '{OutputVersion}'");
-            using FileStream fs = File.Create(outputFile);
-            document.Serialize(fs, OutputVersion, OpenApiFormat.Json);
+            await using var fs = File.Create(outputFile);
+            await document.SerializeAsJsonAsync(fs, OutputVersion, cancellationToken).ConfigureAwait(false);
         }
 
-        private void CreateSingleExampleFromMultipleExamples(OpenApiMediaType content, string description)
+        private void CreateSingleExampleFromMultipleExamples(IOpenApiMediaType content, string description)
         {
-            if (content.Example is null && content.Examples.Any())
+            if (content is OpenApiMediaType { Example: null } effectiveMediaType && content.Examples is { Count: > 0 })
             {
                 _message.Verbose($"[OpenAPIv2 compatibility] Setting example from first of multiple OpenAPIv3 examples for {description}");
-                content.Example = content.Examples.Values.First().Value;
+                effectiveMediaType.Example = content.Examples.Values.First().Value;
             }
         }
 
-        private string GenerateOperationId(OperationType operationType, string pathName, IList<OpenApiParameter> parameters)
+        private string GenerateOperationId(HttpMethod operationType, string pathName, IList<IOpenApiParameter>? parameters)
         {
             return string.Join(string.Empty, SplitPathString(operationType, pathName, parameters));
 
@@ -210,7 +260,7 @@ namespace DocFxOpenApi
                 return string.Concat(value[0].ToString().ToUpperInvariant(), value.AsSpan(1));
             }
 
-            static IEnumerable<string> SplitPathString(OperationType operationType, string path, IList<OpenApiParameter> parameters)
+            static IEnumerable<string> SplitPathString(HttpMethod operationType, string path, IList<IOpenApiParameter>? parameters)
             {
                 yield return operationType.ToString().ToLowerInvariant();
 
@@ -228,16 +278,16 @@ namespace DocFxOpenApi
                     yield return ToPascalCase(split);
                 }
 
-                if (parameters.Count == 0)
+                if (parameters is not { Count: > 0 })
                 {
                     yield break;
                 }
 
                 yield return "By";
 
-                foreach (var parameter in parameters.Where(it => it.In == ParameterLocation.Path))
+                foreach (var parameter in parameters.Where(static it => it.In == ParameterLocation.Path && !string.IsNullOrWhiteSpace(it.Name)))
                 {
-                    yield return ToPascalCase(parameter.Name);
+                    yield return ToPascalCase(parameter.Name!);
                 }
             }
         }
