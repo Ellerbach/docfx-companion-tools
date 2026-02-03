@@ -37,5 +37,15 @@ namespace DocFXLanguageGenerator.Domain
         /// Gets or sets a value indicating whether to only check files are missing.
         /// </summary>
         public bool CheckOnly { get; set; }
+
+        /// <summary>
+        /// Gets or sets the source file path for line range translation.
+        /// </summary>
+        public string SourceFile { get; set; }
+
+        /// <summary>
+        /// Gets or sets the line range to translate (e.g., "1-10" or "5-20").
+        /// </summary>
+        public string LineRange { get; set; }
     }
 }

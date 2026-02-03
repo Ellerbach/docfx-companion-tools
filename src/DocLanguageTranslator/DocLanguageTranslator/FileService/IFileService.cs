@@ -59,4 +59,29 @@ internal interface IFileService
     /// </summary>
     /// <param name="path">The path of the directory to create.</param>
     void CreateDirectory(string path);
+
+    /// <summary>
+    /// Reads all lines from the specified file.
+    /// </summary>
+    /// <param name="filePath">The path to the file to read.</param>
+    /// <returns>An array of strings containing all lines in the file.</returns>
+    string[] ReadAllLines(string filePath);
+
+    /// <summary>
+    /// Reads a specific range of lines from the specified file.
+    /// </summary>
+    /// <param name="filePath">The path to the file to read.</param>
+    /// <param name="startLine">The 1-based starting line number.</param>
+    /// <param name="endLine">The 1-based ending line number (inclusive).</param>
+    /// <returns>An array of strings containing the specified lines.</returns>
+    string[] ReadLines(string filePath, int startLine, int endLine);
+
+    /// <summary>
+    /// Replaces a specific range of lines in a file with new content.
+    /// </summary>
+    /// <param name="filePath">The path to the file to modify.</param>
+    /// <param name="startLine">The 1-based starting line number to replace.</param>
+    /// <param name="endLine">The 1-based ending line number to replace (inclusive).</param>
+    /// <param name="newLines">The new lines to insert in place of the original range.</param>
+    void ReplaceLines(string filePath, int startLine, int endLine, string[] newLines);
 }

@@ -46,6 +46,8 @@ Options:
   -l, --location <location>               The translator Azure Cognitive Services location. [default: westeurope]
   -s, --source <language>                 The source language of files to use for missing translations.
   -c, --check                             Check missing files in structure only. [default: False]
+  -f, --sourcefile <sourcefile>           The source file path for line range translation.
+  -r, --lines <lines>                     The range of lines to translate (e.g., '1-10'). Requires --sourcefile.
   --version                               Show version information
   -?, -h, --help                          Show help and usage information
 ```
@@ -145,6 +147,49 @@ In the previous example, "en" is automatically selected as the source language t
 To explicitly set the source language, pass the language code to the `-s or --source` command line option.
 
 In this case, only missing files which exist in the source language directory will be used for translations.
+
+### Translating specific line ranges
+
+If you only need to translate a specific range of lines from a source document (instead of the entire file), you can use the `-r or --lines` option together with the `-f or --sourcefile` option.
+This is useful when you've updated a specific section of a document and want to apply that change to all translated versions without re-translating the entire file.
+
+**Example:**
+
+```bash
+DocLanguageTranslator -d c:\path\userdocs -k your-key -f c:\path\userdocs\en\file1.md -r 10-25
+```
+
+This command will:
+
+1. Read lines 10-25 from `c:\path\userdocs\en\file1.md`
+2. Translate those lines to all other language directories (e.g., `de`, `fr`, `zh-Hans`)
+3. Replace lines 10-25 in the corresponding target files with the translated content
+
+**Requirements:**
+
+* The `--sourcefile` option is required when using `--lines`
+* The source file must exist within the documentation folder
+* Target files must already exist in other language directories
+* The line range format must be `start-end` (e.g., `1-10`, `5-20`)
+* Line numbers are 1-based and inclusive
+
+**Notes:**
+
+* If a target file doesn't exist, a warning will be displayed and that language will be skipped
+* Use the `--check` option with `--lines` to verify that target files exist without translating
+* When using `--check` with `--lines`, verbose output (`-v`) will display which files would be translated and show the specific lines that would be translated
+
+**Check-only mode example:**
+
+```bash
+DocLanguageTranslator -d c:\path\userdocs -f c:\path\userdocs\en\file1.md -r 10-25 --check -v
+```
+
+This will verify that target files exist in all language directories without performing any translation. With verbose mode enabled, it will also display:
+
+* Which target files would receive the translated content
+* The source and target languages for each translation
+* The actual content of the lines that would be translated
 
 ### Limitations
 

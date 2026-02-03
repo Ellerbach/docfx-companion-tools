@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using DocFXLanguageGenerator.Domain;
 using DocFXLanguageGenerator.Helpers;
 using DocLanguageTranslator.FileService;
+using DocLanguageTranslator.TranslationMode;
 using DocLanguageTranslator.TranslationService;
 using Markdig;
 
@@ -60,6 +61,8 @@ namespace DocFXLanguageGenerator
             messageHelper.Verbose($"Key                 : {options.Key}");
             messageHelper.Verbose($"Location            : {options.Location}");
             messageHelper.Verbose($"Source language     : {options.SourceLanguage}");
+            messageHelper.Verbose($"Source file         : {options.SourceFile}");
+            messageHelper.Verbose($"Line range          : {options.LineRange}");
 
             if (string.IsNullOrEmpty(subscriptionKey) && !options.CheckOnly)
             {
@@ -71,6 +74,12 @@ namespace DocFXLanguageGenerator
             {
                 messageHelper.Error($"ERROR: Documentation folder '{options.DocFolder}' doesn't exist.");
                 return 1;
+            }
+
+            // Check if line range mode is enabled
+            if (!string.IsNullOrEmpty(options.LineRange))
+            {
+                return RunLineRangeTranslation();
             }
 
             // Here we take the root directory passed for example ./userdocs
@@ -109,9 +118,13 @@ namespace DocFXLanguageGenerator
                                 numberOfFiles++;
                                 returnValue = 1;
                             }
-                            else if (TranslateMarkdown(markdown, sourceLang, targetFile, targetLang))
+                            else
                             {
-                                numberOfFiles++;
+                                var mode = new FullFileTranslationMode(EnsureDirectoryExists);
+                                if (TranslateMarkdown(markdown, sourceLang, targetFile, targetLang, mode))
+                                {
+                                    numberOfFiles++;
+                                }
                             }
                         }
                     }
@@ -154,6 +167,38 @@ namespace DocFXLanguageGenerator
             return dirName.Length >= 2
                 ? dirName.Substring(0, 2).ToLower(CultureInfo.InvariantCulture)
                 : dirName;
+        }
+
+        /// <summary>
+        /// Parses a line range string (e.g., "1-10") into start and end line numbers.
+        /// </summary>
+        /// <param name="lineRange">The line range string to parse.</param>
+        /// <param name="startLine">The parsed start line number (1-based).</param>
+        /// <param name="endLine">The parsed end line number (1-based, inclusive).</param>
+        /// <returns><c>true</c> if parsing was successful; otherwise, <c>false</c>.</returns>
+        internal bool TryParseLineRange(string lineRange, out int startLine, out int endLine)
+        {
+            startLine = 0;
+            endLine = 0;
+
+            if (string.IsNullOrWhiteSpace(lineRange))
+            {
+                return false;
+            }
+
+            var parts = lineRange.Split('-');
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            if (!int.TryParse(parts[0].Trim(), out startLine) ||
+                !int.TryParse(parts[1].Trim(), out endLine))
+            {
+                return false;
+            }
+
+            return startLine > 0 && endLine >= startLine;
         }
 
         private static string TransformMarkdown(string input, MarkdownPipeline pipeline, Func<string, string> func)
@@ -202,26 +247,42 @@ namespace DocFXLanguageGenerator
                 .ToArray();
         }
 
-        private bool TranslateMarkdown(string inputFile, string sourceLang, string outputFile, string targetLang)
+        private bool TranslateMarkdown(
+            string inputFile,
+            string sourceLang,
+            string outputFile,
+            string targetLang,
+            ITranslationMode mode)
         {
             try
             {
-                messageHelper.Verbose($"Translating {inputFile} [{sourceLang} to {targetLang}]");
-                string mdContent = fileService.ReadAllText(inputFile);
+                messageHelper.Verbose(mode.FormatStartMessage(inputFile, outputFile, sourceLang, targetLang));
+
+                string mdContent = mode.ReadContent(fileService, inputFile);
+                if (string.IsNullOrEmpty(mdContent))
+                {
+                    string errorMessage = mode.GetNoContentErrorMessage();
+                    if (errorMessage != null)
+                    {
+                        messageHelper.Error(errorMessage);
+                    }
+
+                    returnValue = 1;
+                    return false;
+                }
 
                 string translated = TransformMarkdown(mdContent, markdownPipeline, value =>
                     ProcessMarkdownSegment(value, sourceLang, targetLang));
 
                 Console.WriteLine();
 
-                // Clean the results as when translating relative path and link on images are distorded
+                // Clean the results as when translating relative path and link on images are distorted
                 translated = translated.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
 
-                EnsureDirectoryExists(Path.GetDirectoryName(outputFile));
-
                 // Save the file
-                messageHelper.Verbose($"Saving {outputFile}");
-                fileService.WriteAllText(outputFile, translated);
+                mode.WriteContent(fileService, outputFile, translated);
+                messageHelper.Verbose(mode.FormatCompletionMessage(outputFile));
+
                 return true;
             }
 #pragma warning disable CA1031 // Quite a lot of exceptions can happen here
@@ -291,6 +352,124 @@ namespace DocFXLanguageGenerator
             }
 
             return result;
+        }
+
+        private int RunLineRangeTranslation()
+        {
+            // Validate required options for line range mode
+            if (string.IsNullOrEmpty(options.SourceFile))
+            {
+                messageHelper.Error("ERROR: --sourcefile is required when using --lines option.");
+                return 1;
+            }
+
+            if (!TryParseLineRange(options.LineRange, out int startLine, out int endLine))
+            {
+                messageHelper.Error("ERROR: Invalid line range format. Use format like '1-10' or '5-20'.");
+                return 1;
+            }
+
+            if (!fileService.FileExists(options.SourceFile))
+            {
+                messageHelper.Error($"ERROR: Source file '{options.SourceFile}' doesn't exist.");
+                return 1;
+            }
+
+            string rootDirectory = options.DocFolder;
+            var allLanguagesDirectories = FindAllRootLanguages(rootDirectory);
+
+            // Find the source language directory by checking which language directory contains the source file
+            string normalizedSourceFile = options.SourceFile.Replace('\\', '/');
+            string sourceDir = allLanguagesDirectories
+                .Select(dir => dir.Replace('\\', '/'))
+                .FirstOrDefault(dir => normalizedSourceFile.StartsWith(dir, StringComparison.OrdinalIgnoreCase));
+
+            if (sourceDir == null)
+            {
+                string detectedDirs = allLanguagesDirectories.Length > 0
+                    ? string.Join(", ", allLanguagesDirectories)
+                    : "none";
+                messageHelper.Error($"ERROR: Source file '{options.SourceFile}' is not within any language directory. Detected language directories: {detectedDirs}");
+                return 1;
+            }
+
+            string sourceLang = GetLanguageCodeFromPath(sourceDir);
+            var lineRangeMode = new LineRangeTranslationMode(startLine, endLine);
+            int numberOfFiles = 0;
+
+            foreach (var langDir in allLanguagesDirectories)
+            {
+                string normalizedLangDir = langDir.Replace('\\', '/');
+                string targetLang = GetLanguageCodeFromPath(langDir);
+
+                // Skip the source language directory
+                if (normalizedLangDir.Equals(sourceDir, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Determine target file path
+                string targetFile = normalizedSourceFile.Replace(sourceDir, normalizedLangDir);
+
+                if (!fileService.FileExists(targetFile))
+                {
+                    if (options.CheckOnly)
+                    {
+                        messageHelper.Error($"ERROR: Target file '{targetFile}' doesn't exist.");
+                        numberOfFiles++;
+                        returnValue = 1;
+                    }
+                    else
+                    {
+                        messageHelper.Warning($"WARNING: Target file '{targetFile}' doesn't exist. Skipping.");
+                    }
+
+                    continue;
+                }
+
+                if (options.CheckOnly)
+                {
+                    // Show what would be translated
+                    messageHelper.Verbose($"Would translate lines {startLine}-{endLine} from '{options.SourceFile}' to '{targetFile}' [{sourceLang} to {targetLang}]");
+                    string[] sourceLines = fileService.ReadLines(options.SourceFile, startLine, endLine);
+                    for (int i = 0; i < sourceLines.Length; i++)
+                    {
+                        messageHelper.Verbose($"  Line {startLine + i}: {sourceLines[i]}");
+                    }
+
+                    numberOfFiles++;
+                }
+                else if (TranslateMarkdown(options.SourceFile, sourceLang, targetFile, targetLang, lineRangeMode))
+                {
+                    numberOfFiles++;
+                }
+            }
+
+            PrintLineRangeCompletionMessage(numberOfFiles);
+            return returnValue;
+        }
+
+        private void PrintLineRangeCompletionMessage(int numberOfFiles)
+        {
+            string finalOutput = "Process finished.";
+            if (options.CheckOnly && returnValue != 0)
+            {
+                finalOutput += $" {numberOfFiles} target file(s) missing. Please check the previous lines.";
+            }
+            else if (options.CheckOnly && numberOfFiles > 0)
+            {
+                finalOutput += $" {numberOfFiles} file(s) would be updated with translated line range.";
+            }
+            else if (numberOfFiles > 0)
+            {
+                finalOutput += $" {numberOfFiles} file(s) updated with translated line range.";
+            }
+            else
+            {
+                finalOutput += " No files were updated.";
+            }
+
+            Console.WriteLine(finalOutput);
         }
     }
 }

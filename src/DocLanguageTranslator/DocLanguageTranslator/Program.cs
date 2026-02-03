@@ -49,6 +49,14 @@ namespace DocFXLanguageGenerator
                 description: "Check missing files in structure only.",
                 getDefaultValue: () => false);
 
+            var sourceFileOption = new Option<string>(
+                aliases: ["--sourcefile", "-f"],
+                description: "The source file path for line range translation.");
+
+            var lineRangeOption = new Option<string>(
+                aliases: ["--lines", "-r"],
+                description: "The range of lines to translate (e.g., '1-10' or '5-20'). Requires --sourcefile.");
+
             // Add options to root command
             rootCommand.AddOption(docFolderOption);
             rootCommand.AddOption(verboseOption);
@@ -56,6 +64,8 @@ namespace DocFXLanguageGenerator
             rootCommand.AddOption(locationOption);
             rootCommand.AddOption(sourceLanguageOption);
             rootCommand.AddOption(checkOnlyOption);
+            rootCommand.AddOption(sourceFileOption);
+            rootCommand.AddOption(lineRangeOption);
 
             // Set command handler
             rootCommand.SetHandler(context =>
@@ -68,6 +78,8 @@ namespace DocFXLanguageGenerator
                     Location = context.ParseResult.GetValueForOption(locationOption),
                     SourceLanguage = context.ParseResult.GetValueForOption(sourceLanguageOption),
                     CheckOnly = context.ParseResult.GetValueForOption(checkOnlyOption),
+                    SourceFile = context.ParseResult.GetValueForOption(sourceFileOption),
+                    LineRange = context.ParseResult.GetValueForOption(lineRangeOption),
                 };
 
                 context.ExitCode = RunLogic(options);
