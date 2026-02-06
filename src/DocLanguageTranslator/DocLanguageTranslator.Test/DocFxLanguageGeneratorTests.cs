@@ -546,4 +546,40 @@ public sealed class DocFxLanguageGeneratorTests
             Assert.Equal(expectedEnd, endLine);
         }
     }
+
+    [Fact]
+    public void LineRange_ExceedingFileLineCount_ReturnsError()
+    {
+        // Arrange - file has only 3 lines but range requests lines 10-20
+        mockFileService.CreateDirectory("docs");
+        mockFileService.CreateDirectory("docs/en");
+        mockFileService.CreateDirectory("docs/fr");
+        mockFileService.WriteAllText("docs/en/file1.md", "# Title\nLine 2\nLine 3");
+        mockFileService.WriteAllText("docs/fr/file1.md", "# Titre\nLigne 2\nLigne 3");
+
+        CommandlineOptions options = new CommandlineOptions
+        {
+            DocFolder = "docs",
+            Key = "valid-key",
+            SourceFile = "docs/en/file1.md",
+            LineRange = "10-20",
+            Verbose = true,
+        };
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(1, returnValue);
+        Assert.NotEmpty(mockMessageHelper.Errors);
+        mockTranslationService.Verify(
+            t => t.TranslateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
 }
