@@ -191,6 +191,8 @@ This will verify that target files exist in all language directories without per
 * The source and target languages for each translation
 * The actual content of the lines that would be translated
 
+> **Design note:** The explicit line range approach was chosen over automatic change detection (e.g., diff-based or marker-based) because it is simpler, fully predictable, and does not depend on version control state or special syntax in documents. The trade-off is that users must identify the line numbers themselves, but this keeps the tool deterministic and free of hidden heuristics.
+
 ### Limitations
 
 * The translation process is not perfect! It is more than strongly encouraged to have someone speaking natively the language to help in doing the translation in a better way.
