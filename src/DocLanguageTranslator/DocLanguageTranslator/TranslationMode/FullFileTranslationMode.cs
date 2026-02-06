@@ -28,7 +28,12 @@ internal class FullFileTranslationMode : ITranslationMode
     /// <inheritdoc/>
     public void WriteContent(IFileService fileService, string outputFile, string translatedContent)
     {
-        ensureDirectoryExists(Path.GetDirectoryName(outputFile));
+        var directory = Path.GetDirectoryName(outputFile);
+        if (directory is not null)
+        {
+            ensureDirectoryExists(directory);
+        }
+
         fileService.WriteAllText(outputFile, translatedContent);
     }
 
