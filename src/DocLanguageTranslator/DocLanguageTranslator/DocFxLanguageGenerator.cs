@@ -408,8 +408,18 @@ namespace DocFXLanguageGenerator
                     continue;
                 }
 
-                // Determine target file path
-                string targetFile = normalizedSourceFile.Replace(sourceDir, normalizedLangDir);
+                // Determine target file path by replacing only the language directory prefix
+                string targetFile;
+                if (normalizedSourceFile.StartsWith(sourceDir, StringComparison.OrdinalIgnoreCase))
+                {
+                    targetFile = normalizedLangDir + normalizedSourceFile.Substring(sourceDir.Length);
+                }
+                else
+                {
+                    // Fallback: if the source file path does not start with the expected sourceDir,
+                    // leave it unchanged rather than performing a global replacement.
+                    targetFile = normalizedSourceFile;
+                }
 
                 if (!fileService.FileExists(targetFile))
                 {
