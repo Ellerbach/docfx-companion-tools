@@ -42,7 +42,7 @@ public class MockFileService : IFileService
     {
         if (Files.TryGetValue(filePath, out var content))
         {
-            return content.Split('\n');
+            return content.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
         }
 
         return [];
