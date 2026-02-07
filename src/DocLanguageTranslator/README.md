@@ -32,7 +32,7 @@ This tool allows to generate and translate automatically missing files or identi
 
 As for the rest of the documentation, all attachments should be in the `.attachments` folder and all sub folder directories should match a language international code. In the previous example, `en` for English, `de` for German, and `zh-Hans` for Chinese (Simplified).
 
-All the Markdown's file names **must** be the same in all the sub directories. This tool can check the integrity as well as automatically creating the missing files and translate them at the same time.
+All translatable file names (`.md` and `.yml`) **must** be the same in all the sub directories. This tool can check the integrity as well as automatically creating the missing files and translate them at the same time.
 
 ## Usage
 
@@ -66,9 +66,9 @@ If you want to trace what the tool is doing, use the `-v or verbose` flag to out
 
 ## Checking file structure integrity
 
-If the `-c or --check` parameter is provided, the tool will inspect every folder with Markdown file and will check that those files are present in all the other language folder.
+If the `-c or --check` parameter is provided, the tool will inspect every folder with translatable files and will check that those files are present in all the other language folder.
 
-If there are not the exact same Markdown files (extension must be `.md`) an error will be raised and the missing files will be displayed in the output.
+If there are not the exact same files (supported extensions: `.md` and `.yml`) an error will be raised and the missing files will be displayed in the output.
 
 ## Creating the missing files for all language directories
 
@@ -136,7 +136,9 @@ Once you run the command, the program will look at the exiting file in each dire
   toc.yml
 ```
 
-The full file structure and all the Markdown files will be created in the `fr` directory and translated to French from the different sources.
+The full file structure and all translatable files (`.md` and `.yml`) will be created in the `fr` directory and translated to French from the different sources.
+
+Markdown files (`.md`) are translated using a Markdown-aware pipeline that preserves document structure and links. All other supported files (`.yml`) are translated as plain text.
 
 The `and-more.md` file existing only in the `de` language will be translated to English and French.
 

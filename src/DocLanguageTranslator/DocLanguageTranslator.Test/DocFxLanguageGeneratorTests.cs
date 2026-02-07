@@ -548,6 +548,76 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
+    public void LineRange_TranslatesYamlLineContent()
+    {
+        // Arrange - YAML content (toc.yml) should be translated as plain text,
+        // not parsed through the Markdown pipeline which silently drops YAML lines.
+        mockFileService.CreateDirectory("docs");
+        mockFileService.CreateDirectory("docs/en");
+        mockFileService.CreateDirectory("docs/fr");
+        string yamlContent = """
+            items:
+            - name: Getting Started
+              href: getting-started.md
+            - name: Overview
+              expanded: true
+              items:
+                - name: Introduction
+                  href: overview/introduction.md
+            """;
+        mockFileService.WriteAllText("docs/en/toc.yml", yamlContent);
+        mockFileService.WriteAllText("docs/fr/toc.yml", yamlContent.Replace("Introduction", "Ancien texte"));
+
+        CommandlineOptions options = new CommandlineOptions
+        {
+            DocFolder = "docs",
+            Key = "valid-key",
+            SourceFile = "docs/en/toc.yml",
+            LineRange = "7-7", // "    - name: Introduction"
+            Verbose = true,
+        };
+
+        mockTranslationService
+            .Setup(t => t.TranslateAsync(It.IsAny<string>(), "en", "fr"))
+            .ReturnsAsync((string text, string _, string _) =>
+                text.Replace("Introduction", "Présentation"));
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(0, returnValue);
+
+        // Verify translation was called with the YAML line content
+        mockTranslationService.Verify(
+            t => t.TranslateAsync(It.Is<string>(s => s.Contains("Introduction")), "en", "fr"),
+            Times.Once);
+
+        string resultContent = mockFileService.Files["docs/fr/toc.yml"];
+        Assert.Contains("Présentation", resultContent);
+        Assert.DoesNotContain("Ancien texte", resultContent);
+    }
+
+    [Theory]
+    [InlineData("docs/en/file.md", true)]
+    [InlineData("docs/en/FILE.MD", true)]
+    [InlineData("docs/en/readme.Md", true)]
+    [InlineData("docs/en/toc.yml", false)]
+    [InlineData("docs/en/toc.yaml", false)]
+    [InlineData("docs/en/file.txt", false)]
+    [InlineData("docs/en/file", false)]
+    public void IsMarkdownFile_DetectsCorrectly(string filePath, bool expected)
+    {
+        Assert.Equal(expected, DocFxLanguageGenerator.IsMarkdownFile(filePath));
+    }
+
+    [Fact]
     public void LineRange_ExceedingFileLineCount_ReturnsError()
     {
         // Arrange - file has only 3 lines but range requests lines 10-20

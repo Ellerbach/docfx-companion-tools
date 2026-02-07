@@ -19,9 +19,12 @@ public class MockFileService : IFileService
     public bool FileExists(string path) => Files.ContainsKey(path);
 
     public string[] GetFiles(string path, string searchPattern, SearchOption searchOption)
-        => Files.Keys
-            .Where(k => k.StartsWith(path) && k.EndsWith(".md"))
+    {
+        string extension = searchPattern.TrimStart('*');
+        return Files.Keys
+            .Where(k => k.StartsWith(path) && k.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
             .ToArray();
+    }
 
     public string[] GetDirectories(string path)
         => Directories.Where(d => d.StartsWith(path)).ToArray();
