@@ -33,4 +33,41 @@ internal class FileService : IFileService
     /// <inheritdoc/>
     public void CreateDirectory(string path)
         => Directory.CreateDirectory(path);
+
+    /// <inheritdoc/>
+    public string[] ReadAllLines(string filePath)
+        => File.ReadAllLines(filePath);
+
+    /// <inheritdoc/>
+    public string[] ReadLines(string filePath, int startLine, int endLine)
+    {
+        var allLines = File.ReadAllLines(filePath);
+        int start = Math.Max(0, startLine - 1);
+        int end = Math.Min(allLines.Length, endLine);
+        int count = end - start;
+
+        if (count <= 0)
+        {
+            return [];
+        }
+
+        return allLines.Skip(start).Take(count).ToArray();
+    }
+
+    /// <inheritdoc/>
+    public void ReplaceLines(string filePath, int startLine, int endLine, string[] newLines)
+    {
+        var allLines = File.ReadAllLines(filePath).ToList();
+        int start = Math.Max(0, startLine - 1);
+        int end = Math.Min(allLines.Count, endLine);
+        int count = end - start;
+
+        if (count > 0)
+        {
+            allLines.RemoveRange(start, count);
+        }
+
+        allLines.InsertRange(start, newLines);
+        File.WriteAllLines(filePath, allLines);
+    }
 }
