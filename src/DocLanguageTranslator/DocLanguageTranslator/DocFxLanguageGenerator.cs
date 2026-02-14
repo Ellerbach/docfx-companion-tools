@@ -220,6 +220,12 @@ namespace DocFXLanguageGenerator
             return writer.ToString();
         }
 
+        /// <summary>
+        /// Cleans common translation artifacts where relative paths and links on images are distorted.
+        /// </summary>
+        private static string CleanTranslationArtifacts(string translated)
+            => translated.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
+
         private void PrintCompletionMessage(int numberOfFiles)
         {
             string finalOutput = "Process finished.";
@@ -310,12 +316,11 @@ namespace DocFXLanguageGenerator
             string translated = TransformMarkdown(content, markdownPipeline, value =>
                 ProcessMarkdownSegment(value, sourceLang, targetLang));
 
-            // Clean the results as when translating relative path and link on images are distorted
-            return translated.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
+            return CleanTranslationArtifacts(translated);
         }
 
         private string TranslatePlainTextContent(string content, string sourceLang, string targetLang)
-            => ProcessMarkdownSegment(content, sourceLang, targetLang);
+            => CleanTranslationArtifacts(ProcessMarkdownSegment(content, sourceLang, targetLang));
 
         private void EnsureDirectoryExists(string path)
         {

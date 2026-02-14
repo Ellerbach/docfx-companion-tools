@@ -618,6 +618,46 @@ public sealed class DocFxLanguageGeneratorTests
     }
 
     [Fact]
+    public void Translate_PlainTextContent_CleansTranslationArtifacts()
+    {
+        // Arrange - YAML file translated via plain text path should have
+        // the same artifact cleanup as Markdown files.
+        mockFileService.CreateDirectory("docs");
+        mockFileService.CreateDirectory("docs/en");
+        mockFileService.CreateDirectory("docs/fr");
+        mockFileService.WriteAllText("docs/en/toc.yml", "- name: Overview");
+
+        CommandlineOptions options = new CommandlineOptions
+        {
+            DocFolder = "docs",
+            Key = "valid-key",
+            Verbose = true,
+        };
+
+        // Simulate translation artifacts the service might introduce
+        mockTranslationService
+            .Setup(t => t.TranslateAsync(It.IsAny<string>(), "en", "fr"))
+            .ReturnsAsync("- nom: ! [image] (.. /img.png) Aperçu");
+
+        DocFxLanguageGenerator generator = new DocFxLanguageGenerator(
+            options,
+            mockFileService,
+            mockTranslationService.Object,
+            mockMessageHelper);
+
+        // Act
+        int returnValue = generator.Run();
+
+        // Assert
+        Assert.Equal(0, returnValue);
+        string resultContent = mockFileService.Files["docs/fr/toc.yml"];
+        Assert.DoesNotContain("! [", resultContent);
+        Assert.DoesNotContain("] (", resultContent);
+        Assert.DoesNotContain("](.. /", resultContent);
+        Assert.Contains("![image](../img.png)", resultContent);
+    }
+
+    [Fact]
     public void LineRange_ExceedingFileLineCount_ReturnsError()
     {
         // Arrange - file has only 3 lines but range requests lines 10-20
