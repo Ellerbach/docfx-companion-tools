@@ -32,7 +32,7 @@ This tool allows to generate and translate automatically missing files or identi
 
 As for the rest of the documentation, all attachments should be in the `.attachments` folder and all sub folder directories should match a language international code. In the previous example, `en` for English, `de` for German, and `zh-Hans` for Chinese (Simplified).
 
-All translatable file names (`.md` and `.yml`) **must** be the same in all the sub directories. This tool can check the integrity as well as automatically creating the missing files and translate them at the same time.
+All translatable file names (Markdown `.md` and YAML `.yml`) **must** be the same in all the sub directories. This tool can check the integrity as well as automatically creating the missing files and translate them at the same time.
 
 ## Usage
 
