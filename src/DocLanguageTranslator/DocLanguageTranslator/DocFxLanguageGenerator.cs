@@ -94,12 +94,12 @@ namespace DocFXLanguageGenerator
 
             foreach (var langDir in sourceLanguageDirectories)
             {
-                // Get all the Markdown files
-                var allMarkdowns = FindAllMarkdownFiles(langDir);
+                // Get all translatable files
+                var allTranslatableFiles = FindAllTranslatableFiles(langDir);
                 string sourceLang = GetLanguageCodeFromPath(langDir);
 
                 // checked that the file exists in other directories
-                foreach (var markdown in allMarkdowns)
+                foreach (var file in allTranslatableFiles)
                 {
                     foreach (var lgDir in allLanguagesDirectories)
                     {
@@ -109,7 +109,7 @@ namespace DocFXLanguageGenerator
                         }
 
                         string targetLang = GetLanguageCodeFromPath(lgDir);
-                        var targetFile = markdown.Replace(langDir, lgDir);
+                        var targetFile = file.Replace(langDir, lgDir);
                         if (!fileService.FileExists(targetFile))
                         {
                             if (options.CheckOnly)
@@ -121,7 +121,7 @@ namespace DocFXLanguageGenerator
                             else
                             {
                                 var mode = new FullFileTranslationMode(EnsureDirectoryExists);
-                                if (TranslateMarkdown(markdown, sourceLang, targetFile, targetLang, mode))
+                                if (TranslateFile(file, sourceLang, targetFile, targetLang, mode))
                                 {
                                     numberOfFiles++;
                                 }
@@ -134,6 +134,14 @@ namespace DocFXLanguageGenerator
             PrintCompletionMessage(numberOfFiles);
             return returnValue;
         }
+
+        /// <summary>
+        /// Determines whether the given file path refers to a Markdown file.
+        /// </summary>
+        /// <param name="filePath">The file path to check.</param>
+        /// <returns><c>true</c> if the file has a <c>.md</c> extension; otherwise, <c>false</c>.</returns>
+        internal static bool IsMarkdownFile(string filePath)
+            => Path.GetExtension(filePath).Equals(".md", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Extracts the language code from the given path.
@@ -212,6 +220,12 @@ namespace DocFXLanguageGenerator
             return writer.ToString();
         }
 
+        /// <summary>
+        /// Cleans common translation artifacts where relative paths and links on images are distorted.
+        /// </summary>
+        private static string CleanTranslationArtifacts(string translated)
+            => translated.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
+
         private void PrintCompletionMessage(int numberOfFiles)
         {
             string finalOutput = "Process finished.";
@@ -227,8 +241,12 @@ namespace DocFXLanguageGenerator
             Console.WriteLine(finalOutput);
         }
 
-        private string[] FindAllMarkdownFiles(string rootDirectory)
-        => fileService.GetFiles(rootDirectory, "*.md", SearchOption.AllDirectories);
+        private static readonly string[] SupportedExtensions = [".md", ".yml"];
+
+        private string[] FindAllTranslatableFiles(string rootDirectory)
+            => SupportedExtensions
+                .SelectMany(ext => fileService.GetFiles(rootDirectory, $"*{ext}", SearchOption.AllDirectories))
+                .ToArray();
 
         private static readonly HashSet<string> ValidCultureNames = new HashSet<string>(
             CultureInfo.GetCultures(CultureTypes.AllCultures)
@@ -247,7 +265,7 @@ namespace DocFXLanguageGenerator
                 .ToArray();
         }
 
-        private bool TranslateMarkdown(
+        private bool TranslateFile(
             string inputFile,
             string sourceLang,
             string outputFile,
@@ -258,8 +276,8 @@ namespace DocFXLanguageGenerator
             {
                 messageHelper.Verbose(mode.FormatStartMessage(inputFile, outputFile, sourceLang, targetLang));
 
-                string mdContent = mode.ReadContent(fileService, inputFile);
-                if (string.IsNullOrEmpty(mdContent))
+                string content = mode.ReadContent(fileService, inputFile);
+                if (string.IsNullOrEmpty(content))
                 {
                     string errorMessage = mode.GetNoContentErrorMessage();
                     if (errorMessage != null)
@@ -271,13 +289,11 @@ namespace DocFXLanguageGenerator
                     return false;
                 }
 
-                string translated = TransformMarkdown(mdContent, markdownPipeline, value =>
-                    ProcessMarkdownSegment(value, sourceLang, targetLang));
+                string translated = IsMarkdownFile(inputFile)
+                    ? TranslateMarkdownContent(content, sourceLang, targetLang)
+                    : TranslatePlainTextContent(content, sourceLang, targetLang);
 
                 Console.WriteLine();
-
-                // Clean the results as when translating relative path and link on images are distorted
-                translated = translated.Replace("! [", "![").Replace("] (", "](").Replace("](.. /", "](../");
 
                 // Save the file
                 mode.WriteContent(fileService, outputFile, translated);
@@ -294,6 +310,17 @@ namespace DocFXLanguageGenerator
                 return false;
             }
         }
+
+        private string TranslateMarkdownContent(string content, string sourceLang, string targetLang)
+        {
+            string translated = TransformMarkdown(content, markdownPipeline, value =>
+                ProcessMarkdownSegment(value, sourceLang, targetLang));
+
+            return CleanTranslationArtifacts(translated);
+        }
+
+        private string TranslatePlainTextContent(string content, string sourceLang, string targetLang)
+            => CleanTranslationArtifacts(ProcessMarkdownSegment(content, sourceLang, targetLang));
 
         private void EnsureDirectoryExists(string path)
         {
@@ -449,7 +476,7 @@ namespace DocFXLanguageGenerator
 
                     numberOfFiles++;
                 }
-                else if (TranslateMarkdown(options.SourceFile, sourceLang, targetFile, targetLang, lineRangeMode))
+                else if (TranslateFile(options.SourceFile, sourceLang, targetFile, targetLang, lineRangeMode))
                 {
                     numberOfFiles++;
                 }
