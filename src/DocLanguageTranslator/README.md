@@ -138,7 +138,7 @@ Once you run the command, the program will look at the exiting file in each dire
 
 The full file structure and all translatable files (Markdown `.md` and YAML `.yml`) will be created in the `fr` directory and translated to French from the different sources.
 
-Markdown files (`.md`) are translated using a Markdown-aware pipeline that preserves document structure and links. All other supported files (`.yml`) are translated as plain text.
+Markdown files (`.md`) are translated using a Markdown-aware pipeline that preserves document structure and links. All other supported files (YAML `.yml`) are translated as plain text.
 
 The `and-more.md` file existing only in the `de` language will be translated to English and French.
 
