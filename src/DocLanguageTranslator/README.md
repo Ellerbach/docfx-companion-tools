@@ -68,7 +68,7 @@ If you want to trace what the tool is doing, use the `-v or verbose` flag to out
 
 If the `-c or --check` parameter is provided, the tool will inspect every folder with translatable files and will check that those files are present in all the other language folder.
 
-If there are not the exact same files (supported extensions: `.md` and `.yml`) an error will be raised and the missing files will be displayed in the output.
+If there are not the exact same files (supported extensions: Markdown `.md` and YAML `.yml`) an error will be raised and the missing files will be displayed in the output.
 
 ## Creating the missing files for all language directories
 
