@@ -61,6 +61,7 @@ namespace DocFXLanguageGenerator
             messageHelper.Verbose($"Key                 : {options.Key}");
             messageHelper.Verbose($"Location            : {options.Location}");
             messageHelper.Verbose($"Source language     : {options.SourceLanguage}");
+            messageHelper.Verbose($"Target languages    : {(options.TargetLanguages != null && options.TargetLanguages.Length > 0 ? string.Join(", ", options.TargetLanguages) : "(auto-discover)")}");
             messageHelper.Verbose($"Source file         : {options.SourceFile}");
             messageHelper.Verbose($"Line range          : {options.LineRange}");
             messageHelper.Verbose($"Insert lines        : {options.InsertLines}");
@@ -87,6 +88,7 @@ namespace DocFXLanguageGenerator
             // We expect to have sub folders like ./userdocs/en ./userdocs/de, etc
             string rootDirectory = options.DocFolder;
             var allLanguagesDirectories = FindAllRootLanguages(rootDirectory);
+            var targetLanguagesDirectories = GetTargetLanguageDirectories(rootDirectory, allLanguagesDirectories);
 
             // use the source language if it is specified
             var sourceLanguageDirectories = options.SourceLanguage != null
@@ -102,7 +104,7 @@ namespace DocFXLanguageGenerator
                 // checked that the file exists in other directories
                 foreach (var file in allTranslatableFiles)
                 {
-                    foreach (var lgDir in allLanguagesDirectories)
+                    foreach (var lgDir in targetLanguagesDirectories)
                     {
                         if (langDir == lgDir)
                         {
@@ -266,6 +268,19 @@ namespace DocFXLanguageGenerator
                 .ToArray();
         }
 
+        private string[] GetTargetLanguageDirectories(string rootDirectory, string[] allLanguagesDirectories)
+        {
+            if (options.TargetLanguages == null || options.TargetLanguages.Length == 0)
+            {
+                return allLanguagesDirectories;
+            }
+
+            // Build paths for the specified target languages
+            return options.TargetLanguages
+                .Select(lang => Path.Combine(rootDirectory, lang).Replace('\\', '/'))
+                .ToArray();
+        }
+
         private bool TranslateFile(
             string inputFile,
             string sourceLang,
@@ -405,6 +420,7 @@ namespace DocFXLanguageGenerator
 
             string rootDirectory = options.DocFolder;
             var allLanguagesDirectories = FindAllRootLanguages(rootDirectory);
+            var targetLanguagesDirectories = GetTargetLanguageDirectories(rootDirectory, allLanguagesDirectories);
 
             // Find the source language directory by checking which language directory contains the source file
             string normalizedSourceFile = options.SourceFile.Replace('\\', '/');
@@ -429,7 +445,7 @@ namespace DocFXLanguageGenerator
 
             int numberOfFiles = 0;
 
-            foreach (var langDir in allLanguagesDirectories)
+            foreach (var langDir in targetLanguagesDirectories)
             {
                 string normalizedLangDir = langDir.Replace('\\', '/');
                 string targetLang = GetLanguageCodeFromPath(langDir);

@@ -53,6 +53,13 @@ namespace DocFXLanguageGenerator
                 aliases: ["--sourcefile", "-f"],
                 description: "The source file path for line range translation.");
 
+            var languagesOption = new Option<string[]>(
+                aliases: ["--languages", "-t"],
+                description: "One or more target language codes to translate to (e.g., 'de' 'fr' 'zh-Hans'). If not specified, languages are auto-discovered from folder names.")
+            {
+                AllowMultipleArgumentsPerToken = true,
+            };
+
             var lineRangeOption = new Option<string>(
                 aliases: ["--lines", "-r"],
                 description: "The range of lines to translate (e.g., '1-10' or '5-20'). Requires --sourcefile.");
@@ -70,6 +77,7 @@ namespace DocFXLanguageGenerator
             rootCommand.AddOption(sourceLanguageOption);
             rootCommand.AddOption(checkOnlyOption);
             rootCommand.AddOption(sourceFileOption);
+            rootCommand.AddOption(languagesOption);
             rootCommand.AddOption(lineRangeOption);
             rootCommand.AddOption(insertLinesOption);
 
@@ -83,6 +91,7 @@ namespace DocFXLanguageGenerator
                     Key = context.ParseResult.GetValueForOption(keyOption),
                     Location = context.ParseResult.GetValueForOption(locationOption),
                     SourceLanguage = context.ParseResult.GetValueForOption(sourceLanguageOption),
+                    TargetLanguages = context.ParseResult.GetValueForOption(languagesOption),
                     CheckOnly = context.ParseResult.GetValueForOption(checkOnlyOption),
                     SourceFile = context.ParseResult.GetValueForOption(sourceFileOption),
                     LineRange = context.ParseResult.GetValueForOption(lineRangeOption),

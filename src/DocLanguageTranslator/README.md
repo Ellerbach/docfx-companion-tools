@@ -45,6 +45,7 @@ Options:
   -k, --key <key>                         The translator Azure Cognitive Services key.
   -l, --location <location>               The translator Azure Cognitive Services location. [default: westeurope]
   -s, --source <language>                 The source language of files to use for missing translations.
+  -t, --languages <lang1> [<lang2>...]    One or more target language codes to translate to. If not specified, languages are auto-discovered from folder names.
   -c, --check                             Check missing files in structure only. [default: False]
   -f, --sourcefile <sourcefile>           The source file path for line range translation.
   -r, --lines <lines>                     The range of lines to translate (e.g., '1-10'). Requires --sourcefile.
@@ -151,6 +152,20 @@ To explicitly set the source language, pass the language code to the `-s or --so
 
 In this case, only missing files which exist in the source language directory will be used for translations.
 
+### Target languages
+
+By default, the tool auto-discovers target languages by enumerating subdirectories that match valid culture names (e.g., `en`, `de`, `fr`, `zh-Hans`).
+
+To translate only to specific languages, use the `-t or --languages` option with one or more language codes:
+
+```bash
+DocLanguageTranslator -d c:\path\userdocs -k your-key -s en -t de fr
+```
+
+This will only translate missing files from `en` to `de` and `fr`, even if other language directories exist.
+
+If the target language directory does not yet exist, the tool will create it automatically.
+
 ### Translating specific line ranges
 
 If you only need to translate a specific range of lines from a source document (instead of the entire file), you can use the `-r or --lines` option together with the `-f or --sourcefile` option.
@@ -200,7 +215,7 @@ This command will:
 
 | Flag | Behavior |
 |---|---|
-| `--lines 5-7` (default) | Replaces lines 5–7 in each target file with translated content |
+| `--lines 5-7` (default) | Replaces lines 5â€“7 in each target file with translated content |
 | `--lines 5-7 --insert` | Inserts translated content before line 5 in each target file, keeping all existing lines |
 
 **Check-only mode example:**

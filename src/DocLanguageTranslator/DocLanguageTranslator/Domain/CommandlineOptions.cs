@@ -53,5 +53,12 @@ namespace DocFXLanguageGenerator.Domain
         /// at the specified position instead of replacing existing lines in the target file.
         /// </summary>
         public bool InsertLines { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target language codes to translate to.
+        /// When specified, only these languages are used as translation targets.
+        /// When null or empty, languages are auto-discovered from folder names.
+        /// </summary>
+        public string[] TargetLanguages { get; set; }
     }
 }
