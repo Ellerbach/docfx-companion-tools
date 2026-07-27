@@ -12,27 +12,27 @@ jobs:
     steps:
       # Checkout sources. Depth=0 is for using GitVersion
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.x
         
       # Install and Setup GitVersion
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.0.0
+      uses: gittools/actions/gitversion/setup@v4.6.0
       with:
-        versionSpec: '5.x'
+        versionSpec: '6.x'
 
       # Step id is used as reference for the output values
     - name: Use GitVersion to determine the version
       id: gitversion 
-      uses: gittools/actions/gitversion/execute@v3.0.0
+      uses: gittools/actions/gitversion/execute@v4.6.0
       with:
-        useConfigFile: true
+        configFilePath: GitVersion.yml
        
     # Build the tools & create the zip-file and nuget packages
     # Chocolatey tools are in .\tools. NuGet packages in .\artifacts
@@ -44,7 +44,7 @@ jobs:
     # to the current commit
     - name: Build Changelog
       id: github_release
-      uses: mikepenz/release-changelog-builder-action@v1
+      uses: mikepenz/release-changelog-builder-action@v6.2.3
       with:
         configuration: "./changelog-config.json"
         fromTag: ${{ steps.gitversion.outputs.VersionSourceSha }}
@@ -55,7 +55,7 @@ jobs:
     # Create GitHub release with created zip-file and CHANGELOG for Chocolatey and releases
     # NOTE: this is where we prepend "v" before the version in the tag/release
     - name: Create release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.21.0
       with:
         skipIfReleaseExists: true
         artifacts: "./tools.zip"

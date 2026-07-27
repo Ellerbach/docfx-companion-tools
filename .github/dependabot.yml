@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/src"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 10
