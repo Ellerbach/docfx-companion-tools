@@ -17,20 +17,20 @@ jobs:
         fetch-depth: 0
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 8.x
         
       # Install and Setup GitVersion
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.6.0
+      uses: gittools/actions/gitversion/setup@v4.7.0
       with:
         versionSpec: '6.x'
 
       # Step id is used as reference for the output values
     - name: Use GitVersion to determine the version
       id: gitversion 
-      uses: gittools/actions/gitversion/execute@v4.6.0
+      uses: gittools/actions/gitversion/execute@v4.7.0
       with:
         configFilePath: GitVersion.yml
        
