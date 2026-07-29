@@ -25,7 +25,7 @@ public class MockFileService : IFileService
         else
         {
             // linux
-            Root = "/Git/Project";
+            Root = "/tmp/Git/Project";
         }
     }
 
@@ -383,4 +383,3 @@ system-copilot -q ""provide your question here""
         }
     }
 }
-
