@@ -58,7 +58,7 @@ choco install docfx-companion-tools
 ```
 
 > [!NOTE]
-> The tools expect the .NET Framework 6 to be installed locally. If you need to run them in a framework which is higher,
+> The tools expect the .NET 10 to be installed locally. If you need to run them in a framework which is higher,
 > add `--roll-forward Major` as a parameter like this:
 > `~/.dotnet/tools/DocLinkChecker --roll-forward Major`
 
