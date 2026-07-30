@@ -11,6 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates", Justification = "No need to optimaze in console app.")]
 [assembly: SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "No need to optimize in console app.")]
+[assembly: SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging computations", Justification = "No need to optimize in console app.")]
 [assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1309:Field names should not begin with underscore", Justification = "Coding style different")]
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:Prefix local calls with this", Justification = "We don't want this.")]
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "We will decide case by case.")]
