@@ -96,7 +96,7 @@ public class FileInfoService
                 // if local reference, return the filename otherwise the calculated path.
                 if (pos != 0)
                 {
-                    link.UrlFullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(link.FilePath)!.NormalizePath(), link.UrlWithoutTopic)).NormalizePath();
+                    link.UrlFullPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(link.FilePath)!.NormalizePath(), link.UrlWithoutTopic.NormalizePath())).NormalizePath();
                 }
             }
             else
