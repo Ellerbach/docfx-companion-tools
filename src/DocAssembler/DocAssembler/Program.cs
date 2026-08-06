@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using DocAssembler;
 using DocAssembler.Actions;
 using DocAssembler.Configuration;
@@ -15,29 +13,31 @@ using Microsoft.Extensions.Logging;
 var logLevel = LogLevel.Warning;
 
 // parameters/options
-var configFileOption = new Option<FileInfo>(
-    name: "--config",
-    description: "The configuration file for the assembled documentation.")
+var configFileOption = new Option<FileInfo>("--config")
 {
-    IsRequired = true,
+    Description = "The configuration file for the assembled documentation.",
+    Required = true,
 };
 
-var workingFolderOption = new Option<DirectoryInfo>(
-    name: "--workingfolder",
-    description: "The working folder. Default is the current folder.");
+var workingFolderOption = new Option<DirectoryInfo>("--workingfolder")
+{
+    Description = "The working folder. Default is the current folder.",
+};
 
-var outputFolderOption = new Option<DirectoryInfo>(
-    name: "--outfolder",
-    description: "Override the output folder for the assembled documentation in the config file.");
+var outputFolderOption = new Option<DirectoryInfo>("--outfolder")
+{
+    Description = "Override the output folder for the assembled documentation in the config file.",
+};
 
-var cleanupOption = new Option<bool>(
-    name: "--cleanup-output",
-    description: "Cleanup the output folder before generating. NOTE: This will delete all folders and files!");
+var cleanupOption = new Option<bool>("--cleanup-output")
+{
+    Description = "Cleanup the output folder before generating. NOTE: This will delete all folders and files!",
+};
 
-var verboseOption = new Option<bool>(
-    name: "--verbose",
-    description: "Show verbose messages of the process.");
-verboseOption.AddAlias("-v");
+var verboseOption = new Option<bool>("--verbose", "-v")
+{
+    Description = "Show verbose messages of the process.",
+};
 
 // construct the root command
 var rootCommand = new RootCommand(
@@ -51,46 +51,46 @@ var rootCommand = new RootCommand(
     2 - a fatal error occurred.
     """);
 
-rootCommand.AddOption(workingFolderOption);
-rootCommand.AddOption(configFileOption);
-rootCommand.AddOption(outputFolderOption);
-rootCommand.AddOption(cleanupOption);
-rootCommand.AddOption(verboseOption);
+rootCommand.Options.Add(workingFolderOption);
+rootCommand.Options.Add(configFileOption);
+rootCommand.Options.Add(outputFolderOption);
+rootCommand.Options.Add(cleanupOption);
+rootCommand.Options.Add(verboseOption);
 
 var initCommand = new Command("init", "Intialize a configuration file in the current directory if it doesn't exist yet.");
-rootCommand.Add(initCommand);
+rootCommand.Subcommands.Add(initCommand);
 
 // handle the execution of the root command
-rootCommand.SetHandler(async (context) =>
+rootCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
 {
     // setup logging
-    SetLogLevel(context);
+    SetLogLevel(parseResult);
 
     LogParameters(
-        context.ParseResult.GetValueForOption(configFileOption)!,
-        context.ParseResult.GetValueForOption(outputFolderOption),
-        context.ParseResult.GetValueForOption(workingFolderOption),
-        context.ParseResult.GetValueForOption(cleanupOption));
+        parseResult.GetValue(configFileOption)!,
+        parseResult.GetValue(outputFolderOption),
+        parseResult.GetValue(workingFolderOption),
+        parseResult.GetValue(cleanupOption));
 
     // execute the generator
-    context.ExitCode = (int)await AssembleDocumentationAsync(
-        context.ParseResult.GetValueForOption(configFileOption)!,
-        context.ParseResult.GetValueForOption(outputFolderOption),
-        context.ParseResult.GetValueForOption(workingFolderOption),
-        context.ParseResult.GetValueForOption(cleanupOption));
+    return (int)await AssembleDocumentationAsync(
+        parseResult.GetValue(configFileOption)!,
+        parseResult.GetValue(outputFolderOption),
+        parseResult.GetValue(workingFolderOption),
+        parseResult.GetValue(cleanupOption));
 });
 
-// handle the execution of the root command
-initCommand.SetHandler(async (context) =>
+// handle the execution of the init command
+initCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
 {
     // setup logging
-    SetLogLevel(context);
+    SetLogLevel(parseResult);
 
     // execute the configuration file initializer
-    context.ExitCode = (int)await GenerateConfigurationFile();
+    return (int)await GenerateConfigurationFile();
 });
 
-return await rootCommand.InvokeAsync(args);
+return await rootCommand.Parse(args).InvokeAsync();
 
 // main process for configuration file generation.
 async Task<ReturnCode> GenerateConfigurationFile()
@@ -205,9 +205,9 @@ void LogParameters(
     logger.LogInformation($"Cleanup       : {cleanup}");
 }
 
-void SetLogLevel(InvocationContext context)
+void SetLogLevel(ParseResult parseResult)
 {
-    if (context.ParseResult.GetValueForOption(verboseOption))
+    if (parseResult.GetValue(verboseOption))
     {
         logLevel = LogLevel.Debug;
     }

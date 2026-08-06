@@ -3,8 +3,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 // </copyright>
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 using DocFxTocGenerator;
 using DocFxTocGenerator.Actions;
 using DocFxTocGenerator.FileService;
@@ -16,63 +14,67 @@ using Microsoft.Extensions.Logging;
 var logLevel = LogLevel.Warning;
 
 // parameters/options
-var docsFolder = new Option<DirectoryInfo>(
-    name: "--docfolder",
-    description: "The root folder of the documentation.");
-docsFolder.IsRequired = true;
-docsFolder.AddAlias("-d");
-var outputFolder = new Option<DirectoryInfo>(
-    name: "--outfolder",
-    description: "The output folder for the generated table of contents file. Default is the documentation folder.");
-outputFolder.AddAlias("-o");
-var verboseOption = new Option<bool>(
-    name: "--verbose",
-    description: "Show verbose messages of the process.");
-verboseOption.AddAlias("-v");
-var sequenceOption = new Option<bool>(
-    name: "--sequence",
-    description: "Use .order files per folder to define the sequence of files and directories. Format of the file is filename without extension per line.");
-sequenceOption.AddAlias("-s");
-var overrideOption = new Option<bool>(
-    name: "--override",
-    description: "Use .override files per folder to define title overrides for files and folders. Format of the file is filename without extension or directory name followed by a semi-column followed by the custom title per line.");
-overrideOption.AddAlias("-r");
-var ignoreOption = new Option<bool>(
-    name: "--ignore",
-    description: "Use .ignore files per folder to ignore directories. Format of the file is directory name per line.");
-ignoreOption.AddAlias("-g");
-var indexingOption = new Option<IndexGenerationStrategy>(
-    name: "--indexing",
-    description: "When to generated an index.md for a folder.\nNever          - Do not genereate.\nNoDefault      - When no index.md or readme.md found.\nNoDefaultMulti - When no index.md or readme.md found and multiple files.\nEmptyFolders   - For empty folders.\nNotExists      - When no index found.\nNotExistMulti  - When no index and multiple files.");
-indexingOption.SetDefaultValue(IndexGenerationStrategy.Never);
-var folderReferenceOption = new Option<TocFolderReferenceStrategy>(
-    name: "--folderRef",
-    description: "Strategy for folder-entry references.\nNone        - Never reference anything.\nIndex       - Index.md only if exists.\nIndexReadme - Index.md or readme.md if exists.\nFirst       - First file in folder if any exists.");
-folderReferenceOption.SetDefaultValue(TocFolderReferenceStrategy.First);
-var orderingOption = new Option<TocOrderStrategy>(
-    name: "--ordering",
-    description: "How to order items in a folder.\nAll          - Folders and files combined.\nFoldersFirst - Folders first, then files.\nFilesFirst   - Files first, then folders.");
-orderingOption.SetDefaultValue(TocOrderStrategy.All);
-var multiTocOption = new Option<int>(
-    name: "--multitoc",
-    description: "Indicates how deep in the tree toc files should be generated for those folders. A depth of 0 is the root only (default behavior).");
-multiTocOption.AddAlias("-m");
-var camelCaseOption = new Option<bool>(
-    name: "--camelCase",
-    description: "Use camel casing for titles.");
+var docsFolder = new Option<DirectoryInfo>("--docfolder", "-d")
+{
+    Description = "The root folder of the documentation.",
+    Required = true,
+};
+var outputFolder = new Option<DirectoryInfo>("--outfolder", "-o")
+{
+    Description = "The output folder for the generated table of contents file. Default is the documentation folder.",
+};
+var verboseOption = new Option<bool>("--verbose", "-v")
+{
+    Description = "Show verbose messages of the process.",
+};
+var sequenceOption = new Option<bool>("--sequence", "-s")
+{
+    Description = "Use .order files per folder to define the sequence of files and directories. Format of the file is filename without extension per line.",
+};
+var overrideOption = new Option<bool>("--override", "-r")
+{
+    Description = "Use .override files per folder to define title overrides for files and folders. Format of the file is filename without extension or directory name followed by a semi-column followed by the custom title per line.",
+};
+var ignoreOption = new Option<bool>("--ignore", "-g")
+{
+    Description = "Use .ignore files per folder to ignore directories. Format of the file is directory name per line.",
+};
+var indexingOption = new Option<IndexGenerationStrategy>("--indexing")
+{
+    Description = "When to generated an index.md for a folder.\nNever          - Do not genereate.\nNoDefault      - When no index.md or readme.md found.\nNoDefaultMulti - When no index.md or readme.md found and multiple files.\nEmptyFolders   - For empty folders.\nNotExists      - When no index found.\nNotExistMulti  - When no index and multiple files.",
+    DefaultValueFactory = _ => IndexGenerationStrategy.Never,
+};
+var folderReferenceOption = new Option<TocFolderReferenceStrategy>("--folderRef")
+{
+    Description = "Strategy for folder-entry references.\nNone        - Never reference anything.\nIndex       - Index.md only if exists.\nIndexReadme - Index.md or readme.md if exists.\nFirst       - First file in folder if any exists.",
+    DefaultValueFactory = _ => TocFolderReferenceStrategy.First,
+};
+var orderingOption = new Option<TocOrderStrategy>("--ordering")
+{
+    Description = "How to order items in a folder.\nAll          - Folders and files combined.\nFoldersFirst - Folders first, then files.\nFilesFirst   - Files first, then folders.",
+    DefaultValueFactory = _ => TocOrderStrategy.All,
+};
+var multiTocOption = new Option<int>("--multitoc", "-m")
+{
+    Description = "Indicates how deep in the tree toc files should be generated for those folders. A depth of 0 is the root only (default behavior).",
+};
+var camelCaseOption = new Option<bool>("--camelCase")
+{
+    Description = "Use camel casing for titles.",
+};
 
 // deprecated options
-var deprecatedIndexOption = new Option<bool>(
-    name: "--index",
-    description: "[Deprecated: please use --indexing NoDefault]\nAuto generate a index.md for folders without readme.md or index.md file.");
-deprecatedIndexOption.IsHidden = true;
-deprecatedIndexOption.AddAlias("-i");
+var deprecatedIndexOption = new Option<bool>("--index", "-i")
+{
+    Description = "[Deprecated: please use --indexing NoDefault]\nAuto generate a index.md for folders without readme.md or index.md file.",
+    Hidden = true,
+};
 
-var deprecatedNoIndexWithOneFileOption = new Option<bool>(
-    name: "--notwithone",
-    description: "[Deprecated: please use --indexing NotExistMultipleFiles]\nOnly auto generate index.md when a directory contains multiple files. Used in combination with --index (-i) flag.");
-deprecatedNoIndexWithOneFileOption.IsHidden = true;
-deprecatedNoIndexWithOneFileOption.AddAlias("-n");
+var deprecatedNoIndexWithOneFileOption = new Option<bool>("--notwithone", "-n")
+{
+    Description = "[Deprecated: please use --indexing NotExistMultipleFiles]\nOnly auto generate index.md when a directory contains multiple files. Used in combination with --index (-i) flag.",
+    Hidden = true,
+};
 
 // construct the root command
 var rootCommand = new RootCommand(
@@ -86,68 +88,68 @@ var rootCommand = new RootCommand(
     2 - a fatal error occurred.
     """);
 
-rootCommand.AddOption(docsFolder);
-rootCommand.AddOption(outputFolder);
+rootCommand.Options.Add(docsFolder);
+rootCommand.Options.Add(outputFolder);
 
-rootCommand.AddOption(verboseOption);
-rootCommand.AddOption(sequenceOption);
-rootCommand.AddOption(overrideOption);
-rootCommand.AddOption(ignoreOption);
-rootCommand.AddOption(indexingOption);
-rootCommand.AddOption(folderReferenceOption);
-rootCommand.AddOption(orderingOption);
-rootCommand.AddOption(multiTocOption);
-rootCommand.AddOption(camelCaseOption);
+rootCommand.Options.Add(verboseOption);
+rootCommand.Options.Add(sequenceOption);
+rootCommand.Options.Add(overrideOption);
+rootCommand.Options.Add(ignoreOption);
+rootCommand.Options.Add(indexingOption);
+rootCommand.Options.Add(folderReferenceOption);
+rootCommand.Options.Add(orderingOption);
+rootCommand.Options.Add(multiTocOption);
+rootCommand.Options.Add(camelCaseOption);
 
 // deprecated: replaced by indexing flag
-rootCommand.AddOption(deprecatedIndexOption);
-rootCommand.AddOption(deprecatedNoIndexWithOneFileOption);
+rootCommand.Options.Add(deprecatedIndexOption);
+rootCommand.Options.Add(deprecatedNoIndexWithOneFileOption);
 
 // handle the execution of the root command
-rootCommand.SetHandler(async (context) =>
+rootCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
 {
     // setup logging
-    SetLogLevel(context);
+    SetLogLevel(parseResult);
 
     LogParameters(
-        context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
-        context.ParseResult.GetValueForOption(outputFolder)?.FullName ?? context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
-        context.ParseResult.GetValueForOption(sequenceOption),
-        context.ParseResult.GetValueForOption(overrideOption),
-        context.ParseResult.GetValueForOption(ignoreOption),
-        context.ParseResult.GetValueForOption(indexingOption),
-        context.ParseResult.GetValueForOption(folderReferenceOption),
-        context.ParseResult.GetValueForOption(orderingOption),
-        context.ParseResult.GetValueForOption(multiTocOption),
-        context.ParseResult.GetValueForOption(camelCaseOption),
-        context.ParseResult.GetValueForOption(deprecatedIndexOption),
-        context.ParseResult.GetValueForOption(deprecatedNoIndexWithOneFileOption));
+        parseResult.GetValue(docsFolder)?.FullName!,
+        parseResult.GetValue(outputFolder)?.FullName ?? parseResult.GetValue(docsFolder)?.FullName!,
+        parseResult.GetValue(sequenceOption),
+        parseResult.GetValue(overrideOption),
+        parseResult.GetValue(ignoreOption),
+        parseResult.GetValue(indexingOption),
+        parseResult.GetValue(folderReferenceOption),
+        parseResult.GetValue(orderingOption),
+        parseResult.GetValue(multiTocOption),
+        parseResult.GetValue(camelCaseOption),
+        parseResult.GetValue(deprecatedIndexOption),
+        parseResult.GetValue(deprecatedNoIndexWithOneFileOption));
 
     // determine generation type. We're processing the deprecated settings here.
-    IndexGenerationStrategy indexing = context.ParseResult.GetValueForOption(indexingOption);
-    if (context.ParseResult.GetValueForOption(indexingOption) ==
-            IndexGenerationStrategy.Never && context.ParseResult.GetValueForOption(deprecatedIndexOption))
+    IndexGenerationStrategy indexing = parseResult.GetValue(indexingOption);
+    if (parseResult.GetValue(indexingOption) ==
+            IndexGenerationStrategy.Never && parseResult.GetValue(deprecatedIndexOption))
     {
         // only use deprecated setting when indexing is not given.
-        indexing = context.ParseResult.GetValueForOption(deprecatedNoIndexWithOneFileOption) ?
+        indexing = parseResult.GetValue(deprecatedNoIndexWithOneFileOption) ?
                                     IndexGenerationStrategy.NotExistMulti : IndexGenerationStrategy.NotExists;
     }
 
     // execute the generator
-    context.ExitCode = (int)await GenerateTocAsync(
-        context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
-        context.ParseResult.GetValueForOption(outputFolder)?.FullName ?? context.ParseResult.GetValueForOption(docsFolder)?.FullName!,
-        context.ParseResult.GetValueForOption(sequenceOption),
-        context.ParseResult.GetValueForOption(overrideOption),
-        context.ParseResult.GetValueForOption(ignoreOption),
+    return (int)await GenerateTocAsync(
+        parseResult.GetValue(docsFolder)?.FullName!,
+        parseResult.GetValue(outputFolder)?.FullName ?? parseResult.GetValue(docsFolder)?.FullName!,
+        parseResult.GetValue(sequenceOption),
+        parseResult.GetValue(overrideOption),
+        parseResult.GetValue(ignoreOption),
         indexing,
-        context.ParseResult.GetValueForOption(folderReferenceOption),
-        context.ParseResult.GetValueForOption(orderingOption),
-        context.ParseResult.GetValueForOption(multiTocOption),
-        context.ParseResult.GetValueForOption(camelCaseOption));
+        parseResult.GetValue(folderReferenceOption),
+        parseResult.GetValue(orderingOption),
+        parseResult.GetValue(multiTocOption),
+        parseResult.GetValue(camelCaseOption));
 });
 
-return await rootCommand.InvokeAsync(args);
+return await rootCommand.Parse(args).InvokeAsync();
 
 // main process for TOC generation.
 async Task<ReturnCode> GenerateTocAsync(
@@ -244,9 +246,9 @@ void LogParameters(
     logger!.LogInformation($"Camel casing    : {camelCasing}");
 }
 
-void SetLogLevel(InvocationContext context)
+void SetLogLevel(ParseResult parseResult)
 {
-    if (context.ParseResult.GetValueForOption(verboseOption))
+    if (parseResult.GetValue(verboseOption))
     {
         logLevel = LogLevel.Debug;
     }
