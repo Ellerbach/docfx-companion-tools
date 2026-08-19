@@ -19,90 +19,104 @@ namespace DocFXLanguageGenerator
             var rootCommand = new RootCommand("Generates localized versions of DocFX documentation");
 
             // Define options
-            var docFolderOption = new Option<string>(
-                aliases: ["--docfolder", "-d"],
-                description: "Folder containing the documents.")
+            var docFolderOption = new Option<string>("--docfolder", "-d")
             {
-                IsRequired = true,
+                Description = "Folder containing the documents.",
+                Required = true,
             };
 
-            var verboseOption = new Option<bool>(
-                aliases: ["--verbose", "-v"],
-                description: "Show verbose messages.",
-                getDefaultValue: () => false);
-
-            var keyOption = new Option<string>(
-                aliases: ["--key", "-k"],
-                description: "The translator Azure Cognitive Services key.");
-
-            var locationOption = new Option<string>(
-                aliases: ["--location", "-l"],
-                description: "The translator Azure Cognitive Services location.",
-                getDefaultValue: () => "westeurope");
-
-            var sourceLanguageOption = new Option<string>(
-                aliases: ["--source", "-s"],
-                description: "The source language of files to use for missing translations.");
-
-            var checkOnlyOption = new Option<bool>(
-                aliases: ["--check", "-c"],
-                description: "Check missing files in structure only.",
-                getDefaultValue: () => false);
-
-            var sourceFileOption = new Option<string>(
-                aliases: ["--sourcefile", "-f"],
-                description: "The source file path for line range translation.");
-
-            var languagesOption = new Option<string[]>(
-                aliases: ["--languages", "-t"],
-                description: "One or more target language codes to translate to (e.g., 'de' 'fr' 'zh-Hans'). If not specified, languages are auto-discovered from folder names.")
+            var verboseOption = new Option<bool>("--verbose", "-v")
             {
+                Description = "Show verbose messages.",
+                Required = false,
+                DefaultValueFactory = _ => false,
+            };
+
+            var keyOption = new Option<string>("--key", "-k")
+            {
+                Description = "The translator Azure Cognitive Services key.",
+                Required = false,
+            };
+
+            var locationOption = new Option<string>("--location", "-l")
+            {
+                Description = "The translator Azure Cognitive Services location.",
+                Required = false,
+                DefaultValueFactory = _ => "westeurope",
+            };
+
+            var sourceLanguageOption = new Option<string>("--source", "-s")
+            {
+                Description = "The source language of files to use for missing translations.",
+                Required = false,
+            };
+
+            var checkOnlyOption = new Option<bool>("--check", "-c")
+            {
+                Description = "Check missing files in structure only.",
+                Required = false,
+                DefaultValueFactory = _ => false,
+            };
+
+            var sourceFileOption = new Option<string>("--sourcefile", "-f")
+            {
+                Description = "The source file path for line range translation.",
+                Required = false,
+            };
+
+            var languagesOption = new Option<string[]>("--languages", "-t")
+            {
+                Description = "One or more target language codes to translate to (e.g., 'de' 'fr' 'zh-Hans'). If not specified, languages are auto-discovered from folder names.",
                 AllowMultipleArgumentsPerToken = true,
             };
 
-            var lineRangeOption = new Option<string>(
-                aliases: ["--lines", "-r"],
-                description: "The range of lines to translate (e.g., '1-10' or '5-20'). Requires --sourcefile.");
+            var lineRangeOption = new Option<string>("--lines", "-r")
+            {
+                Description = "The range of lines to translate (e.g., '1-10' or '5-20'). Requires --sourcefile.",
+                Required = false,
+            };
 
-            var insertLinesOption = new Option<bool>(
-                aliases: ["--insert", "-i"],
-                description: "Insert translated lines at the specified position instead of replacing existing lines. Requires --lines.",
-                getDefaultValue: () => false);
+            var insertLinesOption = new Option<bool>("--insert", "-i")
+            {
+                Description = "Insert translated lines at the specified position instead of replacing existing lines. Requires --lines.",
+                Required = false,
+                DefaultValueFactory = _ => false,
+            };
 
             // Add options to root command
-            rootCommand.AddOption(docFolderOption);
-            rootCommand.AddOption(verboseOption);
-            rootCommand.AddOption(keyOption);
-            rootCommand.AddOption(locationOption);
-            rootCommand.AddOption(sourceLanguageOption);
-            rootCommand.AddOption(checkOnlyOption);
-            rootCommand.AddOption(sourceFileOption);
-            rootCommand.AddOption(languagesOption);
-            rootCommand.AddOption(lineRangeOption);
-            rootCommand.AddOption(insertLinesOption);
+            rootCommand.Options.Add(docFolderOption);
+            rootCommand.Options.Add(verboseOption);
+            rootCommand.Options.Add(keyOption);
+            rootCommand.Options.Add(locationOption);
+            rootCommand.Options.Add(sourceLanguageOption);
+            rootCommand.Options.Add(checkOnlyOption);
+            rootCommand.Options.Add(sourceFileOption);
+            rootCommand.Options.Add(languagesOption);
+            rootCommand.Options.Add(lineRangeOption);
+            rootCommand.Options.Add(insertLinesOption);
 
             // Set command handler
-            rootCommand.SetHandler(context =>
+            rootCommand.SetAction(context =>
             {
                 CommandlineOptions options = new CommandlineOptions
                 {
-                    DocFolder = context.ParseResult.GetValueForOption(docFolderOption),
-                    Verbose = context.ParseResult.GetValueForOption(verboseOption),
-                    Key = context.ParseResult.GetValueForOption(keyOption),
-                    Location = context.ParseResult.GetValueForOption(locationOption),
-                    SourceLanguage = context.ParseResult.GetValueForOption(sourceLanguageOption),
-                    TargetLanguages = context.ParseResult.GetValueForOption(languagesOption),
-                    CheckOnly = context.ParseResult.GetValueForOption(checkOnlyOption),
-                    SourceFile = context.ParseResult.GetValueForOption(sourceFileOption),
-                    LineRange = context.ParseResult.GetValueForOption(lineRangeOption),
-                    InsertLines = context.ParseResult.GetValueForOption(insertLinesOption),
+                    DocFolder = context.GetValue(docFolderOption),
+                    Verbose = context.GetValue(verboseOption),
+                    Key = context.GetValue(keyOption),
+                    Location = context.GetValue(locationOption),
+                    SourceLanguage = context.GetValue(sourceLanguageOption),
+                    TargetLanguages = context.GetValue(languagesOption),
+                    CheckOnly = context.GetValue(checkOnlyOption),
+                    SourceFile = context.GetValue(sourceFileOption),
+                    LineRange = context.GetValue(lineRangeOption),
+                    InsertLines = context.GetValue(insertLinesOption),
                 };
 
-                context.ExitCode = RunLogic(options);
+                return RunLogic(options);
             });
 
             // Parse and execute
-            int returnValue = await rootCommand.InvokeAsync(args);
+            int returnValue = await rootCommand.Parse(args).InvokeAsync();
 
             Console.WriteLine($"Exit with return code {returnValue}");
 
