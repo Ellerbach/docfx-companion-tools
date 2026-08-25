@@ -1,6 +1,33 @@
-# OpenAPI specification converter for DocFX
+# 🔄 DocFxOpenApi
 
-This tool converts existing [OpenAPI](https://www.openapis.org/) specification files into the format compatible with DocFX (OpenAPI v2 JSON files). It allows DocFX to generate HTML pages from the OpenAPI specification. OpenAPI is also known as [Swagger](https://swagger.io/).
+Make modern OpenAPI specifications consumable by DocFX.
+
+[![NuGet](https://img.shields.io/nuget/v/DocFxOpenApi)](https://www.nuget.org/packages/DocFxOpenApi)
+[![NuGet downloads](https://img.shields.io/nuget/dt/DocFxOpenApi)](https://www.nuget.org/packages/DocFxOpenApi)
+
+DocFxOpenApi converts [OpenAPI](https://www.openapis.org/) v2 or v3 JSON/YAML into the OpenAPI v2 JSON format expected by DocFX. Convert one specification or process a complete folder tree as part of an automated documentation build.
+
+## Support the project
+
+If DocFxOpenApi improves your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
+
+## Highlights
+
+- Read OpenAPI v2 or v3 specifications in JSON or YAML format.
+- Convert a single file or every specification beneath a folder.
+- Generate missing operation IDs required by DocFX.
+- Write converted specifications to the source tree or a separate output folder.
+
+## Install
+
+DocFxOpenApi is built for .NET 10 and expects the .NET 10 runtime to be installed.
+
+```shell
+dotnet tool install --global DocFxOpenApi
+```
+
+> [!TIP]
+> If .NET 10 is not installed but a newer major runtime is available, add `--roll-forward Major` before the tool arguments (for example, `DocFxOpenApi --roll-forward Major --help`) or set the `DOTNET_ROLL_FORWARD` environment variable to `Major`.
 
 ## Usage
 

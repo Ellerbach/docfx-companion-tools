@@ -1,6 +1,33 @@
-# Table of Contents (TOC) generator for DocFX
+# 🗂️ DocFxTocGenerator
 
-This tool allow to generate a yaml compatible `toc.yml` file for DocFX.
+Turn a documentation folder hierarchy into predictable, customizable DocFX navigation.
+
+[![NuGet](https://img.shields.io/nuget/v/DocFxTocGenerator)](https://www.nuget.org/packages/DocFxTocGenerator)
+[![NuGet downloads](https://img.shields.io/nuget/dt/DocFxTocGenerator)](https://www.nuget.org/packages/DocFxTocGenerator)
+
+DocFxTocGenerator creates DocFX-compatible `toc.yml` files directly from Markdown and Swagger content. Control ordering, titles, folder behavior, and index generation without maintaining a large navigation file by hand.
+
+## Support the project
+
+If DocFxTocGenerator improves your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
+
+## Highlights
+
+- Generate a single table of contents or split navigation across multiple folders.
+- Control ordering, title overrides, and ignored content with folder-level files.
+- Generate missing `index.md` pages from built-in or custom Liquid templates.
+- Choose how folders reference index, readme, or child pages.
+
+## Install
+
+DocFxTocGenerator is built for .NET 10 and expects the .NET 10 runtime to be installed.
+
+```shell
+dotnet tool install --global DocFxTocGenerator
+```
+
+> [!TIP]
+> If .NET 10 is not installed but a newer major runtime is available, add `--roll-forward Major` before the tool arguments (for example, `DocFxTocGenerator --roll-forward Major --help`) or set the `DOTNET_ROLL_FORWARD` environment variable to `Major`.
 
 ## Usage
 
