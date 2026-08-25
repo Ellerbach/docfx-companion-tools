@@ -1,34 +1,19 @@
 documentation:
-  - README.md
-  - "**/*.md"
-  - "DocExamples/**"
-  - "PipelineExamples/**"
-  - "src/**/README.md"
+  - changed-files:
+      - any-glob-to-any-file: ['README.md', '**/*.md', 'DocExamples/**', 'PipelineExamples/**', 'src/**/README.md']
 
 feature:
-  - "src/**"
-  - "Dockerfile"
-  - "build.ps1"
-  - "build.sh"
-  - "build.cmd"
-  - ".github/workflows/**"
+  - changed-files:
+      - any-glob-to-any-file: ['src/**', 'Dockerfile', 'build.ps1', 'build.sh', 'build.cmd', '.github/workflows/**']
 
 enhancement:
-  - "src/**"
-  - "Dockerfile"
-  - "build.ps1"
-  - "build.sh"
-  - "build.cmd"
-  - ".github/workflows/**"
+  - changed-files:
+      - any-glob-to-any-file: ['src/**', 'Dockerfile', 'build.ps1', 'build.sh', 'build.cmd', '.github/workflows/**']
 
 fix:
-  - "src/**/*.cs"
-  - "src/**/*.csproj"
-  - "src/**/*.props"
-  - "src/**/*.targets"
+  - changed-files:
+      - any-glob-to-any-file: ['src/**/*.cs', 'src/**/*.csproj', 'src/**/*.props', 'src/**/*.targets']
 
 bug:
-  - "src/**/*.cs"
-  - "src/**/*.csproj"
-  - "src/**/*.props"
-  - "src/**/*.targets"
+  - changed-files:
+      - any-glob-to-any-file: ['src/**/*.cs', 'src/**/*.csproj', 'src/**/*.props', 'src/**/*.targets']

@@ -24,17 +24,23 @@ jobs:
           script: |
             const title = (context.payload.pull_request.title || '').toLowerCase();
             const labelsToAdd = new Set();
+            const wordPattern = /(^|\s|[-_/])([a-z]+)(?=\s|[-_/]|$)/g;
 
-            if (title.includes('fix') || title.includes('bug')) {
+            const words = new Set();
+            for (const match of title.matchAll(wordPattern)) {
+              words.add(match[2]);
+            }
+
+            if (words.has('fix') || /(^|\s)(bug)(?=\s|$)/.test(title)) {
               labelsToAdd.add('fix');
               labelsToAdd.add('bug');
             }
 
-            if (title.includes('doc') || title.includes('documentation')) {
+            if (/(^|\s)(doc|docs|documentation)(?=\s|$)/.test(title)) {
               labelsToAdd.add('documentation');
             }
 
-            if (title.includes('feat') || title.includes('feature') || title.includes('enhancement')) {
+            if (/(^|\s)(feat|feature|enhancement)(?=\s|$)/.test(title)) {
               labelsToAdd.add('feature');
               labelsToAdd.add('enhancement');
             }
