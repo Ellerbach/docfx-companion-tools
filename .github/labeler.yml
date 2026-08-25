@@ -1,0 +1,34 @@
+documentation:
+  - README.md
+  - "**/*.md"
+  - "DocExamples/**"
+  - "PipelineExamples/**"
+  - "src/**/README.md"
+
+feature:
+  - "src/**"
+  - "Dockerfile"
+  - "build.ps1"
+  - "build.sh"
+  - "build.cmd"
+  - ".github/workflows/**"
+
+enhancement:
+  - "src/**"
+  - "Dockerfile"
+  - "build.ps1"
+  - "build.sh"
+  - "build.cmd"
+  - ".github/workflows/**"
+
+fix:
+  - "src/**/*.cs"
+  - "src/**/*.csproj"
+  - "src/**/*.props"
+  - "src/**/*.targets"
+
+bug:
+  - "src/**/*.cs"
+  - "src/**/*.csproj"
+  - "src/**/*.props"
+  - "src/**/*.targets"
