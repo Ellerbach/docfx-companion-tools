@@ -129,15 +129,15 @@ The Dockerfile can package any one of the tools. This example builds and runs Do
 docker build --tag doclinkchecker:latest --build-arg tool=DocLinkChecker -f Dockerfile .
 ```
 
-When you mount a host directory for output or generated files, run the container with the same UID/GID as the host user so the non-root runtime can write to the bind mount.
+When you mount a host directory for output or generated files, the runtime user needs write access. In the official .NET 10 runtime image, the default non-root user is `app` with UID/GID `1654`; `--user 1654:1654` runs the container as that built-in app account, not as your Windows host user. On Windows, bind-mounted files are commonly governed by Docker Desktop and WSL permissions, so prefer a writable directory inside the container or fix the mounted directory ownership from the WSL side before running the tool.
 
-PowerShell:
+PowerShell (run as the image's built-in non-root user):
 
 ```powershell
 docker run --rm --user 1654:1654 -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
 ```
 
-Linux or macOS:
+Linux or macOS (match the host UID/GID):
 
 ```shell
 docker run --rm --user "$(id -u):$(id -g)" -v "$(pwd):/workspace" doclinkchecker:latest -d /workspace
