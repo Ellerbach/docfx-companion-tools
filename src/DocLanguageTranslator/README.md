@@ -1,6 +1,35 @@
-# Translate documentation pages for DocFX
+# 🌐 DocLanguageTranslator
 
-This tool allows to generate and translate automatically missing files or identify missing files in multi language pattern directories. The pattern that should be followed by end user documentation is the following:
+Keep multilingual DocFX content structurally complete and translate only what changed.
+
+[![NuGet](https://img.shields.io/nuget/v/DocLanguageTranslator)](https://www.nuget.org/packages/DocLanguageTranslator)
+[![NuGet downloads](https://img.shields.io/nuget/dt/DocLanguageTranslator)](https://www.nuget.org/packages/DocLanguageTranslator)
+
+DocLanguageTranslator finds missing Markdown and YAML files across language folders and can create translated versions with Azure AI Translator. It also supports targeted line-range updates, avoiding a full-document translation for every edit.
+
+## Support the project
+
+If DocLanguageTranslator improves your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
+
+## Highlights
+
+- Check multilingual folder integrity without calling a translation service.
+- Create missing language folders and files from a selected source language.
+- Preserve Markdown structure and links during document translation.
+- Replace or insert translated line ranges for focused updates.
+
+## Install
+
+DocLanguageTranslator is built for .NET 10 and expects the .NET 10 runtime to be installed.
+
+```shell
+dotnet tool install --global DocLanguageTranslator
+```
+
+> [!TIP]
+> If .NET 10 is not installed but a newer major runtime is available, add `--roll-forward Major` before the tool arguments (for example, `DocLanguageTranslator --roll-forward Major --help`) or set the `DOTNET_ROLL_FORWARD` environment variable to `Major`.
+
+DocLanguageTranslator expects documentation to use matching paths and file names beneath culture-named folders. For example:
 
 ```text
 /userdocs

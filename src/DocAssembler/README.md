@@ -1,6 +1,33 @@
-# Documentation Assembler Tool
+# 🧩 DocAssembler
 
-This tool can be used to assemble documentation from various locations on disk and make sure all links still work.
+Bring documentation scattered across repositories and folders into one DocFX-ready structure without breaking links.
+
+[![NuGet](https://img.shields.io/nuget/v/DocAssembler)](https://www.nuget.org/packages/DocAssembler)
+[![NuGet downloads](https://img.shields.io/nuget/dt/DocAssembler)](https://www.nuget.org/packages/DocAssembler)
+
+DocAssembler collects selected content, maps it into a new hierarchy, rewrites Markdown links, and applies configurable path or content replacements. It is designed for repeatable documentation builds where the published structure differs from the source layout.
+
+## Support the project
+
+If DocAssembler improves your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
+
+## Highlights
+
+- Assemble content and assets from multiple source locations.
+- Restructure documentation while keeping relative links valid.
+- Apply regular-expression replacements to destination paths and Markdown content.
+- Redirect links to files outside the assembled set with a configurable prefix.
+
+## Install
+
+DocAssembler is built for .NET 10 and expects the .NET 10 runtime to be installed.
+
+```shell
+dotnet tool install --global DocAssembler
+```
+
+> [!TIP]
+> If .NET 10 is not installed but a newer major runtime is available, add `--roll-forward Major` before the tool arguments (for example, `DocAssembler --roll-forward Major --help`) or set the `DOTNET_ROLL_FORWARD` environment variable to `Major`.
 
 ## Usage
 

@@ -1,6 +1,33 @@
-# Documentation link checker
+# 🔎 DocLinkChecker
 
-This tool can be used to check references in markdown files.
+Catch broken documentation links, anchors, tables, and orphaned resources before they reach production.
+
+[![NuGet](https://img.shields.io/nuget/v/DocLinkChecker)](https://www.nuget.org/packages/DocLinkChecker)
+[![NuGet downloads](https://img.shields.io/nuget/dt/DocLinkChecker)](https://www.nuget.org/packages/DocLinkChecker)
+
+DocLinkChecker parses Markdown and reports actionable, source-located problems with deterministic exit codes for CI/CD validation. Use it for a quick local scan or configure it for large documentation hierarchies and external link checks.
+
+## Support the project
+
+If DocLinkChecker improves your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
+
+## Highlights
+
+- Validate local files, headings, and optional external URLs.
+- Detect or safely remove orphaned images and other resources.
+- Enforce portable pipe-table formatting.
+- Include or exclude documentation with glob patterns and configurable link strategies.
+
+## Install
+
+DocLinkChecker is built for .NET 10 and expects the .NET 10 runtime to be installed.
+
+```shell
+dotnet tool install --global DocLinkChecker
+```
+
+> [!TIP]
+> If .NET 10 is not installed but a newer major runtime is available, add `--roll-forward Major` before the tool arguments (for example, `DocLinkChecker --roll-forward Major --help`) or set the `DOTNET_ROLL_FORWARD` environment variable to `Major`.
 
 ## Usage
 

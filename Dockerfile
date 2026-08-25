@@ -1,17 +1,32 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
+ARG TARGETARCH
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
 ARG tool
+ARG TARGETARCH
 WORKDIR /app
 
 # Copy project file
 COPY . ./
 # Restore as distinct layers
-RUN dotnet restore "src/${tool}/${tool}.csproj"
+RUN project="src/${tool}/${tool}.csproj"; \
+	if [ ! -f "$project" ]; then project="src/${tool}/${tool}/${tool}.csproj"; fi; \
+	case "$TARGETARCH" in \
+		amd64) rid="linux-x64" ;; \
+		arm64) rid="linux-arm64" ;; \
+		*) echo "Unsupported target architecture: $TARGETARCH" >&2; exit 1 ;; \
+	 esac; \
+	dotnet restore "$project" --runtime "$rid"
 # Build and publish a release
-RUN dotnet publish "src/${tool}/${tool}.csproj" -c Release -r linux-musl-x64 -o out /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false /p:AssemblyName=docfx-companion-tools-entrypoint --self-contained false
+RUN project="src/${tool}/${tool}.csproj"; \
+	if [ ! -f "$project" ]; then project="src/${tool}/${tool}/${tool}.csproj"; fi; \
+	case "$TARGETARCH" in \
+		amd64) rid="linux-x64" ;; \
+		arm64) rid="linux-arm64" ;; \
+		*) echo "Unsupported target architecture: $TARGETARCH" >&2; exit 1 ;; \
+	 esac; \
+	dotnet publish "$project" -c Release -r "$rid" -o out /p:PublishSingleFile=true /p:CopyOutputSymbolsToPublishDirectory=false /p:AssemblyName=docfx-companion-tools-entrypoint --self-contained false
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime:9.0
-RUN adduser -D docfx-companion-tools
+FROM --platform=$TARGETPLATFORM mcr.microsoft.com/dotnet/runtime:10.0
 COPY --from=build-env /app/out /usr/bin/
-USER docfx-companion-tools
+USER $APP_UID
 ENTRYPOINT ["docfx-companion-tools-entrypoint"]

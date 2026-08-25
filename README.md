@@ -1,121 +1,177 @@
 # DocFX Companion Tools
 
-This repository contains a series of tools, templates, tips and tricks to make your [DocFX](https://dotnet.github.io/docfx/) life even better.
+[![Build & Test](https://github.com/Ellerbach/docfx-companion-tools/actions/workflows/build.yml/badge.svg)](https://github.com/Ellerbach/docfx-companion-tools/actions/workflows/build.yml)
+[![GitHub release](https://img.shields.io/github/v/release/Ellerbach/docfx-companion-tools)](https://github.com/Ellerbach/docfx-companion-tools/releases)
+[![License](https://img.shields.io/github/license/Ellerbach/docfx-companion-tools)](LICENSE)
 
-## Tools
+Build reliable documentation pipelines around [DocFX](https://dotnet.github.io/docfx/) with focused command-line tools for assembling content, validating links, generating navigation, translating pages, and preparing OpenAPI specifications.
 
-* [DocAssembler 🆕](./src/DocAssembler): assemble documentation and assets from various locations on disk and assemble them in one place. It is possible to restructure, where the links are changed to the right location.
-* [DocFxTocGenerator](./src/DocFxTocGenerator): generate a Table of Contents (TOC) in YAML format for DocFX. It has features like the ability to configure the order of files and the names of documents and folders.
-* [DocLinkChecker](./src/DocLinkChecker): validate links in documents and check for orphaned attachments in the `.attachments` folder. The tool indicates whether there are errors or warnings, so it can be used in a CI pipeline. It can also clean up orphaned attachments automatically. And it can validate table syntax.
-* [DocLanguageTranslator](./src/DocLanguageTranslator): allows to generate and translate automatically missing files or identify missing files in multi language pattern directories.
-* [DocFxOpenApi](./src/DocFxOpenApi): converts existing [OpenAPI](https://www.openapis.org/) specification files into the format compatible with DocFX (OpenAPI v2 JSON files). It allows DocFX to generate HTML pages from the OpenAPI specification. OpenAPI is also known as [Swagger](https://swagger.io/).
+Use one tool to solve a specific documentation problem, or combine them into a repeatable CI/CD workflow.
 
-## Creating PR's
+## Support the project
 
-The main branch is protected. Features and fixes can be done through PR's only. Make sure you use a proper title for the PR and keep them as small as possible. If you want the PR to pop up in the CHANGELOG, you have to provide one or more labels with the PR. The list of labels that are used:
+If these tools improve your documentation workflow, you can [sponsor ongoing development and maintenance](https://github.com/sponsors/ellerbach).
 
-| Category | Description | Labels |
+## Choose a tool
+
+| When you need to... | Use | What it does |
 | --- | --- | --- |
-| 🚀 Features | New or modified features | feature, enhancement |
-| 🐛 Fixes | All (bug) fixes | fix, bug |
-| 📄 Documentation | Documentation additions or changes | documentation |
+| Combine documentation from multiple repositories or folders | 🧩 [DocAssembler](./src/DocAssembler) | Collects and restructures content, rewrites links, and applies configurable path or content replacements. |
+| Generate DocFX navigation from a folder hierarchy | 🗂️ [DocFxTocGenerator](./src/DocFxTocGenerator) | Creates one or more `toc.yml` files with configurable ordering, titles, folder references, and generated index pages. |
+| Catch documentation problems before publishing | 🔎 [DocLinkChecker](./src/DocLinkChecker) | Validates local and external links, anchors, pipe tables, and resources; it can also report or remove orphaned attachments. |
+| Keep multilingual documentation structures aligned | 🌐 [DocLanguageTranslator](./src/DocLanguageTranslator) | Finds missing localized files and translates complete documents or selected line ranges with Azure AI Translator. |
+| Publish OpenAPI content through DocFX | 🔄 [DocFxOpenApi](./src/DocFxOpenApi) | Converts OpenAPI v2 or v3 JSON/YAML into the OpenAPI v2 JSON format expected by DocFX. |
 
-## Build and Publish
+Each tool has its own usage guide and command reference. All tools provide command-line help through `--help`.
 
-If you have this repo on your local machine, you can run the same scripts for building and packaging as we're using in the workflows. To build the tools use the **build** script. In PowerShell run this command:
+## Quick start
 
-```PowerShell
-.\build.ps1
+The tools require the [.NET 10 runtime](https://dotnet.microsoft.com/download/dotnet/10.0). Install only the tools you need as global .NET tools:
+
+```shell
+dotnet tool install --global DocAssembler
+dotnet tool install --global DocFxTocGenerator
+dotnet tool install --global DocLinkChecker
+dotnet tool install --global DocLanguageTranslator
+dotnet tool install --global DocFxOpenApi
 ```
 
-The result of this script is an output folder containing the executables of all solutions. They are all published as single exe's without the framework. They depend on .NET 5 being installed in the environment. The LICENSE file is copied to the output folder as well. The contents of this folder is then compressed in a zip-file in the root with the name 'tools.zip'.
+> [!TIP]
+> If .NET 10 is not installed but a newer major .NET runtime is available, allow the tool to roll forward to that runtime:
+>
+> ```shell
+> DocLinkChecker --roll-forward Major --docfolder ./docs
+> ```
+>
+> The `--roll-forward Major` option works with any of the companion tools and must appear before the tool-specific arguments.
+> Alternatively, set the `DOTNET_ROLL_FORWARD` environment variable. In PowerShell:
+>
+> ```powershell
+> $env:DOTNET_ROLL_FORWARD = "Major"
+> DocLinkChecker --docfolder ./docs
+> ```
+>
+> In a Linux or macOS shell, set it for a single command:
+>
+> ```shell
+> DOTNET_ROLL_FORWARD=Major DocLinkChecker --docfolder ./docs
+> ```
 
-To package and publish the tools, you must first have run the **build** script. Next you can run the **pack** script we're using from the worklows as well. In PowerShell run this command, where you provide the correct version:
+For example, validate links, attachments, and tables, then generate a DocFX table of contents:
 
-```PowerShell
-.\pack.ps1 -publish -version "1.0.0"
+```shell
+DocLinkChecker --docfolder ./docs --attachments --table
+DocFxTocGenerator --docfolder ./docs --sequence --override --indexing NotExists
 ```
 
-The script determine the hash of the tools.zip, change the Chocolatey nuspec and install script to contain the hash and the correct versions. Then the Chocolatey package is created. If the **CHOCO_TOKEN** environment variable is set containing the secret to use for Chocolatey publication, the script will also publish the package to Chocolatey. Otherwise a warning is given that the publish step is skipped.
+Non-zero exit codes make the tools suitable for validation gates in automated builds. See each tool's guide for its exact exit-code behavior.
 
-If you omit the -publish parameter, the script will run in develop mode. It will not publish to Chocolatey and it will output the changes of the Chocolatey files for inspection.
+## A typical documentation pipeline
+
+```mermaid
+flowchart LR
+    Sources[Documentation sources] --> Validate[Validate links and resources]
+    Validate --> Assemble[Assemble content]
+    API[OpenAPI specifications] --> Convert[Convert for DocFX]
+    Assemble --> Generate[Generate toc.yml]
+    Convert --> Generate
+    Generate --> Build[Build with DocFX]
+    Build --> Publish[Publish documentation]
+```
+
+The tools are independent, so the pipeline can start with the pieces that fit your repository. Translation can run before validation when localized documentation is part of the build.
+
+## Installation options
+
+### .NET tool
 
 > [!NOTE]
-> If you run the **pack** script locally, files are changed (*deploy\chocolatey\docfx-companion-tools.nuspec* and *deploy\chocolatey\tools\chocolateyinstall.ps1*). Maybe it's best not to commit that into the repo, although it's not secret information. Next run will overwrite the correct values anyway.
+> The tools are built for .NET 10 and expect the .NET 10 runtime to be installed. If only a newer major runtime is available, use the [roll-forward options](#quick-start) described above.
 
-## Version release and publish to Chocolatey
+Install a single package globally:
 
-If you have one or more PR's and want to release a new version, just make sure that all PR's are labeled where needed (see above) and merged into main. Run the manual **Release & Publish** workflow manually on the main branch. This will bump the version, create a release and publish a new package to Chocolatey.
+```shell
+dotnet tool install --global DocLinkChecker
+```
 
-## Install
+Update it later with:
+
+```shell
+dotnet tool update --global DocLinkChecker
+```
+
+The package IDs match the tool names listed above.
 
 ### Chocolatey
 
-The tools can be installed by downloading the zip-file of a [release](https://github.com/Ellerbach/docfx-companion-tools/releases) or use [Chocolatey](https://chocolatey.org/install) like this:
+Install all companion tools on Windows with [Chocolatey](https://chocolatey.org/install):
 
-```shell
+```powershell
 choco install docfx-companion-tools
 ```
 
-> [!NOTE]
-> The tools expect the .NET 10 to be installed locally. If you need to run them in a framework which is higher,
-> add `--roll-forward Major` as a parameter like this:
-> `~/.dotnet/tools/DocLinkChecker --roll-forward Major`
+### GitHub release
 
-### dotnet tool
+Prebuilt Windows executables are available from [GitHub Releases](https://github.com/Ellerbach/docfx-companion-tools/releases). They are framework-dependent and require .NET 10.
 
-You can as well install the tools through `dotnet tool`.
+## CI/CD examples
 
-```shell
-dotnet tool install DocAssembler -g
-dotnet tool install DocFxTocGenerator -g
-dotnet tool install DocLanguageTranslator -g
-dotnet tool install DocLinkChecker -g
-dotnet tool install DocFxOpenApi -g
-```
+Ready-to-adapt Azure Pipelines examples are included in this repository:
 
-### usage
-
-Once the tools are installed this way you can use them directly from the command line. For example:
-
-```PowerShell
-DocFxTocGenerator -d .\docs -vs --indexing NotExists
-DocLanguageTranslator -d .\docs\en -k <key> -v
-DocLinkChecker -d .\docs -va
-```
-
-## CI Pipeline samples
-
-* [Documentation build pipeline](./PipelineExamples/documentation-build.yml): a sample pipeline to use the [DocFxTocGenerator](./src/DocFxTocGenerator) for generating the table of contents and DocFx to generate a website. This sample will also publish to an Azure App Service.
-* [Documentation validation pipeline](./PipelineExamples/documentation-validation.yml): a sample pipeline to use [markdownlint](https://github.com/markdownlint/markdownlint) to validate markdown style and the [DocLinkChecker](./src/DocLinkChecker) to validate the links and attachments.
+- [Documentation validation](./PipelineExamples/documentation-validation.yml) uses Markdownlint and DocLinkChecker to validate Markdown, links, and attachments.
+- [Documentation build](./PipelineExamples/documentation-build.yml) generates the table of contents, builds the DocFX site, and publishes it to Azure App Service.
 
 ## Docker
 
-Build a Docker image. Below example based on `DocLinkChecker`, adjust `--tag` and `--build-arg` accordantly for the other tools.
+The Dockerfile can package any one of the tools. This example builds and runs DocLinkChecker:
 
 ```shell
 docker build --tag doclinkchecker:latest --build-arg tool=DocLinkChecker -f Dockerfile .
 ```
 
-Run from `PowerShell`:
+When you mount a host directory for output or generated files, the runtime user needs write access. In the official .NET 10 runtime image, the default non-root user is `app` with UID/GID `1654`; `--user 1654:1654` runs the container as that built-in app account, not as your Windows host user. On Windows, bind-mounted files are commonly governed by Docker Desktop and WSL permissions, so prefer a writable directory inside the container or fix the mounted directory ownership from the WSL side before running the tool.
 
-```PowerShell
-docker run --rm -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
+PowerShell (run as the image's built-in non-root user):
+
+```powershell
+docker run --rm --user 1654:1654 -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
 ```
 
-Run from Linux/macOS `shell`:
+Linux or macOS (match the host UID/GID):
 
 ```shell
-docker run --rm -v $(pwd):/workspace doclinkchecker:latest -d /workspace
+docker run --rm --user "$(id -u):$(id -g)" -v "$(pwd):/workspace" doclinkchecker:latest -d /workspace
 ```
 
-## Documentation
+If you do not pass `--user`, use a writable directory inside the container or a bind mount whose ownership matches the container's non-root UID/GID; otherwise writes can fail with `Permission denied`.
 
-* [Guidelines on how to use Markdownlint](./DocExamples/docs/markdownlint.md) for your developers.
-* [Guidelines for creating Markdown docs](./DocExamples/docs/markdown-creation.md) for your developers. This contains patterns as well as tips and tricks.
-* [Guidelines for end user documentation](./DocExamples/docs/enduser-documentation.md) for your developers.
-* Specific elements to add and consider for [proper usage and support for Mermaid](./DocExamples/docs/ui-specific-elements.md).
+## Documentation resources
+
+The repository also contains reusable guidance and examples:
+
+- [Markdown authoring guidelines](./DocExamples/docs/markdown-creation.md)
+- [Markdownlint guidelines](./DocExamples/docs/markdownlint.md)
+- [End-user documentation guidelines](./DocExamples/docs/enduser-documentation.md)
+- [Mermaid and UI-specific elements](./DocExamples/docs/ui-specific-elements.md)
+
+## Contributing
+
+Issues and pull requests are welcome. Keep pull requests focused and add one or more of these labels when the change should appear in the changelog:
+
+| Category | Labels |
+| --- | --- |
+| 🚀 Features | `feature`, `enhancement` |
+| 🐛 Fixes | `fix`, `bug` |
+| 📄 Documentation | `documentation` |
+
+The repository requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Build and package all tools from PowerShell with:
+
+```powershell
+.\build.ps1
+```
+
+The [Build & Test workflow](./.github/workflows/build.yml) restores, builds, and tests each solution individually. Release packaging is automated through the repository's **Release & Publish** workflow; maintainers can reproduce it with `pack.ps1` after running the build script.
 
 ## License
 
-Please read the main [license file](LICENSE) and the sub folder license files and [3rd party notice](THIRD-PARTY-NOTICES.TXT). Most of those tools are coming from a work done with [ZF](https://www.zf.com/).
+DocFX Companion Tools is licensed under the [MIT License](LICENSE). See [THIRD-PARTY-NOTICES.TXT](THIRD-PARTY-NOTICES.TXT) for third-party notices. Several tools originated from work done with [ZF](https://www.zf.com/).
