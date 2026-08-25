@@ -129,17 +129,21 @@ The Dockerfile can package any one of the tools. This example builds and runs Do
 docker build --tag doclinkchecker:latest --build-arg tool=DocLinkChecker -f Dockerfile .
 ```
 
+When you mount a host directory for output or generated files, run the container with the same UID/GID as the host user so the non-root runtime can write to the bind mount.
+
 PowerShell:
 
 ```powershell
-docker run --rm -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
+docker run --rm --user 1654:1654 -v ${PWD}:/workspace doclinkchecker:latest -d /workspace
 ```
 
 Linux or macOS:
 
 ```shell
-docker run --rm -v $(pwd):/workspace doclinkchecker:latest -d /workspace
+docker run --rm --user "$(id -u):$(id -g)" -v "$(pwd):/workspace" doclinkchecker:latest -d /workspace
 ```
+
+If you do not pass `--user`, use a writable directory inside the container or a bind mount whose ownership matches the container's non-root UID/GID; otherwise writes can fail with `Permission denied`.
 
 ## Documentation resources
 
