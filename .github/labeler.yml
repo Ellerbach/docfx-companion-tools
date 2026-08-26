@@ -1,0 +1,19 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['README.md', '**/*.md', 'DocExamples/**', 'PipelineExamples/**', 'src/**/README.md']
+
+feature:
+  - changed-files:
+      - any-glob-to-any-file: ['src/**', 'Dockerfile', 'build.ps1', 'build.sh', 'build.cmd', '.github/workflows/**']
+
+enhancement:
+  - changed-files:
+      - any-glob-to-any-file: ['src/**', 'Dockerfile', 'build.ps1', 'build.sh', 'build.cmd', '.github/workflows/**']
+
+fix:
+  - changed-files:
+      - any-glob-to-any-file: ['src/**/*.cs', 'src/**/*.csproj', 'src/**/*.props', 'src/**/*.targets']
+
+bug:
+  - changed-files:
+      - any-glob-to-any-file: ['src/**/*.cs', 'src/**/*.csproj', 'src/**/*.props', 'src/**/*.targets']
