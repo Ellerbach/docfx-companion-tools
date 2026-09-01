@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Apply file-based labels
-        uses: actions/labeler@v5
+        uses: actions/labeler@v7
         with:
           sync-labels: true
 
       - name: Apply title-based labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = (context.payload.pull_request.title || '').toLowerCase();
