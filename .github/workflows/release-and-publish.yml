@@ -44,7 +44,7 @@ jobs:
     # to the current commit
     - name: Build Changelog
       id: github_release
-      uses: mikepenz/release-changelog-builder-action@v6.2.3
+      uses: mikepenz/release-changelog-builder-action@v6.3.0
       with:
         configuration: "./changelog-config.json"
         fromTag: ${{ steps.gitversion.outputs.VersionSourceSha }}
